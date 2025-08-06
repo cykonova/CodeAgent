@@ -131,7 +131,7 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
                     var ollamaOptions = _serviceProvider.GetRequiredService<IOptions<OllamaOptions>>();
                     var currentModel = ollamaOptions.Value.DefaultModel ?? "llama3.2";
                     console.MarkupLine($"[bold]Current Ollama model:[/] {currentModel}");
-                    console.MarkupLine("[dim]Use '/model <model-name>' to change model[/]");
+                    console.MarkupLine("[dim]Use '/model' for interactive selection or '/model list' to see available models[/]");
                     console.MarkupLine("[dim]Popular models: llama3.2, llama3.1, codellama, mistral, etc.[/]");
                 }
                 else
