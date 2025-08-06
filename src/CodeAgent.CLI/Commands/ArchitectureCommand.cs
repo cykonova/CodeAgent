@@ -463,7 +463,7 @@ public class ArchitectureCommand : AsyncCommand<ArchitectureCommand.Settings>
         return result.ToString();
     }
 
-    private async Task<string> GenerateTextOutput(ArchitectureInfo architecture, Settings settings)
+    private Task<string> GenerateTextOutput(ArchitectureInfo architecture, Settings settings)
     {
         var output = new StringBuilder();
         output.AppendLine($"Architecture Analysis: {architecture.ProjectName}");
@@ -489,7 +489,7 @@ public class ArchitectureCommand : AsyncCommand<ArchitectureCommand.Settings>
             output.AppendLine($"  Dependencies: {architecture.Metrics.DependencyCount}");
         }
         
-        return output.ToString();
+        return Task.FromResult(output.ToString());
     }
 
     private async Task<string> GenerateMermaidOutput(ArchitectureInfo architecture, Settings settings)
@@ -510,12 +510,13 @@ public class ArchitectureCommand : AsyncCommand<ArchitectureCommand.Settings>
         return result.ToString();
     }
 
-    private async Task<string> GenerateJsonOutput(ArchitectureInfo architecture)
+    private Task<string> GenerateJsonOutput(ArchitectureInfo architecture)
     {
-        return System.Text.Json.JsonSerializer.Serialize(architecture, new System.Text.Json.JsonSerializerOptions
+        var json = System.Text.Json.JsonSerializer.Serialize(architecture, new System.Text.Json.JsonSerializerOptions
         {
             WriteIndented = true
         });
+        return Task.FromResult(json);
     }
 
     private void DisplaySummary(ArchitectureInfo architecture)

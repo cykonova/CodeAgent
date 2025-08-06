@@ -172,7 +172,7 @@ public class CommitCommand : AsyncCommand<CommitCommand.Settings>
         }
     }
 
-    private async Task DisplayChangesToCommit(IEnumerable<string> modifiedFiles, IEnumerable<string> untrackedFiles)
+    private Task DisplayChangesToCommit(IEnumerable<string> modifiedFiles, IEnumerable<string> untrackedFiles)
     {
         var table = new Table();
         table.AddColumn("Status");
@@ -196,6 +196,7 @@ public class CommitCommand : AsyncCommand<CommitCommand.Settings>
         }
         
         AnsiConsole.Write(table);
+        return Task.CompletedTask;
     }
 
     private async Task<string> GenerateCommitMessage(Settings settings)
