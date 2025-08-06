@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using CodeAgent.CLI;
 using CodeAgent.CLI.Commands;
+using CodeAgent.CLI.Services;
 using CodeAgent.CLI.Shell;
 using CodeAgent.Core.Services;
 using CodeAgent.Domain.Interfaces;
@@ -12,6 +13,7 @@ using CodeAgent.Providers.OpenAI;
 using CodeAgent.Providers.Claude;
 using CodeAgent.Providers.Ollama;
 using CodeAgent.MCP;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 // Set up paths
@@ -53,12 +55,17 @@ builder.ConfigureServices(services =>
     // HTTP Client
     services.AddHttpClient();
     
+    // Console
+    services.AddSingleton<IAnsiConsole>(AnsiConsole.Console);
+    services.AddSingleton<IPermissionPrompt, ConsolePermissionPrompt>();
+    
     // Core services
     services.AddSingleton<IConfigurationService, ConfigurationService>();
     services.AddSingleton<IFileSystemService, FileSystemService>();
     services.AddSingleton<IDiffService, DiffService>();
     services.AddSingleton<IContextService, ContextService>();
     services.AddSingleton<IRetryService, RetryService>();
+    services.AddSingleton<IPermissionService, PermissionService>();
     services.AddSingleton<IInternalToolService, InternalToolService>();
     services.AddSingleton<ChatService>();
     services.AddSingleton<IChatService>(sp => sp.GetRequiredService<ChatService>());

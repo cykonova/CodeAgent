@@ -8,11 +8,13 @@ namespace CodeAgent.Core.Services;
 public class InternalToolService : IInternalToolService
 {
     private readonly IFileSystemService _fileSystemService;
+    private readonly IPermissionService _permissionService;
     private readonly ILogger<InternalToolService> _logger;
 
-    public InternalToolService(IFileSystemService fileSystemService, ILogger<InternalToolService> logger)
+    public InternalToolService(IFileSystemService fileSystemService, IPermissionService permissionService, ILogger<InternalToolService> logger)
     {
         _fileSystemService = fileSystemService;
+        _permissionService = permissionService;
         _logger = logger;
     }
 
@@ -188,7 +190,19 @@ public class InternalToolService : IInternalToolService
             };
         }
 
-        var path = pathObj.ToString()!;
+        var requestedPath = pathObj.ToString()!;
+        var path = _permissionService.GetSafePath(requestedPath);
+        
+        // Request permission to read the file
+        if (!await _permissionService.RequestPermissionAsync("Read file", path))
+        {
+            return new ToolResult
+            {
+                ToolCallId = toolCall.Id,
+                Success = false,
+                Error = "Permission denied"
+            };
+        }
         
         if (!await _fileSystemService.FileExistsAsync(path))
         {
@@ -231,8 +245,21 @@ public class InternalToolService : IInternalToolService
             };
         }
 
-        var path = pathObj.ToString()!;
+        var requestedPath = pathObj.ToString()!;
+        var path = _permissionService.GetSafePath(requestedPath);
         var content = contentObj.ToString()!;
+        
+        // Request permission to write the file
+        var details = $"Write {content.Length} characters";
+        if (!await _permissionService.RequestPermissionAsync("Write file", path, details))
+        {
+            return new ToolResult
+            {
+                ToolCallId = toolCall.Id,
+                Success = false,
+                Error = "Permission denied"
+            };
+        }
 
         await _fileSystemService.WriteFileAsync(path, content, cancellationToken);
         
@@ -289,7 +316,20 @@ public class InternalToolService : IInternalToolService
             };
         }
 
-        var path = pathObj.ToString()!;
+        var requestedPath = pathObj.ToString()!;
+        var path = _permissionService.GetSafePath(requestedPath);
+        
+        // Request permission to create directory
+        if (!await _permissionService.RequestPermissionAsync("Create directory", path))
+        {
+            return new ToolResult
+            {
+                ToolCallId = toolCall.Id,
+                Success = false,
+                Error = "Permission denied"
+            };
+        }
+        
         await _fileSystemService.CreateDirectoryAsync(path);
         
         return new ToolResult
@@ -312,7 +352,19 @@ public class InternalToolService : IInternalToolService
             };
         }
 
-        var path = pathObj.ToString()!;
+        var requestedPath = pathObj.ToString()!;
+        var path = _permissionService.GetSafePath(requestedPath);
+        
+        // Request permission to delete file
+        if (!await _permissionService.RequestPermissionAsync("Delete file", path))
+        {
+            return new ToolResult
+            {
+                ToolCallId = toolCall.Id,
+                Success = false,
+                Error = "Permission denied"
+            };
+        }
         
         if (!await _fileSystemService.FileExistsAsync(path))
         {
