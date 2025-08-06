@@ -273,35 +273,55 @@ public class InternalToolService : IInternalToolService
 
     private async Task<ToolResult> ListFilesAsync(ToolCall toolCall, CancellationToken cancellationToken)
     {
-        var pathValue = toolCall.Arguments.GetValueOrDefault("path")?.ToString();
-        var path = string.IsNullOrWhiteSpace(pathValue) ? "." : pathValue;
-        var patternValue = toolCall.Arguments.GetValueOrDefault("pattern")?.ToString();
-        var pattern = string.IsNullOrWhiteSpace(patternValue) ? "*" : patternValue;
-
-        var files = await _fileSystemService.GetFilesAsync(path, pattern, false);
-        var directories = await _fileSystemService.GetDirectoriesAsync(path);
-
-        var result = new StringBuilder();
-        result.AppendLine($"Contents of {path}:");
-        result.AppendLine("\nDirectories:");
-        foreach (var dir in directories)
+        try
         {
-            result.AppendLine($"  📁 {Path.GetFileName(dir)}");
+            var pathValue = toolCall.Arguments.GetValueOrDefault("path")?.ToString();
+            var path = string.IsNullOrWhiteSpace(pathValue) ? "." : pathValue;
+            var patternValue = toolCall.Arguments.GetValueOrDefault("pattern")?.ToString();
+            var pattern = string.IsNullOrWhiteSpace(patternValue) ? "*" : patternValue;
+
+            var files = await _fileSystemService.GetFilesAsync(path, pattern, false);
+            var directories = await _fileSystemService.GetDirectoriesAsync(path);
+
+            var result = new StringBuilder();
+            result.AppendLine($"Contents of {path}:");
+            result.AppendLine("\nDirectories:");
+            foreach (var dir in directories)
+            {
+                result.AppendLine($"  📁 {Path.GetFileName(dir)}");
+            }
+            
+            result.AppendLine("\nFiles:");
+            foreach (var file in files)
+            {
+                try
+                {
+                    var info = new FileInfo(file);
+                    result.AppendLine($"  📄 {Path.GetFileName(file)} ({info.Length} bytes)");
+                }
+                catch
+                {
+                    // If we can't get file info, just show the name
+                    result.AppendLine($"  📄 {Path.GetFileName(file)}");
+                }
+            }
+
+            return new ToolResult
+            {
+                ToolCallId = toolCall.Id,
+                Success = true,
+                Content = result.ToString()
+            };
         }
-        
-        result.AppendLine("\nFiles:");
-        foreach (var file in files)
+        catch (Exception ex)
         {
-            var info = new FileInfo(file);
-            result.AppendLine($"  📄 {Path.GetFileName(file)} ({info.Length} bytes)");
+            return new ToolResult
+            {
+                ToolCallId = toolCall.Id,
+                Success = false,
+                Error = ex.Message
+            };
         }
-
-        return new ToolResult
-        {
-            ToolCallId = toolCall.Id,
-            Success = true,
-            Content = result.ToString()
-        };
     }
 
     private async Task<ToolResult> CreateDirectoryAsync(ToolCall toolCall, CancellationToken cancellationToken)

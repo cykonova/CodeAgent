@@ -84,7 +84,8 @@ DO NOT return file content as text responses. Always use the appropriate tools."
                 }
                 
                 // Add tool response to history for context
-                _history.Add(new ChatMessage("tool", result.Content, toolCall.Id));
+                var toolMessage = result.Success ? result.Content : $"Error: {result.Error}";
+                _history.Add(new ChatMessage("tool", toolMessage, toolCall.Id));
             }
             
             // Return the tool execution results

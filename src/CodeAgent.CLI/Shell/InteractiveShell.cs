@@ -199,31 +199,25 @@ public class InteractiveShell : IPrompt<int>
 
         console.MarkupLine("[bold green]Assistant:[/]");
         
-        await console.Status()
-            .Spinner(Spinner.Known.Dots)
-            .StartAsync("Thinking...", async ctx =>
+        try
+        {
+            // Process the message without status display to avoid conflicts with permission prompts
+            var response = await _chatService.ProcessMessageAsync(message);
+            
+            if (!string.IsNullOrEmpty(response.Error))
             {
-                try
-                {
-                    var response = await _chatService.ProcessMessageAsync(message);
-                    
-                    ctx.Status("Generating response...");
-                    
-                    if (!string.IsNullOrEmpty(response.Error))
-                    {
-                        console.MarkupLine($"[red]Error: {response.Error}[/]");
-                    }
-                    else
-                    {
-                        // Render markdown response
-                        _markdownRenderer.Render(console, response.Content);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    console.MarkupLine($"[red]Error: {ex.Message}[/]");
-                }
-            });
+                console.MarkupLine($"[red]Error: {response.Error}[/]");
+            }
+            else
+            {
+                // Render markdown response
+                _markdownRenderer.Render(console, response.Content);
+            }
+        }
+        catch (Exception ex)
+        {
+            console.MarkupLine($"[red]Error: {ex.Message}[/]");
+        }
         
         console.WriteLine();
     }
