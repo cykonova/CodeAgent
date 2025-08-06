@@ -266,12 +266,13 @@ public class InteractiveShell : IPrompt<int>
         _cursorIndex--;
         _currentLine.Remove(_cursorIndex, 1);
         
-        // Simple backspace handling - rewrite from cursor position
+        // Move cursor back one position
         console.Cursor.Move(CursorDirection.Left, 1);
-        console.Write(new string(' ', _currentLine.Length - _cursorIndex + 1));
-        console.Cursor.Move(CursorDirection.Left, _currentLine.Length - _cursorIndex + 1);
         
-        // Rewrite the rest of the line
+        // Clear from cursor to end of line
+        console.Write("\x1b[K");
+        
+        // Rewrite the rest of the line if there's text after cursor
         if (_cursorIndex < _currentLine.Length)
         {
             console.Write(_currentLine.ToString(_cursorIndex, _currentLine.Length - _cursorIndex));
@@ -297,21 +298,22 @@ public class InteractiveShell : IPrompt<int>
 
     private void Reset(IAnsiConsole console, string? line = default)
     {
-        // Clear current line
+        // Move cursor to beginning of input (after prompt)
         console.Cursor.Move(CursorDirection.Left, _cursorIndex);
-        console.Write(new string(' ', _currentLine.Length));
-        console.Cursor.Move(CursorDirection.Left, _currentLine.Length);
+        
+        // Clear the rest of the line from cursor position
+        // Use ANSI escape sequence to clear from cursor to end of line
+        console.Write("\x1b[K");
         
         _currentLine.Clear();
-        WritePrompt(console);
+        _cursorIndex = 0;
 
         if (!string.IsNullOrWhiteSpace(line))
         {
             _currentLine.Append(line);
             console.Write(_currentLine.ToString());
+            _cursorIndex = _currentLine.Length;
         }
-
-        _cursorIndex = _currentLine.Length;
     }
 
     private void AutoCompleteCommand(IAnsiConsole console)
