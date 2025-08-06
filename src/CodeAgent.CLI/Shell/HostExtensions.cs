@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console.Cli;
+using CodeAgent.CLI.Commands;
 
 namespace CodeAgent.CLI.Shell;
 
@@ -29,11 +30,14 @@ public static class HostExtensions
             CommandPrefix = "/"
         };
 
+        // Register services before creating CommandApp
         builder.ConfigureServices(collection =>
         {
             collection.AddSingleton(settings);
+            collection.AddSingleton<ShellCommand>();
         });
 
+        // Create CommandApp with the registrar
         var app = new CommandApp(registrar);
 
         app.Configure(conf =>
@@ -42,19 +46,17 @@ public static class HostExtensions
             configurator?.Invoke(conf);
         });
 
-        // Build the host to get services
-        var host = builder.Build();
-        var serviceProvider = host.Services;
+        // Register the CommandApp as a service after it's configured
+        builder.ConfigureServices(collection =>
+        {
+            collection.AddSingleton<ICommandApp>(app);
+        });
 
-        // Create and run the interactive shell
-        var shell = new InteractiveShell(
-            settings.ShellPrompt,
-            settings.History,
-            app,
-            serviceProvider,
-            settings);
-
-        var result = await shell.ShowAsync(Spectre.Console.AnsiConsole.Console, CancellationToken.None);
+        // Set the shell command as default
+        app.SetDefaultCommand<ShellCommand>();
+        
+        // Run the app
+        var result = await app.RunAsync(args);
 
         // Save history
         await File.WriteAllLinesAsync(historyFilePath, settings.History.AsEnumerable().Reverse());

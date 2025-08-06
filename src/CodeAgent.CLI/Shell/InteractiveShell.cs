@@ -12,13 +12,13 @@ public class InteractiveShell : IPrompt<int>
 {
     private readonly string _prompt;
     private readonly IList<string> _history;
-    private readonly ICommandApp _commandApp;
     private readonly IServiceProvider _serviceProvider;
     private readonly ShellSettings _settings;
     private readonly StringBuilder _currentLine;
     private readonly IChatService _chatService;
     private readonly ILLMProvider _llmProvider;
     private readonly MarkdigRenderer _markdownRenderer;
+    private readonly ICommandApp _commandApp;
     
     private int _cursorIndex;
     private int _historyIndex = -1;
@@ -59,6 +59,12 @@ public class InteractiveShell : IPrompt<int>
     public async Task<int> ShowAsync(IAnsiConsole console, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(console);
+
+        // Check if input is being piped
+        if (Console.IsInputRedirected)
+        {
+            return await ProcessPipedInput(console);
+        }
 
         // Display welcome message
         console.Write(new FigletText("CodeAgent").Centered().Color(Color.Blue));
@@ -334,5 +340,65 @@ public class InteractiveShell : IPrompt<int>
             console.Write(_currentLine.ToString());
             _cursorIndex = _currentLine.Length;
         }
+    }
+
+    private async Task<int> ProcessPipedInput(IAnsiConsole console)
+    {
+        // Skip the welcome message when processing piped input
+        string? line;
+        var exitCode = 0;
+        
+        while ((line = await Console.In.ReadLineAsync()) != null)
+        {
+            // Process each line of piped input
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+                
+            // Check for exit command
+            if (line.Equals(InternalCommands.Exit, StringComparison.OrdinalIgnoreCase))
+                break;
+                
+            // Add to history
+            if (_history.Count == 0 || !_history[0].Equals(line, StringComparison.OrdinalIgnoreCase))
+            {
+                _history.Insert(0, line);
+            }
+            
+            // Process as command or chat message
+            if (line.StartsWith(_settings.CommandPrefix))
+            {
+                // It's a command - remove the prefix and execute
+                var commandLine = line.Substring(_settings.CommandPrefix.Length).Trim();
+                if (string.IsNullOrWhiteSpace(commandLine))
+                {
+                    commandLine = "help";
+                }
+                
+                var args = ProcessCommandLine(commandLine);
+                try
+                {
+                    exitCode = await _commandApp.RunAsync(args);
+                }
+                catch (Exception ex)
+                {
+                    console.MarkupLine($"[red]Command error: {ex.Message}[/]");
+                    exitCode = 1;
+                }
+            }
+            else if (line.Equals(InternalCommands.Clear, StringComparison.OrdinalIgnoreCase))
+            {
+                console.Clear();
+                _chatService.ClearHistory();
+                console.MarkupLine("[green]Screen and chat history cleared.[/]");
+            }
+            else
+            {
+                // It's a chat message
+                console.MarkupLine($"[bold cyan]User:[/] {line}");
+                await ProcessChatMessage(console, line);
+            }
+        }
+        
+        return exitCode;
     }
 }
