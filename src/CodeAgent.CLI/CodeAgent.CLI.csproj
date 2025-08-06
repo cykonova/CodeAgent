@@ -31,12 +31,31 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <!-- .NET Tool Configuration -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>codeagent</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    
+    <!-- Package Metadata -->
+    <PackageId>Cykonova.CodeAgent</PackageId>
+    <Version>0.1.0-alpha.1</Version>
+    <Authors>Cykonova</Authors>
+    <Description>AI-powered coding assistant with support for multiple LLM providers</Description>
+    <PackageTags>ai;llm;assistant;cli;openai;claude;ollama;coding</PackageTags>
+    <PackageProjectUrl>https://github.com/cykonova/CodeAgent</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/cykonova/CodeAgent</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
 </Project>

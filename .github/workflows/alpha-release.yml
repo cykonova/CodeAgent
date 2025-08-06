@@ -1,0 +1,69 @@
+name: Alpha Release
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - '!**.md'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH: 'src/CodeAgent.CLI/CodeAgent.CLI.csproj'
+
+jobs:
+  create-alpha-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for version calculation
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Generate version
+      id: version
+      run: |
+        # Get the current version from csproj
+        BASE_VERSION=$(grep -oP '(?<=<Version>)[^<]+' ${{ env.PROJECT_PATH }} | sed 's/-alpha.*//')
+        
+        # Get commit count since last tag or from beginning
+        if git describe --tags --abbrev=0 2>/dev/null; then
+          COMMIT_COUNT=$(git rev-list $(git describe --tags --abbrev=0)..HEAD --count)
+        else
+          COMMIT_COUNT=$(git rev-list HEAD --count)
+        fi
+        
+        # Generate alpha version
+        ALPHA_VERSION="${BASE_VERSION}-alpha.${COMMIT_COUNT}"
+        echo "VERSION=$ALPHA_VERSION" >> $GITHUB_OUTPUT
+        echo "Publishing alpha version: $ALPHA_VERSION"
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: Run tests
+      run: dotnet test --configuration Release --no-build --verbosity normal
+      
+    - name: Pack
+      run: dotnet pack ${{ env.PROJECT_PATH }} --configuration Release --no-build -p:PackageVersion=${{ steps.version.outputs.VERSION }} --output ./nupkg
+      
+    - name: Push to GitHub Packages
+      run: |
+        dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/cykonova/index.json"
+        dotnet nuget push ./nupkg/*.nupkg --source "github" --skip-duplicate
+        
+    - name: Update latest alpha tag
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git tag -fa alpha-latest -m "Latest alpha build: ${{ steps.version.outputs.VERSION }}"
+        git push origin alpha-latest --force

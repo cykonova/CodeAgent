@@ -128,4 +128,4 @@ appsettings.Production.json
 appsettings.Local.json
 
 # User secrets
-secrets.json
+secrets.json*.nupkg
