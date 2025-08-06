@@ -298,11 +298,11 @@ public class InteractiveShell : IPrompt<int>
 
     private void Reset(IAnsiConsole console, string? line = default)
     {
-        // Move cursor to beginning of input (after prompt)
-        console.Cursor.Move(CursorDirection.Left, _cursorIndex);
+        // Move cursor to the beginning of the line (start of prompt)
+        var totalMoveLeft = _cursorIndex + _prompt.Length + 2; // +2 for "> " after "CodeAgent"
+        console.Cursor.Move(CursorDirection.Left, totalMoveLeft);
         
-        // Clear the rest of the line from cursor position
-        // Use ANSI escape sequence to clear from cursor to end of line
+        // Clear the entire line from start
         console.Write("\x1b[K");
         
         _currentLine.Clear();
