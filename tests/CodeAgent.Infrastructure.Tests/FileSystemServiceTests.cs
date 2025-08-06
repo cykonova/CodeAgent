@@ -178,8 +178,8 @@ public class FileSystemServiceTests : IDisposable
         files.Should().HaveCount(2);
         files.Should().Contain(f => f.EndsWith("source.cs"));
         files.Should().Contain(f => f.EndsWith("readme.md"));
-        files.Should().NotContain(f => f.Contains("/bin/"));
-        files.Should().NotContain(f => f.Contains("/obj/"));
+        files.Should().NotContain(f => f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"));
+        files.Should().NotContain(f => f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"));
     }
 
     public void Dispose()
