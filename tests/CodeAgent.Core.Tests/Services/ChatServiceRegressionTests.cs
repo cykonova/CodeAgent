@@ -13,6 +13,7 @@ public class ChatServiceRegressionTests
     private readonly Mock<ILogger<ChatService>> _loggerMock;
     private readonly Mock<ILLMProvider> _llmProviderMock;
     private readonly Mock<IInternalToolService> _toolServiceMock;
+    private readonly Mock<IConfigurationService> _configServiceMock;
     private readonly ChatService _sut;
 
     public ChatServiceRegressionTests()
@@ -20,6 +21,7 @@ public class ChatServiceRegressionTests
         _loggerMock = new Mock<ILogger<ChatService>>();
         _llmProviderMock = new Mock<ILLMProvider>();
         _toolServiceMock = new Mock<IInternalToolService>();
+        _configServiceMock = new Mock<IConfigurationService>();
         
         // Setup tools mock to be available during construction
         var tools = new List<ToolDefinition>
@@ -33,7 +35,7 @@ public class ChatServiceRegressionTests
         };
         _toolServiceMock.Setup(x => x.GetAvailableTools()).Returns(tools);
         
-        _sut = new ChatService(_llmProviderMock.Object, _toolServiceMock.Object);
+        _sut = new ChatService(_llmProviderMock.Object, _toolServiceMock.Object, _configServiceMock.Object);
     }
 
     [Fact]
