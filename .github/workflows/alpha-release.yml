@@ -15,6 +15,9 @@ jobs:
   create-alpha-release:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+      packages: write
     
     steps:
     - name: Checkout code
