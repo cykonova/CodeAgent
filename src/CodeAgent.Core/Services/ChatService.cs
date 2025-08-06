@@ -32,10 +32,15 @@ public class ChatService : IChatService
 
 IMPORTANT: You are NOT a chat assistant. You are a file manipulation tool. Your responses should use the provided tools to manipulate files and directories.
 
+CURRENT WORKING DIRECTORY: " + Environment.CurrentDirectory + @"
+
+All file paths are relative to the current working directory unless you specify an absolute path. Use relative paths (e.g., 'src/main.js') or use get_current_directory tool to confirm your location.
+
 You have access to tools for file operations. When asked to perform any file-related task:
 1. Use the appropriate tool (read_file, write_file, list_files, etc.)
 2. Provide the necessary parameters for the tool
 3. The tool will handle the actual file system operation
+4. After tools execute, provide a brief summary of what you accomplished
 
 When asked to modify a file:
 1. First use read_file to get the current content (if it exists)
@@ -44,6 +49,11 @@ When asked to modify a file:
 
 When asked to create a new file:
 1. Use write_file with the complete file content
+
+After executing tools, always provide a concise summary of:
+- What files/directories were created, modified, or deleted
+- The overall structure or changes made
+- Any next steps or suggestions
 
 DO NOT return file content as text responses. Always use the appropriate tools." + toolDescriptions.ToString())
         };
@@ -67,32 +77,43 @@ DO NOT return file content as text responses. Always use the appropriate tools."
         // Handle tool calls if present
         if (response.ToolCalls != null && response.ToolCalls.Count > 0)
         {
-            var toolResults = new StringBuilder();
-            
+            // Execute each tool call
             foreach (var toolCall in response.ToolCalls)
             {
                 var result = await _toolService.ExecuteToolAsync(toolCall, cancellationToken);
-                
-                if (result.Success)
-                {
-                    toolResults.AppendLine($"Tool '{toolCall.Name}' executed successfully:");
-                    toolResults.AppendLine(result.Content);
-                }
-                else
-                {
-                    toolResults.AppendLine($"Tool '{toolCall.Name}' failed: {result.Error}");
-                }
                 
                 // Add tool response to history for context
                 var toolMessage = result.Success ? result.Content : $"Error: {result.Error}";
                 _history.Add(new ChatMessage("tool", toolMessage, toolCall.Id));
             }
             
-            // Return the tool execution results
-            response.Content = toolResults.ToString();
+            // Now let the LLM provide a follow-up response summarizing what it did
+            var followUpRequest = new ChatRequest
+            {
+                Messages = new List<ChatMessage>(_history),
+                Stream = false,
+                Tools = _toolService.GetAvailableTools(),
+                ToolChoice = "none" // Don't allow more tool calls in the follow-up
+            };
             
-            // Add assistant's tool calls to history
-            _history.Add(new ChatMessage("assistant", response.Content));
+            var followUpResponse = await _llmProvider.SendMessageAsync(followUpRequest, cancellationToken);
+            
+            if (followUpResponse.IsComplete && string.IsNullOrEmpty(followUpResponse.Error))
+            {
+                _history.Add(new ChatMessage("assistant", followUpResponse.Content));
+                return followUpResponse;
+            }
+            else
+            {
+                // Fallback to tool execution summary if follow-up fails
+                var toolResults = new StringBuilder();
+                foreach (var toolCall in response.ToolCalls)
+                {
+                    toolResults.AppendLine($"Tool '{toolCall.Name}' executed");
+                }
+                response.Content = toolResults.ToString();
+                _history.Add(new ChatMessage("assistant", response.Content));
+            }
         }
         else if (response.IsComplete && string.IsNullOrEmpty(response.Error))
         {

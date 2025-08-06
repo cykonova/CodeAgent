@@ -1,6 +1,8 @@
 using CodeAgent.Core.Services;
 using CodeAgent.Domain.Interfaces;
+using CodeAgent.Providers.Ollama;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
@@ -14,12 +16,12 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
     public class Settings : CommandSettings
     {
         [CommandArgument(0, "[ACTION]")]
-        [Description("Action to perform (list, select, status)")]
+        [Description("Action to perform (list, select, status, model)")]
         public string Action { get; set; } = "list";
 
-        [CommandArgument(1, "[PROVIDER]")]
-        [Description("Provider name for select action")]
-        public string? Provider { get; set; }
+        [CommandArgument(1, "[PROVIDER_OR_MODEL]")]
+        [Description("Provider name for select action or model name for model action")]
+        public string? ProviderOrModel { get; set; }
     }
 
     public ProviderCommand(IServiceProvider serviceProvider)
@@ -45,20 +47,20 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
                 break;
 
             case "select":
-                if (string.IsNullOrWhiteSpace(settings.Provider))
+                if (string.IsNullOrWhiteSpace(settings.ProviderOrModel))
                 {
                     console.MarkupLine("[red]Please specify a provider name.[/]");
                     return 1;
                 }
 
-                if (factory.GetAvailableProviders().Contains(settings.Provider.ToLower()))
+                if (factory.GetAvailableProviders().Contains(settings.ProviderOrModel.ToLower()))
                 {
-                    await configService.SetValueAsync("DefaultProvider", settings.Provider.ToLower());
-                    console.MarkupLine($"[green]Provider set to: {settings.Provider}[/]");
+                    await configService.SetValueAsync("DefaultProvider", settings.ProviderOrModel.ToLower());
+                    console.MarkupLine($"[green]Provider set to: {settings.ProviderOrModel}[/]");
                 }
                 else
                 {
-                    console.MarkupLine($"[red]Unknown provider: {settings.Provider}[/]");
+                    console.MarkupLine($"[red]Unknown provider: {settings.ProviderOrModel}[/]");
                     console.MarkupLine($"[yellow]Available: {string.Join(", ", factory.GetAvailableProviders())}[/]");
                     return 1;
                 }
@@ -70,16 +72,24 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
                 {
                     try
                     {
-                        var provider = factory.GetProvider(currentProvider);
-                        var isConfigured = provider.IsConfigured;
+                        var providerInstance = factory.GetProvider(currentProvider);
+                        var isConfigured = providerInstance.IsConfigured;
                         var status = isConfigured ? "[green]Configured[/]" : "[red]Not configured[/]";
                         
                         console.MarkupLine($"[bold]Current provider:[/] {currentProvider}");
                         console.MarkupLine($"[bold]Status:[/] {status}");
                         
+                        // Show model information for Ollama
+                        if (currentProvider.Equals("ollama", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var ollamaOptions = _serviceProvider.GetRequiredService<IOptions<OllamaOptions>>();
+                            var currentModel = ollamaOptions.Value.DefaultModel ?? "llama3.2";
+                            console.MarkupLine($"[bold]Current model:[/] {currentModel}");
+                        }
+                        
                         if (isConfigured)
                         {
-                            var isValid = await provider.ValidateConnectionAsync();
+                            var isValid = await providerInstance.ValidateConnectionAsync();
                             var connectionStatus = isValid ? "[green]Connected[/]" : "[red]Connection failed[/]";
                             console.MarkupLine($"[bold]Connection:[/] {connectionStatus}");
                         }
@@ -96,9 +106,36 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
                 }
                 break;
 
+            case "model":
+                var providerName = configService.GetValue("DefaultProvider");
+                if (providerName?.Equals("ollama", StringComparison.OrdinalIgnoreCase) != true)
+                {
+                    console.MarkupLine("[red]Model switching is only available for Ollama provider.[/]");
+                    console.MarkupLine("[yellow]Current provider: {0}[/]", providerName ?? "None");
+                    return 1;
+                }
+
+                if (string.IsNullOrWhiteSpace(settings.ProviderOrModel))
+                {
+                    // Show current model
+                    var ollamaOptions = _serviceProvider.GetRequiredService<IOptions<OllamaOptions>>();
+                    var currentModel = ollamaOptions.Value.DefaultModel ?? "llama3.2";
+                    console.MarkupLine($"[bold]Current Ollama model:[/] {currentModel}");
+                    console.MarkupLine("[dim]Use '/provider model <model-name>' to change model[/]");
+                    console.MarkupLine("[dim]Popular models: llama3.2, llama3.1, codellama, mistral, etc.[/]");
+                }
+                else
+                {
+                    // Set new model
+                    await configService.SetValueAsync("Ollama:DefaultModel", settings.ProviderOrModel);
+                    console.MarkupLine($"[green]Ollama model set to: {settings.ProviderOrModel}[/]");
+                    console.MarkupLine("[dim]Note: Make sure the model is available in your Ollama installation.[/]");
+                }
+                break;
+
             default:
                 console.MarkupLine($"[red]Unknown action: {settings.Action}[/]");
-                console.MarkupLine("[yellow]Available actions: list, select, status[/]");
+                console.MarkupLine("[yellow]Available actions: list, select, status, model[/]");
                 return 1;
         }
 

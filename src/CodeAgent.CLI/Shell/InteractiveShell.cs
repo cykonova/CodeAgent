@@ -126,8 +126,12 @@ public class InteractiveShell : IPrompt<int>
                     break;
                     
                 default:
-                    if (key.Value.Modifiers != ConsoleModifiers.None) continue;
-                    Insert(console, key.Value.KeyChar);
+                    // Allow printable characters, including those with Shift modifier for uppercase
+                    if (key.Value.Modifiers != ConsoleModifiers.None && key.Value.Modifiers != ConsoleModifiers.Shift) continue;
+                    if (!char.IsControl(key.Value.KeyChar))
+                    {
+                        Insert(console, key.Value.KeyChar);
+                    }
                     break;
             }
         }

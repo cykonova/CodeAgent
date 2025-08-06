@@ -111,7 +111,7 @@ public class OllamaProvider : ILLMProvider
             // Check if the response includes tool calls
             if (message.TryGetProperty("tool_calls", out var toolCallsElement))
             {
-                var toolCalls = new List<ToolCall>();
+                var parsedToolCalls = new List<ToolCall>();
                 foreach (var toolCallElement in toolCallsElement.EnumerateArray())
                 {
                     var function = toolCallElement.GetProperty("function");
@@ -123,12 +123,12 @@ public class OllamaProvider : ILLMProvider
                         Name = function.GetProperty("name").GetString() ?? string.Empty,
                         Arguments = ParseArgumentsFromJson(function.GetProperty("arguments").GetRawText())
                     };
-                    toolCalls.Add(toolCall);
+                    parsedToolCalls.Add(toolCall);
                 }
                 
                 return new ChatResponse
                 {
-                    ToolCalls = toolCalls,
+                    ToolCalls = parsedToolCalls,
                     Model = root.GetProperty("model").GetString(),
                     IsComplete = true
                 };
@@ -140,37 +140,16 @@ public class OllamaProvider : ILLMProvider
                 ? evalElement.GetInt32() 
                 : (int?)null;
 
-            // Check if the content looks like a tool call JSON
-            if (messageContent.TrimStart().StartsWith("{") && messageContent.TrimEnd().EndsWith("}"))
+            // Check if the content looks like tool call JSON(s)
+            var toolCalls = ParseToolCallsFromContent(messageContent);
+            if (toolCalls.Count > 0)
             {
-                try
+                return new ChatResponse
                 {
-                    using var contentDoc = JsonDocument.Parse(messageContent);
-                    var contentRoot = contentDoc.RootElement;
-                    
-                    // Check if it has the structure of a tool call
-                    if (contentRoot.TryGetProperty("name", out var nameElement) &&
-                        contentRoot.TryGetProperty("parameters", out var parametersElement))
-                    {
-                        var toolCall = new ToolCall
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            Name = nameElement.GetString() ?? string.Empty,
-                            Arguments = ParseArgumentsFromJson(parametersElement.GetRawText())
-                        };
-                        
-                        return new ChatResponse
-                        {
-                            ToolCalls = new List<ToolCall> { toolCall },
-                            Model = root.GetProperty("model").GetString(),
-                            IsComplete = true
-                        };
-                    }
-                }
-                catch
-                {
-                    // Not a valid tool call JSON, treat as regular content
-                }
+                    ToolCalls = toolCalls,
+                    Model = root.GetProperty("model").GetString(),
+                    IsComplete = true
+                };
             }
 
             return new ChatResponse
@@ -352,5 +331,48 @@ public class OllamaProvider : ILLMProvider
         }
         
         return arguments;
+    }
+    
+    private static List<ToolCall> ParseToolCallsFromContent(string content)
+    {
+        var toolCalls = new List<ToolCall>();
+        
+        if (string.IsNullOrWhiteSpace(content))
+            return toolCalls;
+        
+        // Split content by semicolons and parse each potential tool call
+        var potentialCalls = content.Split(';', StringSplitOptions.RemoveEmptyEntries);
+        
+        foreach (var potentialCall in potentialCalls)
+        {
+            var trimmed = potentialCall.Trim();
+            if (trimmed.StartsWith("{") && trimmed.EndsWith("}"))
+            {
+                try
+                {
+                    using var doc = JsonDocument.Parse(trimmed);
+                    var root = doc.RootElement;
+                    
+                    // Check if it has the structure of a tool call
+                    if (root.TryGetProperty("name", out var nameElement) &&
+                        root.TryGetProperty("parameters", out var parametersElement))
+                    {
+                        var toolCall = new ToolCall
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            Name = nameElement.GetString() ?? string.Empty,
+                            Arguments = ParseArgumentsFromJson(parametersElement.GetRawText())
+                        };
+                        toolCalls.Add(toolCall);
+                    }
+                }
+                catch
+                {
+                    // Invalid JSON, skip this one
+                }
+            }
+        }
+        
+        return toolCalls;
     }
 }
