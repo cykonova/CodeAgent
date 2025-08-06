@@ -29,6 +29,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Providers.OpenAI.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.CLI.Tests", "tests\CodeAgent.CLI.Tests\CodeAgent.CLI.Tests.csproj", "{186C21C6-FE74-4285-A83A-18F766C176C2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A3D8F6B1-8C12-4EA9-B9F5-0E1D2A3C4B5D}"
+	ProjectSection(SolutionItems) = preProject
+		CLAUDE.md = CLAUDE.md
+		docs\coding-agent-requirements.md = docs\coding-agent-requirements.md
+		docs\codeagent-architecture.md = docs\codeagent-architecture.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
