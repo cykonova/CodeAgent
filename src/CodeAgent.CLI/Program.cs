@@ -56,7 +56,9 @@ builder.ConfigureServices(services =>
     // Core services
     services.AddSingleton<IConfigurationService, ConfigurationService>();
     services.AddSingleton<IFileSystemService, FileSystemService>();
-    services.AddSingleton<IChatService, ChatService>();
+    services.AddSingleton<IDiffService, DiffService>();
+    services.AddSingleton<ChatService>();
+    services.AddSingleton<IChatService>(sp => sp.GetRequiredService<ChatService>());
     
     // LLM providers
     services.AddSingleton<OpenAIProvider>();
@@ -130,6 +132,19 @@ if (args.Length > 0 && !args[0].StartsWith("-"))
         
         config.AddCommand<SetupCommand>("setup")
             .WithDescription("Configure LLM providers");
+        
+        // File modification commands
+        config.AddCommand<EditCommand>("edit")
+            .WithDescription("Edit a file with AI assistance");
+        
+        config.AddCommand<DiffCommand>("diff")
+            .WithDescription("Show pending changes");
+        
+        config.AddCommand<ApplyCommand>("apply")
+            .WithDescription("Apply pending changes");
+        
+        config.AddCommand<RejectCommand>("reject")
+            .WithDescription("Reject pending changes");
     });
     
     return await app.RunAsync(args);
@@ -165,6 +180,19 @@ return await builder.UseConsoleLifetime()
             
             configurator.AddCommand<SetupCommand>("setup")
                 .WithDescription("Configure LLM providers");
+            
+            // File modification commands
+            configurator.AddCommand<EditCommand>("edit")
+                .WithDescription("Edit a file with AI assistance");
+            
+            configurator.AddCommand<DiffCommand>("diff")
+                .WithDescription("Show pending changes");
+            
+            configurator.AddCommand<ApplyCommand>("apply")
+                .WithDescription("Apply pending changes");
+            
+            configurator.AddCommand<RejectCommand>("reject")
+                .WithDescription("Reject pending changes");
         });
 
 public partial class Program { }

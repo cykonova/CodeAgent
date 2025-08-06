@@ -6,6 +6,7 @@ namespace CodeAgent.Infrastructure.Services;
 public class FileSystemService : IFileSystemService
 {
     private readonly List<FileOperation> _operations = new();
+    private readonly List<FileOperation> _pendingOperations = new();
 
     public async Task<string> ReadFileAsync(string path, CancellationToken cancellationToken = default)
     {
@@ -107,5 +108,57 @@ public class FileSystemService : IFileSystemService
     public void ClearOperationHistory()
     {
         _operations.Clear();
+    }
+
+    public async Task<FileOperation> PreviewWriteAsync(string path, string content, CancellationToken cancellationToken = default)
+    {
+        // Read current content if file exists
+        string? originalContent = null;
+        if (await FileExistsAsync(path, cancellationToken))
+        {
+            originalContent = await File.ReadAllTextAsync(path, cancellationToken);
+        }
+
+        var operation = new FileOperation
+        {
+            Type = originalContent == null ? FileOperationType.Create : FileOperationType.Write,
+            FilePath = path,
+            OriginalContent = originalContent,
+            NewContent = content,
+            Timestamp = DateTime.UtcNow
+        };
+
+        _pendingOperations.Add(operation);
+        return operation;
+    }
+
+    public async Task<FileOperation> ApplyOperationAsync(FileOperation operation, CancellationToken cancellationToken = default)
+    {
+        if (operation.Type == FileOperationType.Write || operation.Type == FileOperationType.Create)
+        {
+            if (!string.IsNullOrEmpty(operation.NewContent))
+            {
+                await WriteFileAsync(operation.FilePath, operation.NewContent, cancellationToken);
+            }
+        }
+        else if (operation.Type == FileOperationType.Delete)
+        {
+            await DeleteFileAsync(operation.FilePath, cancellationToken);
+        }
+
+        // Remove from pending operations
+        _pendingOperations.Remove(operation);
+        
+        return operation;
+    }
+
+    public async Task<IEnumerable<FileOperation>> GetPendingOperationsAsync(CancellationToken cancellationToken = default)
+    {
+        return await Task.FromResult(_pendingOperations.ToList());
+    }
+
+    public async Task ClearPendingOperationsAsync(CancellationToken cancellationToken = default)
+    {
+        await Task.Run(() => _pendingOperations.Clear(), cancellationToken);
     }
 }

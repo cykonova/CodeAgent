@@ -6,6 +6,7 @@ public class FileOperation
     public string FilePath { get; set; } = string.Empty;
     public string? Content { get; set; }
     public string? OriginalContent { get; set; }
+    public string? NewContent { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }
 
