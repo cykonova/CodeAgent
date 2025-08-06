@@ -7,4 +7,6 @@ public class ChatRequest
     public double Temperature { get; set; } = 0.7;
     public int? MaxTokens { get; set; }
     public bool Stream { get; set; } = false;
+    public List<ToolDefinition>? Tools { get; set; }
+    public string? ToolChoice { get; set; } // "auto", "none", or specific tool name
 }

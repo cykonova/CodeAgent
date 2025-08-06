@@ -59,6 +59,7 @@ builder.ConfigureServices(services =>
     services.AddSingleton<IDiffService, DiffService>();
     services.AddSingleton<IContextService, ContextService>();
     services.AddSingleton<IRetryService, RetryService>();
+    services.AddSingleton<IInternalToolService, InternalToolService>();
     services.AddSingleton<ChatService>();
     services.AddSingleton<IChatService>(sp => sp.GetRequiredService<ChatService>());
     

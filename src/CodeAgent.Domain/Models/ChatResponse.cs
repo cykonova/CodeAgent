@@ -7,4 +7,5 @@ public class ChatResponse
     public int? TokensUsed { get; set; }
     public bool IsComplete { get; set; } = true;
     public string? Error { get; set; }
+    public List<ToolCall>? ToolCalls { get; set; }
 }

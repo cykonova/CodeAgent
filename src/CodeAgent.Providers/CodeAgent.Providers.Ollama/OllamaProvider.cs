@@ -58,7 +58,32 @@ public class OllamaProvider : ILLMProvider
                 {
                     temperature = request.Temperature,
                     num_predict = request.MaxTokens ?? 2048
-                }
+                },
+                tools = request.Tools?.Select(t => new
+                {
+                    type = "function",
+                    function = new
+                    {
+                        name = t.Name,
+                        description = t.Description,
+                        parameters = new
+                        {
+                            type = "object",
+                            properties = t.Parameters.ToDictionary(
+                                p => p.Key,
+                                p => new
+                                {
+                                    type = p.Value.Type,
+                                    description = p.Value.Description
+                                }
+                            ),
+                            required = t.Parameters
+                                .Where(p => p.Value.Required)
+                                .Select(p => p.Key)
+                                .ToArray()
+                        }
+                    }
+                }).ToArray()
             };
 
             var json = JsonSerializer.Serialize(ollamaRequest, _jsonOptions);
@@ -81,10 +106,74 @@ public class OllamaProvider : ILLMProvider
             using var doc = JsonDocument.Parse(responseContent);
             var root = doc.RootElement;
             
-            var messageContent = root.GetProperty("message").GetProperty("content").GetString() ?? string.Empty;
+            var message = root.GetProperty("message");
+            
+            // Check if the response includes tool calls
+            if (message.TryGetProperty("tool_calls", out var toolCallsElement))
+            {
+                var toolCalls = new List<ToolCall>();
+                foreach (var toolCallElement in toolCallsElement.EnumerateArray())
+                {
+                    var function = toolCallElement.GetProperty("function");
+                    var toolCall = new ToolCall
+                    {
+                        Id = toolCallElement.TryGetProperty("id", out var idElement) 
+                            ? idElement.GetString() ?? Guid.NewGuid().ToString()
+                            : Guid.NewGuid().ToString(),
+                        Name = function.GetProperty("name").GetString() ?? string.Empty,
+                        Arguments = JsonSerializer.Deserialize<Dictionary<string, object>>(
+                            function.GetProperty("arguments").GetRawText(), _jsonOptions) ?? new()
+                    };
+                    toolCalls.Add(toolCall);
+                }
+                
+                return new ChatResponse
+                {
+                    ToolCalls = toolCalls,
+                    Model = root.GetProperty("model").GetString(),
+                    IsComplete = true
+                };
+            }
+            
+            // Regular text response
+            var messageContent = message.GetProperty("content").GetString() ?? string.Empty;
             var tokensUsed = root.TryGetProperty("eval_count", out var evalElement) 
                 ? evalElement.GetInt32() 
                 : (int?)null;
+
+            // Check if the content looks like a tool call JSON
+            if (messageContent.TrimStart().StartsWith("{") && messageContent.TrimEnd().EndsWith("}"))
+            {
+                try
+                {
+                    using var contentDoc = JsonDocument.Parse(messageContent);
+                    var contentRoot = contentDoc.RootElement;
+                    
+                    // Check if it has the structure of a tool call
+                    if (contentRoot.TryGetProperty("name", out var nameElement) &&
+                        contentRoot.TryGetProperty("parameters", out var parametersElement))
+                    {
+                        var toolCall = new ToolCall
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            Name = nameElement.GetString() ?? string.Empty,
+                            Arguments = JsonSerializer.Deserialize<Dictionary<string, object>>(
+                                parametersElement.GetRawText(), _jsonOptions) ?? new()
+                        };
+                        
+                        return new ChatResponse
+                        {
+                            ToolCalls = new List<ToolCall> { toolCall },
+                            Model = root.GetProperty("model").GetString(),
+                            IsComplete = true
+                        };
+                    }
+                }
+                catch
+                {
+                    // Not a valid tool call JSON, treat as regular content
+                }
+            }
 
             return new ChatResponse
             {
