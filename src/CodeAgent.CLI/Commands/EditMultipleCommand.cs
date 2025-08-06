@@ -108,10 +108,17 @@ public class EditMultipleCommand : AsyncCommand<EditMultipleCommand.Settings>
                         ctx.Status($"Processing {filePath}...");
                         
                         // Request AI to modify the file
-                        var prompt = $"Modify the following file according to this description: {settings.Description}\n\n" +
-                                    $"File: {filePath}\n" +
-                                    $"Content:\n{originalContent}\n\n" +
-                                    "Return only the modified file content, no explanations.";
+                        var prompt = $@"Task: Modify the file '{filePath}' according to the following requirements:
+{settings.Description}
+
+Current file content:
+{originalContent}
+
+Instructions:
+- Apply the requested changes to the file content above
+- Return the COMPLETE modified file content
+- Do NOT include any explanations, comments about changes, or markdown formatting
+- The output will be written directly to the file, so it must be valid code";
 
                         var responseBuilder = new System.Text.StringBuilder();
                         await foreach (var chunk in _chatService.StreamResponseAsync(prompt))

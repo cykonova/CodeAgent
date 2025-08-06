@@ -183,6 +183,8 @@ public class GenerateTestsCommand : AsyncCommand<GenerateTestsCommand.Settings>
         
         prompt.AppendLine();
         prompt.AppendLine($"Generate tests using {settings.Framework} syntax and best practices.");
+        prompt.AppendLine();
+        prompt.AppendLine("IMPORTANT: Return ONLY the test code. Do NOT include explanations, markdown formatting, or code blocks.");
         
         var result = new StringBuilder();
         await foreach (var chunk in _chatService.StreamResponseAsync(prompt.ToString()))
