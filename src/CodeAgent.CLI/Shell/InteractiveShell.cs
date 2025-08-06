@@ -307,6 +307,9 @@ public class InteractiveShell : IPrompt<int>
         
         _currentLine.Clear();
         _cursorIndex = 0;
+        
+        // Redisplay the prompt
+        WritePrompt(console);
 
         if (!string.IsNullOrWhiteSpace(line))
         {
