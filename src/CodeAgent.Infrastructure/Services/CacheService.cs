@@ -28,13 +28,19 @@ public class CacheService : ICacheService
             {
                 _logger?.LogDebug("Cache hit for key: {Key}", key);
                 
+                // Handle different value types
+                if (entry.Value is T directValue)
+                {
+                    return Task.FromResult<T?>(directValue);
+                }
+                
                 // Deserialize if stored as JSON string
-                if (entry.Value is string json)
+                if (entry.Value is string json && typeof(T) != typeof(string))
                 {
                     return Task.FromResult(JsonSerializer.Deserialize<T>(json));
                 }
                 
-                return Task.FromResult(entry.Value as T);
+                return Task.FromResult<T?>(null);
             }
             else
             {
@@ -54,9 +60,13 @@ public class CacheService : ICacheService
             ? DateTime.UtcNow.Add(expiration.Value) 
             : (DateTime?)null;
         
-        // Serialize complex objects to JSON for storage
-        object storedValue = value;
-        if (value is not string && value.GetType().IsClass)
+        // Serialize objects to JSON for storage (but not strings)
+        object storedValue;
+        if (value is string stringValue)
+        {
+            storedValue = stringValue;
+        }
+        else
         {
             storedValue = JsonSerializer.Serialize(value);
         }
