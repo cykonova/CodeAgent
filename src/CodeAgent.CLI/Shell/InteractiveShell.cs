@@ -75,7 +75,7 @@ public class InteractiveShell : IPrompt<int>
         console.MarkupLine("[bold blue]AI-Powered Coding Assistant[/]");
         console.WriteLine();
         console.MarkupLine($"[green]Type messages to chat, use [bold]{_settings.CommandPrefix}command[/] for commands, or [bold]{_settings.CommandPrefix}exit[/] to quit.[/]");
-        console.MarkupLine("[dim]Commands: /help, /scan, /provider, /model, /config, /clear, /exit[/]");
+        console.MarkupLine("[dim]Commands: /help, /scan, /provider, /model, /prompt, /config, /clear, /exit[/]");
         console.WriteLine();
 
         WritePrompt(console);
@@ -427,7 +427,7 @@ public class InteractiveShell : IPrompt<int>
     private void AutoCompleteCommand(IAnsiConsole console)
     {
         var currentCommand = _currentLine.ToString().Substring(1); // Remove the '/' prefix
-        var availableCommands = new[] { "help", "scan", "provider", "model", "config", "setup", "mcp", "clear", "exit" };
+        var availableCommands = new[] { "help", "scan", "provider", "model", "prompt", "config", "setup", "mcp", "clear", "exit" };
         
         var matches = availableCommands.Where(c => c.StartsWith(currentCommand, StringComparison.OrdinalIgnoreCase)).ToList();
         

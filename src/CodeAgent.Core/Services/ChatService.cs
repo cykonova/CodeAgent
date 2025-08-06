@@ -9,12 +9,14 @@ public class ChatService : IChatService
 {
     private readonly ILLMProvider _llmProvider;
     private readonly IInternalToolService _toolService;
+    private readonly IConfigurationService _configurationService;
     private readonly List<ChatMessage> _history;
 
-    public ChatService(ILLMProvider llmProvider, IInternalToolService toolService)
+    public ChatService(ILLMProvider llmProvider, IInternalToolService toolService, IConfigurationService configurationService)
     {
         _llmProvider = llmProvider;
         _toolService = toolService;
+        _configurationService = configurationService;
         
         // Get available tools and build tool descriptions
         var tools = _toolService.GetAvailableTools();
@@ -26,15 +28,36 @@ public class ChatService : IChatService
         }
         toolDescriptions.AppendLine("\nWhen you need to perform file operations, use these tools by specifying the tool name and required parameters.");
         
+        // Get configurable system prompt or use default
+        var customPrompt = _configurationService.GetValue("SystemPrompt");
+        var systemPrompt = !string.IsNullOrWhiteSpace(customPrompt) ? customPrompt : GetDefaultSystemPrompt();
+        
         _history = new List<ChatMessage>
         {
-            new ChatMessage("system", @"You are CodeAgent, a specialized coding assistant that helps developers modify and create files in their projects. 
+            new ChatMessage("system", systemPrompt + toolDescriptions.ToString())
+        };
+    }
+
+    private string GetDefaultSystemPrompt()
+    {
+        // Enhanced default prompt with code quality instructions
+        return @"You are CodeAgent, a specialized coding assistant that helps developers modify and create files in their projects. You produce clean, production-ready code with an eye for strong architecture and common principles like SOLID, DRY, and KISS.
 
 IMPORTANT: You are NOT a chat assistant. You are a file manipulation tool. Your responses should use the provided tools to manipulate files and directories.
 
 CURRENT WORKING DIRECTORY: " + Environment.CurrentDirectory + @"
 
 All file paths are relative to the current working directory unless you specify an absolute path. Use relative paths (e.g., 'src/main.js') or use get_current_directory tool to confirm your location.
+
+CODE QUALITY STANDARDS:
+- Write clean, readable, and maintainable code
+- Follow established patterns and conventions for the language/framework
+- Use meaningful variable and function names
+- Add appropriate comments for complex logic
+- Follow SOLID principles where applicable
+- Implement proper error handling
+- Consider performance implications
+- Write testable code with good separation of concerns
 
 You have access to tools for file operations. When asked to perform any file-related task:
 1. Use the appropriate tool (read_file, write_file, list_files, etc.)
@@ -44,19 +67,20 @@ You have access to tools for file operations. When asked to perform any file-rel
 
 When asked to modify a file:
 1. First use read_file to get the current content (if it exists)
-2. Apply the requested changes
+2. Apply the requested changes following best practices
 3. Use write_file to save the modified content
 
 When asked to create a new file:
-1. Use write_file with the complete file content
+1. Use write_file with complete, well-structured content
+2. Follow language conventions and best practices
 
 After executing tools, always provide a concise summary of:
 - What files/directories were created, modified, or deleted
 - The overall structure or changes made
+- Any architectural decisions or patterns used
 - Any next steps or suggestions
 
-DO NOT return file content as text responses. Always use the appropriate tools." + toolDescriptions.ToString())
-        };
+DO NOT return file content as text responses. Always use the appropriate tools.";
     }
 
     public async Task<ChatResponse> ProcessMessageAsync(string message, CancellationToken cancellationToken = default)
@@ -131,26 +155,30 @@ DO NOT return file content as text responses. Always use the appropriate tools."
         var request = new ChatRequest
         {
             Messages = new List<ChatMessage>(_history),
-            Stream = true
+            Stream = true,
+            Tools = _toolService.GetAvailableTools(),
+            ToolChoice = "auto"
         };
 
-        var fullResponse = string.Empty;
+        var content = new StringBuilder();
         
         await foreach (var chunk in _llmProvider.StreamMessageAsync(request, cancellationToken))
         {
-            fullResponse += chunk;
+            content.Append(chunk);
             yield return chunk;
         }
 
-        if (!string.IsNullOrEmpty(fullResponse))
-        {
-            _history.Add(new ChatMessage("assistant", fullResponse));
-        }
+        _history.Add(new ChatMessage("assistant", content.ToString()));
     }
 
     public void ClearHistory()
     {
+        var systemMessage = _history.FirstOrDefault(m => m.Role == "system");
         _history.Clear();
+        if (systemMessage != null)
+        {
+            _history.Add(systemMessage);
+        }
     }
 
     public List<ChatMessage> GetHistory()

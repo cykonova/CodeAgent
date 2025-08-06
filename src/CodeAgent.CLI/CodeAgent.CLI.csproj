@@ -39,7 +39,7 @@
     
     <!-- Package Metadata -->
     <PackageId>Cykonova.CodeAgent</PackageId>
-    <Version>0.1.0-alpha.11</Version>
+    <Version>0.1.0-alpha.12</Version>
     <Authors>Cykonova</Authors>
     <Description>AI-powered coding assistant with support for multiple LLM providers</Description>
     <PackageTags>ai;llm;assistant;cli;openai;claude;ollama;coding</PackageTags>

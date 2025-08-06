@@ -143,6 +143,9 @@ if (args.Length > 0 && !args[0].StartsWith("-"))
         config.AddCommand<ModelCommand>("model")
             .WithDescription("Switch LLM models (Ollama only)");
         
+        config.AddCommand<PromptCommand>("prompt")
+            .WithDescription("Manage system prompt configuration");
+        
         config.AddCommand<SetupCommand>("setup")
             .WithDescription("Configure LLM providers");
         
@@ -206,6 +209,9 @@ return await builder.UseConsoleLifetime()
             
             configurator.AddCommand<ModelCommand>("model")
                 .WithDescription("Switch LLM models (Ollama only)");
+            
+            configurator.AddCommand<PromptCommand>("prompt")
+                .WithDescription("Manage system prompt configuration");
             
             configurator.AddCommand<SetupCommand>("setup")
                 .WithDescription("Configure LLM providers");
