@@ -140,7 +140,9 @@ public class InteractiveShell : IPrompt<int>
     private void WritePrompt(IAnsiConsole console)
     {
         var promptText = BuildDynamicPrompt();
-        console.Markup($"[bold cyan]{promptText}[/]");
+        // Escape the prompt text to prevent color parsing issues
+        var escapedPrompt = promptText.Replace("[", "[[").Replace("]", "]]");
+        console.Markup($"[bold cyan]{escapedPrompt}[/]");
         _cursorIndex = 0;
     }
 
