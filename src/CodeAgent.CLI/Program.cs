@@ -140,6 +140,9 @@ if (args.Length > 0 && !args[0].StartsWith("-"))
         config.AddCommand<ProviderCommand>("provider")
             .WithDescription("Manage LLM providers");
         
+        config.AddCommand<ModelCommand>("model")
+            .WithDescription("Switch LLM models (Ollama only)");
+        
         config.AddCommand<SetupCommand>("setup")
             .WithDescription("Configure LLM providers");
         
@@ -200,6 +203,9 @@ return await builder.UseConsoleLifetime()
             
             configurator.AddCommand<ProviderCommand>("provider")
                 .WithDescription("Manage LLM providers");
+            
+            configurator.AddCommand<ModelCommand>("model")
+                .WithDescription("Switch LLM models (Ollama only)");
             
             configurator.AddCommand<SetupCommand>("setup")
                 .WithDescription("Configure LLM providers");

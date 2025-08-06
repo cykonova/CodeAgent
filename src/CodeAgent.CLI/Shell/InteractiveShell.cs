@@ -74,8 +74,8 @@ public class InteractiveShell : IPrompt<int>
         console.Write(new FigletText("CodeAgent").Centered().Color(Color.Blue));
         console.MarkupLine("[bold blue]AI-Powered Coding Assistant[/]");
         console.WriteLine();
-        console.MarkupLine($"[green]Type messages to chat, use [bold]{_settings.CommandPrefix}command[/] for commands, or [bold]exit[/] to quit.[/]");
-        console.MarkupLine("[dim]Commands: /help, /scan, /provider, /config, /clear[/]");
+        console.MarkupLine($"[green]Type messages to chat, use [bold]{_settings.CommandPrefix}command[/] for commands, or [bold]{_settings.CommandPrefix}exit[/] to quit.[/]");
+        console.MarkupLine("[dim]Commands: /help, /scan, /provider, /model, /config, /clear, /exit[/]");
         console.WriteLine();
 
         WritePrompt(console);
@@ -84,6 +84,46 @@ public class InteractiveShell : IPrompt<int>
         {
             var key = await console.Input.ReadKeyAsync(true, cancellationToken);
             if (key == null) continue;
+            
+            // Handle macOS shortcuts
+            if (key.Value.Modifiers == ConsoleModifiers.Control)
+            {
+                switch (key.Value.Key)
+                {
+                    case ConsoleKey.A: // Cmd+A equivalent (move to beginning of line)
+                        MoveCursorToStart(console);
+                        continue;
+                    case ConsoleKey.E: // Cmd+E equivalent (move to end of line)
+                        MoveCursorToEnd(console);
+                        continue;
+                    case ConsoleKey.U: // Ctrl+U (clear line)
+                        ClearLine(console);
+                        continue;
+                    case ConsoleKey.W: // Ctrl+W (delete word backwards)
+                        DeleteWordBackwards(console);
+                        continue;
+                    case ConsoleKey.K: // Ctrl+K (delete to end of line)
+                        DeleteToEndOfLine(console);
+                        continue;
+                }
+            }
+            
+            // Handle Alt/Option shortcuts (common on macOS)
+            if (key.Value.Modifiers == ConsoleModifiers.Alt)
+            {
+                switch (key.Value.Key)
+                {
+                    case ConsoleKey.LeftArrow: // Option+Left (move word left)
+                        MoveWordLeft(console);
+                        continue;
+                    case ConsoleKey.RightArrow: // Option+Right (move word right)
+                        MoveWordRight(console);
+                        continue;
+                    case ConsoleKey.Backspace: // Option+Backspace (delete word backwards)
+                        DeleteWordBackwards(console);
+                        continue;
+                }
+            }
             
             switch (key.Value.Key)
             {
@@ -115,6 +155,18 @@ public class InteractiveShell : IPrompt<int>
                     
                 case ConsoleKey.DownArrow:
                     NextHistory(console);
+                    break;
+                    
+                case ConsoleKey.Home:
+                    MoveCursorToStart(console);
+                    break;
+                    
+                case ConsoleKey.End:
+                    MoveCursorToEnd(console);
+                    break;
+                    
+                case ConsoleKey.Delete:
+                    DeleteCharacter(console);
                     break;
                     
                 case ConsoleKey.Tab:
@@ -197,7 +249,6 @@ public class InteractiveShell : IPrompt<int>
 
         // Handle special cases
         if (string.IsNullOrWhiteSpace(input)) return true;
-        if (input.Equals(InternalCommands.Exit, StringComparison.OrdinalIgnoreCase)) return false;
         
         if (input.Equals(InternalCommands.Clear, StringComparison.OrdinalIgnoreCase))
         {
@@ -221,6 +272,12 @@ public class InteractiveShell : IPrompt<int>
             if (string.IsNullOrWhiteSpace(commandLine))
             {
                 commandLine = "help";
+            }
+            
+            // Handle exit command
+            if (commandLine.Equals("exit", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
             }
             
             var args = ProcessCommandLine(commandLine);
@@ -370,7 +427,7 @@ public class InteractiveShell : IPrompt<int>
     private void AutoCompleteCommand(IAnsiConsole console)
     {
         var currentCommand = _currentLine.ToString().Substring(1); // Remove the '/' prefix
-        var availableCommands = new[] { "help", "scan", "provider", "config", "setup", "mcp", "clear", "exit" };
+        var availableCommands = new[] { "help", "scan", "provider", "model", "config", "setup", "mcp", "clear", "exit" };
         
         var matches = availableCommands.Where(c => c.StartsWith(currentCommand, StringComparison.OrdinalIgnoreCase)).ToList();
         
@@ -395,6 +452,133 @@ public class InteractiveShell : IPrompt<int>
         }
     }
 
+    private void MoveCursorToStart(IAnsiConsole console)
+    {
+        if (_cursorIndex == 0) return;
+        console.Cursor.Move(CursorDirection.Left, _cursorIndex);
+        _cursorIndex = 0;
+    }
+
+    private void MoveCursorToEnd(IAnsiConsole console)
+    {
+        if (_cursorIndex == _currentLine.Length) return;
+        var moveCount = _currentLine.Length - _cursorIndex;
+        console.Cursor.Move(CursorDirection.Right, moveCount);
+        _cursorIndex = _currentLine.Length;
+    }
+
+    private void ClearLine(IAnsiConsole console)
+    {
+        // Move to start and clear entire input
+        MoveCursorToStart(console);
+        console.Write("\x1b[K"); // Clear from cursor to end of line
+        _currentLine.Clear();
+        _cursorIndex = 0;
+    }
+
+    private void DeleteToEndOfLine(IAnsiConsole console)
+    {
+        if (_cursorIndex >= _currentLine.Length) return;
+        
+        // Remove text from cursor to end
+        _currentLine.Remove(_cursorIndex, _currentLine.Length - _cursorIndex);
+        console.Write("\x1b[K"); // Clear from cursor to end of line
+    }
+
+    private void DeleteCharacter(IAnsiConsole console)
+    {
+        if (_cursorIndex >= _currentLine.Length) return;
+        
+        _currentLine.Remove(_cursorIndex, 1);
+        
+        // Redraw from current position
+        var textToWrite = _currentLine.ToString(_cursorIndex, _currentLine.Length - _cursorIndex) + " ";
+        console.Write(textToWrite);
+        console.Cursor.Move(CursorDirection.Left, textToWrite.Length);
+    }
+
+    private void DeleteWordBackwards(IAnsiConsole console)
+    {
+        if (_cursorIndex == 0) return;
+        
+        var startPos = _cursorIndex;
+        
+        // Skip whitespace backwards
+        while (_cursorIndex > 0 && char.IsWhiteSpace(_currentLine[_cursorIndex - 1]))
+        {
+            _cursorIndex--;
+        }
+        
+        // Delete non-whitespace characters backwards
+        while (_cursorIndex > 0 && !char.IsWhiteSpace(_currentLine[_cursorIndex - 1]))
+        {
+            _cursorIndex--;
+        }
+        
+        var deleteCount = startPos - _cursorIndex;
+        if (deleteCount > 0)
+        {
+            _currentLine.Remove(_cursorIndex, deleteCount);
+            console.Cursor.Move(CursorDirection.Left, deleteCount);
+            
+            // Redraw line from current position
+            var textToRewrite = _currentLine.ToString(_cursorIndex, _currentLine.Length - _cursorIndex);
+            var padding = new string(' ', deleteCount);
+            console.Write(textToRewrite + padding);
+            console.Cursor.Move(CursorDirection.Left, textToRewrite.Length + deleteCount);
+        }
+    }
+
+    private void MoveWordLeft(IAnsiConsole console)
+    {
+        if (_cursorIndex == 0) return;
+        
+        var originalPos = _cursorIndex;
+        
+        // Skip whitespace backwards
+        while (_cursorIndex > 0 && char.IsWhiteSpace(_currentLine[_cursorIndex - 1]))
+        {
+            _cursorIndex--;
+        }
+        
+        // Move through non-whitespace characters
+        while (_cursorIndex > 0 && !char.IsWhiteSpace(_currentLine[_cursorIndex - 1]))
+        {
+            _cursorIndex--;
+        }
+        
+        var moveCount = originalPos - _cursorIndex;
+        if (moveCount > 0)
+        {
+            console.Cursor.Move(CursorDirection.Left, moveCount);
+        }
+    }
+
+    private void MoveWordRight(IAnsiConsole console)
+    {
+        if (_cursorIndex >= _currentLine.Length) return;
+        
+        var originalPos = _cursorIndex;
+        
+        // Skip whitespace forwards
+        while (_cursorIndex < _currentLine.Length && char.IsWhiteSpace(_currentLine[_cursorIndex]))
+        {
+            _cursorIndex++;
+        }
+        
+        // Move through non-whitespace characters
+        while (_cursorIndex < _currentLine.Length && !char.IsWhiteSpace(_currentLine[_cursorIndex]))
+        {
+            _cursorIndex++;
+        }
+        
+        var moveCount = _cursorIndex - originalPos;
+        if (moveCount > 0)
+        {
+            console.Cursor.Move(CursorDirection.Right, moveCount);
+        }
+    }
+
     private async Task<int> ProcessPipedInput(IAnsiConsole console)
     {
         // Skip the welcome message when processing piped input
@@ -406,10 +590,6 @@ public class InteractiveShell : IPrompt<int>
             // Process each line of piped input
             if (string.IsNullOrWhiteSpace(line))
                 continue;
-                
-            // Check for exit command
-            if (line.Equals(InternalCommands.Exit, StringComparison.OrdinalIgnoreCase))
-                break;
                 
             // Add to history
             if (_history.Count == 0 || !_history[0].Equals(line, StringComparison.OrdinalIgnoreCase))
@@ -425,6 +605,12 @@ public class InteractiveShell : IPrompt<int>
                 if (string.IsNullOrWhiteSpace(commandLine))
                 {
                     commandLine = "help";
+                }
+                
+                // Handle exit command
+                if (commandLine.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
                 }
                 
                 var args = ProcessCommandLine(commandLine);

@@ -34,12 +34,22 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
         var console = AnsiConsole.Console;
         var factory = _serviceProvider.GetRequiredService<ILLMProviderFactory>();
         var configService = _serviceProvider.GetRequiredService<IConfigurationService>();
+        var availableProviders = factory.GetAvailableProviders().ToList();
+
+        // Check if the action is actually a provider name
+        if (availableProviders.Contains(settings.Action.ToLower()))
+        {
+            // Treat as provider selection
+            await configService.SetValueAsync("DefaultProvider", settings.Action.ToLower());
+            console.MarkupLine($"[green]Provider set to: {settings.Action.ToLower()}[/]");
+            return 0;
+        }
 
         switch (settings.Action.ToLower())
         {
             case "list":
                 console.MarkupLine("[bold]Available providers:[/]");
-                foreach (var provider in factory.GetAvailableProviders())
+                foreach (var provider in availableProviders)
                 {
                     var current = configService.GetValue("DefaultProvider") == provider ? " [green](current)[/]" : "";
                     console.MarkupLine($"  • {provider}{current}");
@@ -53,7 +63,7 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
                     return 1;
                 }
 
-                if (factory.GetAvailableProviders().Contains(settings.ProviderOrModel.ToLower()))
+                if (availableProviders.Contains(settings.ProviderOrModel.ToLower()))
                 {
                     await configService.SetValueAsync("DefaultProvider", settings.ProviderOrModel.ToLower());
                     console.MarkupLine($"[green]Provider set to: {settings.ProviderOrModel}[/]");
@@ -61,7 +71,7 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
                 else
                 {
                     console.MarkupLine($"[red]Unknown provider: {settings.ProviderOrModel}[/]");
-                    console.MarkupLine($"[yellow]Available: {string.Join(", ", factory.GetAvailableProviders())}[/]");
+                    console.MarkupLine($"[yellow]Available: {string.Join(", ", availableProviders)}[/]");
                     return 1;
                 }
                 break;
@@ -121,7 +131,7 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
                     var ollamaOptions = _serviceProvider.GetRequiredService<IOptions<OllamaOptions>>();
                     var currentModel = ollamaOptions.Value.DefaultModel ?? "llama3.2";
                     console.MarkupLine($"[bold]Current Ollama model:[/] {currentModel}");
-                    console.MarkupLine("[dim]Use '/provider model <model-name>' to change model[/]");
+                    console.MarkupLine("[dim]Use '/model <model-name>' to change model[/]");
                     console.MarkupLine("[dim]Popular models: llama3.2, llama3.1, codellama, mistral, etc.[/]");
                 }
                 else
@@ -135,7 +145,8 @@ public class ProviderCommand : AsyncCommand<ProviderCommand.Settings>
 
             default:
                 console.MarkupLine($"[red]Unknown action: {settings.Action}[/]");
-                console.MarkupLine("[yellow]Available actions: list, select, status, model[/]");
+                console.MarkupLine($"[yellow]Available actions: list, select, status, model[/]");
+                console.MarkupLine($"[yellow]Available providers: {string.Join(", ", availableProviders)}[/]");
                 return 1;
         }
 
