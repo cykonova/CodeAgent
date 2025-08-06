@@ -44,6 +44,11 @@ public class FileSystemService : IFileSystemService
         return Task.FromResult(File.Exists(path));
     }
 
+    public Task<bool> DirectoryExistsAsync(string path, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(Directory.Exists(path));
+    }
+
     public async Task DeleteFileAsync(string path, CancellationToken cancellationToken = default)
     {
         string? originalContent = null;

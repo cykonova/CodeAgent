@@ -11,6 +11,7 @@ public interface IFileSystemService
     Task<string[]> GetFilesAsync(string path, string pattern = "*", bool recursive = false, CancellationToken cancellationToken = default);
     Task<string[]> GetDirectoriesAsync(string path, CancellationToken cancellationToken = default);
     Task CreateDirectoryAsync(string path, CancellationToken cancellationToken = default);
+    Task<bool> DirectoryExistsAsync(string path, CancellationToken cancellationToken = default);
     Task<FileOperation> TrackOperationAsync(FileOperation operation, CancellationToken cancellationToken = default);
     Task<IEnumerable<string>> GetProjectFilesAsync(string path, CancellationToken cancellationToken = default);
     
