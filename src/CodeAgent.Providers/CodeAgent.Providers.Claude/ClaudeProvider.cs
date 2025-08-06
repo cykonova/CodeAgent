@@ -17,6 +17,7 @@ public class ClaudeProvider : ILLMProvider
 
     public string Name => "Claude";
     public bool IsConfigured => !string.IsNullOrWhiteSpace(_options.ApiKey);
+    public bool SupportsStreaming => true;
 
     public ClaudeProvider(IOptions<ClaudeOptions> options, ILogger<ClaudeProvider> logger, HttpClient httpClient)
     {
@@ -190,28 +191,52 @@ public class ClaudeProvider : ILLMProvider
         }
     }
 
+    public async IAsyncEnumerable<ChatResponse> SendMessageStreamAsync(ChatRequest request, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (!IsConfigured)
+        {
+            yield return new ChatResponse { Error = "Claude API key is not configured" };
+            yield break;
+        }
+
+        await foreach (var chunk in StreamMessageAsync(request, cancellationToken))
+        {
+            yield return new ChatResponse
+            {
+                Content = chunk,
+                Model = _options.DefaultModel,
+                IsComplete = false
+            };
+        }
+    }
+
     public async Task<bool> ValidateConnectionAsync(CancellationToken cancellationToken = default)
     {
         if (!IsConfigured)
+        {
             return false;
+        }
 
         try
         {
-            var request = new ChatRequest
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{_options.BaseUrl}/messages");
+            request.Headers.Add("x-api-key", _options.ApiKey);
+            request.Headers.Add("anthropic-version", "2023-06-01");
+            
+            var testMessage = new
             {
-                Messages = new List<ChatMessage>
-                {
-                    new ChatMessage("user", "Hi")
-                },
-                MaxTokens = 10
+                model = _options.DefaultModel ?? "claude-3-sonnet-20240229",
+                messages = new[] { new { role = "user", content = "test" } },
+                max_tokens = 1
             };
-
-            var response = await SendMessageAsync(request, cancellationToken);
-            return response.IsComplete && string.IsNullOrEmpty(response.Error);
+            
+            request.Content = new StringContent(JsonSerializer.Serialize(testMessage), System.Text.Encoding.UTF8, "application/json");
+            
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch
         {
-            _logger.LogError(ex, "Failed to validate Claude connection");
             return false;
         }
     }

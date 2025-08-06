@@ -22,6 +22,7 @@ public class OpenAIProvider : ILLMProvider
     public string Name => "OpenAI";
 
     public bool IsConfigured => !string.IsNullOrEmpty(_settings?.ApiKey);
+    public bool SupportsStreaming => true;
 
     public OpenAIProvider(IConfiguration configuration)
     {
@@ -123,6 +124,51 @@ public class OpenAIProvider : ILLMProvider
                 if (!string.IsNullOrEmpty(contentPart.Text))
                 {
                     yield return contentPart.Text;
+                }
+            }
+        }
+    }
+
+    public async IAsyncEnumerable<DomainChatResponse> SendMessageStreamAsync(DomainChatRequest request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (_chatClient == null)
+        {
+            yield return new DomainChatResponse { Error = "OpenAI client is not configured" };
+            yield break;
+        }
+
+        var chatMessages = request.Messages.Select<DomainChatMessage, OpenAIChatMessage>(m => m.Role.ToLower() switch
+        {
+            "system" => OpenAIChatMessage.CreateSystemMessage(m.Content),
+            "user" => OpenAIChatMessage.CreateUserMessage(m.Content),
+            "assistant" => OpenAIChatMessage.CreateAssistantMessage(m.Content),
+            _ => OpenAIChatMessage.CreateUserMessage(m.Content)
+        }).ToList();
+
+        var options = new ChatCompletionOptions
+        {
+            Temperature = (float)request.Temperature
+        };
+        
+        if (request.MaxTokens.HasValue)
+        {
+            options.MaxOutputTokenCount = request.MaxTokens.Value;
+        }
+
+        var streamingCompletion = _chatClient.CompleteChatStreamingAsync(chatMessages, options, cancellationToken);
+        
+        await foreach (var update in streamingCompletion)
+        {
+            foreach (var contentPart in update.ContentUpdate)
+            {
+                if (!string.IsNullOrEmpty(contentPart.Text))
+                {
+                    yield return new DomainChatResponse
+                    {
+                        Content = contentPart.Text,
+                        Model = _settings?.Model,
+                        IsComplete = false
+                    };
                 }
             }
         }

@@ -17,6 +17,7 @@ public class OllamaProvider : ILLMProvider
 
     public string Name => "Ollama";
     public bool IsConfigured => !string.IsNullOrWhiteSpace(_options.BaseUrl);
+    public bool SupportsStreaming => true;
 
     public OllamaProvider(IOptions<OllamaOptions> options, ILogger<OllamaProvider> logger, HttpClient httpClient)
     {
@@ -197,37 +198,39 @@ public class OllamaProvider : ILLMProvider
         }
     }
 
+    public async IAsyncEnumerable<ChatResponse> SendMessageStreamAsync(ChatRequest request, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (!IsConfigured)
+        {
+            yield return new ChatResponse { Error = "Ollama is not configured" };
+            yield break;
+        }
+
+        await foreach (var chunk in StreamMessageAsync(request, cancellationToken))
+        {
+            yield return new ChatResponse
+            {
+                Content = chunk,
+                Model = _options.DefaultModel,
+                IsComplete = false
+            };
+        }
+    }
+
     public async Task<bool> ValidateConnectionAsync(CancellationToken cancellationToken = default)
     {
         if (!IsConfigured)
+        {
             return false;
+        }
 
         try
         {
-            var url = $"{_options.BaseUrl}/api/tags";
-            var response = await _httpClient.GetAsync(url, cancellationToken);
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync(cancellationToken);
-                using var doc = JsonDocument.Parse(content);
-                var models = doc.RootElement.GetProperty("models");
-                
-                if (models.GetArrayLength() == 0)
-                {
-                    _logger.LogWarning("Ollama is running but no models are available");
-                    return false;
-                }
-                
-                return true;
-            }
-            
-            _logger.LogError("Failed to connect to Ollama: {StatusCode}", response.StatusCode);
-            return false;
+            var response = await _httpClient.GetAsync($"{_options.BaseUrl}/api/tags", cancellationToken);
+            return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch
         {
-            _logger.LogError(ex, "Failed to validate Ollama connection");
             return false;
         }
     }
