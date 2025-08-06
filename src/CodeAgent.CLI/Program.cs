@@ -71,8 +71,26 @@ services.AddSingleton<ILLMProvider>(sp =>
 
 var serviceProvider = services.BuildServiceProvider();
 
-// Parse command line arguments
+// Check if this is first run (no provider configured)
+var config = serviceProvider.GetRequiredService<IConfiguration>();
+var defaultProvider = config["DefaultProvider"];
 var cmdArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
+
+// If no provider is configured and not running setup command, prompt for setup
+if (string.IsNullOrWhiteSpace(defaultProvider) && 
+    (cmdArgs.Length == 0 || cmdArgs[0].ToLower() != "setup"))
+{
+    AnsiConsole.MarkupLine("[yellow]No LLM provider configured. Starting setup wizard...[/]");
+    AnsiConsole.WriteLine();
+    
+    var setupCommand = new SetupCommand(serviceProvider);
+    await setupCommand.ExecuteAsync();
+    
+    // Reload configuration after setup
+    serviceProvider = services.BuildServiceProvider();
+}
+
+// Command line arguments already parsed above
 
 // Display welcome message
 AnsiConsole.Write(
@@ -90,6 +108,11 @@ if (cmdArgs.Length > 0)
     
     switch (command)
     {
+        case "setup":
+            var setupCommand = new SetupCommand(serviceProvider);
+            await setupCommand.ExecuteAsync();
+            break;
+            
         case "provider":
             if (cmdArgs.Length > 1 && cmdArgs[1].ToLower() == "select" && cmdArgs.Length > 2)
             {
@@ -217,7 +240,7 @@ if (cmdArgs.Length > 0)
             
         default:
             AnsiConsole.MarkupLine($"[red]Unknown command: {command}[/]");
-            AnsiConsole.MarkupLine("[yellow]Available commands: provider, config, mcp, init, scan, ask[/]");
+            AnsiConsole.MarkupLine("[yellow]Available commands: setup, provider, config, mcp, init, scan, ask[/]");
             break;
     }
 }
