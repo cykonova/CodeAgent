@@ -13,7 +13,7 @@ public class ConsolePermissionPrompt : IPermissionPrompt
         _console = console;
     }
 
-    public Task<bool> PromptForPermissionAsync(string operation, string path, string? details = null)
+    public Task<PermissionResult> PromptForPermissionAsync(string operation, string path, string projectDir, string? details = null)
     {
         // Build permission prompt
         var prompt = new StringBuilder();
@@ -21,6 +21,7 @@ public class ConsolePermissionPrompt : IPermissionPrompt
         prompt.AppendLine($"[yellow]Permission Request[/]");
         prompt.AppendLine($"[bold]Operation:[/] {operation}");
         prompt.AppendLine($"[bold]Path:[/] {path}");
+        prompt.AppendLine($"[bold]Project Directory:[/] {projectDir}");
         
         if (!string.IsNullOrEmpty(details))
         {
@@ -29,11 +30,20 @@ public class ConsolePermissionPrompt : IPermissionPrompt
         
         _console.Markup(prompt.ToString());
         
-        var confirm = _console.Prompt(
-            new ConfirmationPrompt("[yellow]Allow this operation?[/]")
-                .ShowDefaultValue(false)
-                .ShowChoices(true));
+        var choice = _console.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[yellow]Choose an option:[/]")
+                .AddChoices(new[] {
+                    "Yes - Allow this operation",
+                    $"Yes - Allow all '{operation}' operations in project directory",
+                    "No - Deny and tell LLM what to do instead"
+                }));
         
-        return Task.FromResult(confirm);
+        return choice switch
+        {
+            "Yes - Allow this operation" => Task.FromResult(PermissionResult.Allowed),
+            var s when s.StartsWith("Yes - Allow all") => Task.FromResult(PermissionResult.AllowedForAll),
+            _ => Task.FromResult(PermissionResult.Denied)
+        };
     }
 }

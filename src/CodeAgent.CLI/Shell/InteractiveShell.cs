@@ -49,6 +49,10 @@ public class InteractiveShell : IPrompt<int>
         _chatService = _serviceProvider.GetRequiredService<IChatService>();
         _llmProvider = _serviceProvider.GetRequiredService<ILLMProvider>();
         _markdownRenderer = new MarkdigRenderer();
+        
+        // Set up project directory for permissions
+        var permissionService = _serviceProvider.GetRequiredService<IPermissionService>();
+        permissionService.SetProjectDirectory(Environment.CurrentDirectory);
     }
 
     public int Show(IAnsiConsole console)

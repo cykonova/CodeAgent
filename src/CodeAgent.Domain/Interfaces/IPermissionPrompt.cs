@@ -2,5 +2,5 @@ namespace CodeAgent.Domain.Interfaces;
 
 public interface IPermissionPrompt
 {
-    Task<bool> PromptForPermissionAsync(string operation, string path, string? details = null);
+    Task<PermissionResult> PromptForPermissionAsync(string operation, string path, string projectDir, string? details = null);
 }

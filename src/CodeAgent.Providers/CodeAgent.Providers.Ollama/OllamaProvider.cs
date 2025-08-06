@@ -121,8 +121,7 @@ public class OllamaProvider : ILLMProvider
                             ? idElement.GetString() ?? Guid.NewGuid().ToString()
                             : Guid.NewGuid().ToString(),
                         Name = function.GetProperty("name").GetString() ?? string.Empty,
-                        Arguments = JsonSerializer.Deserialize<Dictionary<string, object>>(
-                            function.GetProperty("arguments").GetRawText(), _jsonOptions) ?? new()
+                        Arguments = ParseArgumentsFromJson(function.GetProperty("arguments").GetRawText())
                     };
                     toolCalls.Add(toolCall);
                 }
@@ -157,8 +156,7 @@ public class OllamaProvider : ILLMProvider
                         {
                             Id = Guid.NewGuid().ToString(),
                             Name = nameElement.GetString() ?? string.Empty,
-                            Arguments = JsonSerializer.Deserialize<Dictionary<string, object>>(
-                                parametersElement.GetRawText(), _jsonOptions) ?? new()
+                            Arguments = ParseArgumentsFromJson(parametersElement.GetRawText())
                         };
                         
                         return new ChatResponse
@@ -322,5 +320,37 @@ public class OllamaProvider : ILLMProvider
         {
             return false;
         }
+    }
+
+    private static Dictionary<string, object> ParseArgumentsFromJson(string json)
+    {
+        var arguments = new Dictionary<string, object>();
+        
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            
+            foreach (var property in root.EnumerateObject())
+            {
+                arguments[property.Name] = property.Value.ValueKind switch
+                {
+                    JsonValueKind.String => property.Value.GetString() ?? string.Empty,
+                    JsonValueKind.Number => property.Value.GetDecimal(),
+                    JsonValueKind.True => true,
+                    JsonValueKind.False => false,
+                    JsonValueKind.Null => null!,
+                    JsonValueKind.Array => property.Value.GetRawText(),
+                    JsonValueKind.Object => property.Value.GetRawText(),
+                    _ => property.Value.GetRawText()
+                };
+            }
+        }
+        catch
+        {
+            // If parsing fails, return empty dictionary
+        }
+        
+        return arguments;
     }
 }
