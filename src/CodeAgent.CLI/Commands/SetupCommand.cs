@@ -1,10 +1,11 @@
 using CodeAgent.Domain.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace CodeAgent.CLI.Commands;
 
-public class SetupCommand
+public class SetupCommand : AsyncCommand
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -13,7 +14,7 @@ public class SetupCommand
         _serviceProvider = serviceProvider;
     }
 
-    public async Task ExecuteAsync()
+    public override async Task<int> ExecuteAsync(CommandContext context)
     {
         AnsiConsole.Clear();
         
@@ -35,7 +36,7 @@ public class SetupCommand
         if (provider == "Skip Setup")
         {
             AnsiConsole.MarkupLine("[yellow]Setup skipped. You can run 'codeagent setup' anytime to configure.[/]");
-            return;
+            return 0;
         }
 
         var configService = _serviceProvider.GetRequiredService<IConfigurationService>();
@@ -59,6 +60,8 @@ public class SetupCommand
         var userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var configPath = Path.Combine(userHome, ".codeagent", "settings.json");
         AnsiConsole.MarkupLine($"[dim]Configuration saved to: {configPath}[/]");
+        
+        return 0;
     }
 
     private async Task SetupOpenAI(IConfigurationService configService)
