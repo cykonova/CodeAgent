@@ -139,8 +139,51 @@ public class InteractiveShell : IPrompt<int>
 
     private void WritePrompt(IAnsiConsole console)
     {
-        console.Markup($"[bold cyan]{_prompt}[/]");
+        var promptText = BuildDynamicPrompt();
+        console.Markup($"[bold cyan]{promptText}[/]");
         _cursorIndex = 0;
+    }
+
+    private string BuildDynamicPrompt()
+    {
+        try
+        {
+            var configService = _serviceProvider.GetRequiredService<IConfigurationService>();
+            var currentProvider = configService.GetValue("DefaultProvider");
+            
+            if (string.IsNullOrWhiteSpace(currentProvider))
+            {
+                return _prompt;
+            }
+            
+            var promptBuilder = new System.Text.StringBuilder("CodeAgent");
+            
+            // Add provider name
+            promptBuilder.Append($"[{currentProvider}]");
+            
+            // Add model name for Ollama
+            if (currentProvider.Equals("ollama", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var ollamaOptions = _serviceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<CodeAgent.Providers.Ollama.OllamaOptions>>();
+                    var currentModel = ollamaOptions.Value.DefaultModel ?? "llama3.2";
+                    promptBuilder.Append($":{currentModel}");
+                }
+                catch
+                {
+                    // Fallback if Ollama options aren't available
+                }
+            }
+            
+            promptBuilder.Append("$ ");
+            return promptBuilder.ToString();
+        }
+        catch
+        {
+            // Fallback to original prompt on any error
+            return _prompt;
+        }
     }
 
     private async Task<bool> Execute(IAnsiConsole console)
@@ -300,8 +343,9 @@ public class InteractiveShell : IPrompt<int>
 
     private void Reset(IAnsiConsole console, string? line = default)
     {
-        // Move cursor to the beginning of the line (start of prompt)
-        var totalMoveLeft = _cursorIndex + _prompt.Length + 2; // +2 for "> " after "CodeAgent"
+        // Get current prompt length (without ANSI markup)
+        var currentPromptText = BuildDynamicPrompt();
+        var totalMoveLeft = _cursorIndex + currentPromptText.Length;
         console.Cursor.Move(CursorDirection.Left, totalMoveLeft);
         
         // Clear the entire line from start
