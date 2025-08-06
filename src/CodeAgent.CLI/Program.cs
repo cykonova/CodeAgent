@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using CodeAgent.CLI;
 using CodeAgent.CLI.Commands;
 using CodeAgent.CLI.Services;
@@ -180,6 +181,8 @@ if (args.Length > 0 && !args[0].StartsWith("-"))
 }
 
 // Interactive shell mode
+var serviceProvider = builder.Build().Services;
+
 if (!hasProvider)
 {
     // Show setup prompt for first-time users
@@ -187,9 +190,13 @@ if (!hasProvider)
     Console.WriteLine("Starting setup wizard...");
     Console.WriteLine();
     
-    var serviceProvider = builder.Build().Services;
     var setupCommand = new SetupCommand(serviceProvider);
     await setupCommand.ExecuteAsync(null!);
+}
+else
+{
+    // Validate provider and model on startup
+    await ValidateProviderAndModelAsync(serviceProvider);
 }
 
 // Run interactive shell
@@ -242,5 +249,149 @@ return await builder.UseConsoleLifetime()
             configurator.AddCommand<SearchCommand>("search")
                 .WithDescription("Search code with AI context");
         });
+
+static async Task ValidateProviderAndModelAsync(IServiceProvider serviceProvider)
+{
+    try
+    {
+        var configService = serviceProvider.GetRequiredService<IConfigurationService>();
+        var factory = serviceProvider.GetRequiredService<ILLMProviderFactory>();
+        var console = AnsiConsole.Console;
+        
+        var currentProvider = configService.GetValue("DefaultProvider");
+        if (string.IsNullOrWhiteSpace(currentProvider))
+        {
+            return; // No provider configured, this was handled above
+        }
+        
+        console.MarkupLine($"[dim]Validating {currentProvider} provider...[/]");
+        
+        var provider = factory.GetProvider(currentProvider);
+        if (!provider.IsConfigured)
+        {
+            console.MarkupLine($"[yellow]Provider '{currentProvider}' is not properly configured.[/]");
+            
+            if (AnsiConsole.Confirm($"Would you like to reconfigure {currentProvider}?"))
+            {
+                var setupCommand = new SetupCommand(serviceProvider);
+                await setupCommand.ExecuteAsync(null!);
+                return;
+            }
+            else
+            {
+                console.MarkupLine("[dim]You can run '/setup' later to configure the provider.[/]");
+            }
+        }
+        else
+        {
+            // Check connection
+            var isConnected = await provider.ValidateConnectionAsync();
+            if (!isConnected)
+            {
+                console.MarkupLine($"[red]Cannot connect to {currentProvider}.[/]");
+                console.MarkupLine("[dim]Please check your internet connection and API configuration.[/]");
+                
+                if (AnsiConsole.Confirm($"Would you like to reconfigure {currentProvider}?"))
+                {
+                    var setupCommand = new SetupCommand(serviceProvider);
+                    await setupCommand.ExecuteAsync(null!);
+                    return;
+                }
+                else if (AnsiConsole.Confirm("Would you like to select a different provider?"))
+                {
+                    var providerCommand = new ProviderCommand(serviceProvider);
+                    var context = new CommandContext(Array.Empty<string>(), new EmptyRemaining(), "", null);
+                    await providerCommand.ExecuteAsync(context, new ProviderCommand.Settings());
+                    return;
+                }
+            }
+            else
+            {
+                console.MarkupLine($"[green]✓[/] Connected to {currentProvider}");
+                
+                // For Ollama, also validate the model
+                if (currentProvider.Equals("ollama", StringComparison.OrdinalIgnoreCase))
+                {
+                    await ValidateOllamaModelAsync(serviceProvider, console);
+                }
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        AnsiConsole.Console.MarkupLine($"[red]Error during startup validation: {ex.Message}[/]");
+    }
+}
+
+static async Task ValidateOllamaModelAsync(IServiceProvider serviceProvider, IAnsiConsole console)
+{
+    try
+    {
+        var configService = serviceProvider.GetRequiredService<IConfigurationService>();
+        var ollamaOptions = serviceProvider.GetRequiredService<IOptions<OllamaOptions>>();
+        var currentModel = ollamaOptions.Value.DefaultModel ?? "llama3.2";
+        
+        console.MarkupLine($"[dim]Checking Ollama model: {currentModel}...[/]");
+        
+        // Try to get available models to validate current model exists
+        var httpClient = serviceProvider.GetService<HttpClient>() ?? new HttpClient();
+        var baseUrl = ollamaOptions.Value.BaseUrl?.TrimEnd('/') ?? "http://localhost:11434";
+        
+        var response = await httpClient.GetAsync($"{baseUrl}/api/tags");
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            var models = System.Text.Json.JsonSerializer.Deserialize<OllamaModelsResponse>(content);
+            var availableModels = models?.Models?.Select(m => m.Name.Split(':')[0]).Distinct().ToList() ?? new List<string>();
+            
+            if (availableModels.Contains(currentModel))
+            {
+                console.MarkupLine($"[green]✓[/] Model {currentModel} is available");
+            }
+            else
+            {
+                console.MarkupLine($"[yellow]Model '{currentModel}' not found in Ollama.[/]");
+                console.MarkupLine($"[dim]Available models: {string.Join(", ", availableModels)}[/]");
+                
+                if (availableModels.Any() && AnsiConsole.Confirm("Would you like to select an available model?"))
+                {
+                    var modelCommand = new ModelCommand(serviceProvider);
+                    var context = new CommandContext(Array.Empty<string>(), new EmptyRemaining(), "", null);
+                    await modelCommand.ExecuteAsync(context, new ModelCommand.Settings());
+                }
+                else if (AnsiConsole.Confirm($"Would you like to install {currentModel}?"))
+                {
+                    console.MarkupLine($"[dim]Run: ollama pull {currentModel}[/]");
+                }
+            }
+        }
+        else
+        {
+            console.MarkupLine("[yellow]Could not check available models. Make sure Ollama is running.[/]");
+        }
+    }
+    catch (Exception ex)
+    {
+        console.MarkupLine($"[yellow]Could not validate Ollama model: {ex.Message}[/]");
+    }
+}
+
+// Helper classes for Ollama API response
+public class OllamaModelsResponse
+{
+    public List<OllamaModel> Models { get; set; } = new();
+}
+
+public class OllamaModel
+{
+    public string Name { get; set; } = string.Empty;
+}
+
+// Helper class for CommandContext
+public class EmptyRemaining : Spectre.Console.Cli.IRemainingArguments
+{
+    public IReadOnlyList<string> Raw => Array.Empty<string>();
+    public ILookup<string, string?> Parsed => (new List<(string, string?)>()).ToLookup(x => x.Item1, x => x.Item2);
+}
 
 public partial class Program { }
