@@ -57,6 +57,8 @@ builder.ConfigureServices(services =>
     services.AddSingleton<IConfigurationService, ConfigurationService>();
     services.AddSingleton<IFileSystemService, FileSystemService>();
     services.AddSingleton<IDiffService, DiffService>();
+    services.AddSingleton<IContextService, ContextService>();
+    services.AddSingleton<IRetryService, RetryService>();
     services.AddSingleton<ChatService>();
     services.AddSingleton<IChatService>(sp => sp.GetRequiredService<ChatService>());
     
@@ -137,6 +139,9 @@ if (args.Length > 0 && !args[0].StartsWith("-"))
         config.AddCommand<EditCommand>("edit")
             .WithDescription("Edit a file with AI assistance");
         
+        config.AddCommand<EditMultipleCommand>("edit-multiple")
+            .WithDescription("Edit multiple files with AI assistance");
+        
         config.AddCommand<DiffCommand>("diff")
             .WithDescription("Show pending changes");
         
@@ -145,6 +150,16 @@ if (args.Length > 0 && !args[0].StartsWith("-"))
         
         config.AddCommand<RejectCommand>("reject")
             .WithDescription("Reject pending changes");
+        
+        // Analysis and refactoring commands
+        config.AddCommand<AnalyzeCommand>("analyze")
+            .WithDescription("Analyze code for issues and improvements");
+        
+        config.AddCommand<RefactorCommand>("refactor")
+            .WithDescription("Perform AI-guided refactoring");
+        
+        config.AddCommand<SearchCommand>("search")
+            .WithDescription("Search code with AI context");
     });
     
     return await app.RunAsync(args);
@@ -185,6 +200,9 @@ return await builder.UseConsoleLifetime()
             configurator.AddCommand<EditCommand>("edit")
                 .WithDescription("Edit a file with AI assistance");
             
+            configurator.AddCommand<EditMultipleCommand>("edit-multiple")
+                .WithDescription("Edit multiple files with AI assistance");
+            
             configurator.AddCommand<DiffCommand>("diff")
                 .WithDescription("Show pending changes");
             
@@ -193,6 +211,16 @@ return await builder.UseConsoleLifetime()
             
             configurator.AddCommand<RejectCommand>("reject")
                 .WithDescription("Reject pending changes");
+            
+            // Analysis and refactoring commands
+            configurator.AddCommand<AnalyzeCommand>("analyze")
+                .WithDescription("Analyze code for issues and improvements");
+            
+            configurator.AddCommand<RefactorCommand>("refactor")
+                .WithDescription("Perform AI-guided refactoring");
+            
+            configurator.AddCommand<SearchCommand>("search")
+                .WithDescription("Search code with AI context");
         });
 
 public partial class Program { }
