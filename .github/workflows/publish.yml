@@ -73,12 +73,12 @@ jobs:
           
           ### Installation
           ```bash
-          dotnet tool install --global Cykonova.CodeAgent --version ${{ steps.version.outputs.VERSION }}
+          dotnet tool install --global Cykonova.CodeAgent --version ${{ steps.version.outputs.VERSION }} --add-source https://nuget.pkg.github.com/cykonova/index.json
           ```
           
           ### Update
           ```bash
-          dotnet tool update --global Cykonova.CodeAgent --version ${{ steps.version.outputs.VERSION }}
+          dotnet tool update --global Cykonova.CodeAgent --version ${{ steps.version.outputs.VERSION }} --add-source https://nuget.pkg.github.com/cykonova/index.json
           ```
           
           ### What's Changed
