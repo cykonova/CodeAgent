@@ -18,7 +18,7 @@ public class InteractiveShell : IPrompt<int>
     private readonly StringBuilder _currentLine;
     private readonly IChatService _chatService;
     private readonly ILLMProvider _llmProvider;
-    private readonly MarkdownRenderer _markdownRenderer;
+    private readonly MarkdigRenderer _markdownRenderer;
     
     private int _cursorIndex;
     private int _historyIndex = -1;
@@ -48,7 +48,7 @@ public class InteractiveShell : IPrompt<int>
         
         _chatService = _serviceProvider.GetRequiredService<IChatService>();
         _llmProvider = _serviceProvider.GetRequiredService<ILLMProvider>();
-        _markdownRenderer = new MarkdownRenderer();
+        _markdownRenderer = new MarkdigRenderer();
     }
 
     public int Show(IAnsiConsole console)

@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using CodeAgent.CLI;
 using CodeAgent.CLI.Commands;
 using CodeAgent.CLI.Shell;
 using CodeAgent.Core.Services;
@@ -102,6 +103,13 @@ var hasProvider = !string.IsNullOrWhiteSpace(configService.GetValue("DefaultProv
                   !string.IsNullOrWhiteSpace(configService.GetValue("OpenAI:ApiKey")) ||
                   !string.IsNullOrWhiteSpace(configService.GetValue("Claude:ApiKey")) ||
                   !string.IsNullOrWhiteSpace(configService.GetValue("Ollama:BaseUrl"));
+
+// Test command for markdown rendering
+if (args.Length > 0 && args[0] == "test-markdown")
+{
+    TestMarkdown.RunTest();
+    return 0;
+}
 
 // If running with arguments, execute as command
 if (args.Length > 0 && !args[0].StartsWith("-"))
