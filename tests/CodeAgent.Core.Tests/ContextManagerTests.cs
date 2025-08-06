@@ -132,10 +132,10 @@ public class ContextManagerTests
     }
 
     [Fact]
-    public void GetCurrentContext_ReturnsCurrentContext()
+    public async Task GetCurrentContext_ReturnsCurrentContext()
     {
         // Arrange
-        SetupContextWithFiles().Wait();
+        await SetupContextWithFiles();
 
         // Act
         var context = _contextManager.GetCurrentContext();
@@ -146,10 +146,10 @@ public class ContextManagerTests
     }
 
     [Fact]
-    public void ClearContext_ClearsCurrentContext()
+    public async Task ClearContext_ClearsCurrentContext()
     {
         // Arrange
-        SetupContextWithFiles().Wait();
+        await SetupContextWithFiles();
 
         // Act
         _contextManager.ClearContext();

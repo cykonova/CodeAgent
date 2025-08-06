@@ -89,10 +89,10 @@ public class MCPClient : IMCPClient
         }
     }
 
-    public async Task DisconnectAsync(CancellationToken cancellationToken = default)
+    public Task DisconnectAsync(CancellationToken cancellationToken = default)
     {
         if (!IsConnected)
-            return;
+            return Task.CompletedTask;
         
         try
         {
@@ -104,6 +104,8 @@ public class MCPClient : IMCPClient
         {
             _logger.LogError(ex, "Error disconnecting from MCP server");
         }
+        
+        return Task.CompletedTask;
     }
 
     public async Task<IEnumerable<MCPTool>> GetAvailableToolsAsync(CancellationToken cancellationToken = default)

@@ -74,7 +74,7 @@ public class EditCommand : AsyncCommand<EditCommand.Settings>
             {
                 responseBuilder.Append(chunk);
             }
-            modifiedContent = responseBuilder.ToString();
+            modifiedContent = CleanMarkdownFences(responseBuilder.ToString());
 
             // Generate diff
             var diffResult = await _diffService.GenerateDiffAsync(originalContent, modifiedContent, settings.FilePath);
@@ -130,6 +130,40 @@ public class EditCommand : AsyncCommand<EditCommand.Settings>
         }
     }
 
+    private string CleanMarkdownFences(string content)
+    {
+        // Remove markdown code fences that LLMs sometimes add
+        var lines = content.Split('\n').ToList();
+        var cleanedLines = new List<string>();
+        bool inCodeBlock = false;
+        
+        foreach (var line in lines)
+        {
+            var trimmedLine = line.Trim();
+            
+            // Check for opening fence with optional language identifier
+            if (trimmedLine.StartsWith("```"))
+            {
+                if (!inCodeBlock)
+                {
+                    inCodeBlock = true;
+                    // Skip the opening fence line
+                    continue;
+                }
+                else
+                {
+                    inCodeBlock = false;
+                    // Skip the closing fence line
+                    continue;
+                }
+            }
+            
+            cleanedLines.Add(line);
+        }
+        
+        return string.Join('\n', cleanedLines);
+    }
+    
     private void DisplayDiff(DiffResult diffResult, bool unifiedFormat)
     {
         if (unifiedFormat)

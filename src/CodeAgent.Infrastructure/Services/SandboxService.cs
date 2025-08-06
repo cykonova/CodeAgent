@@ -376,7 +376,7 @@ public class SandboxService : ISandboxService
         return await ExecuteInProcessSandbox(sandbox, scriptPath, cancellationToken);
     }
 
-    private async Task<List<SecurityViolation>> CheckSecurityViolations(string code, SandboxEnvironment sandbox)
+    private Task<List<SecurityViolation>> CheckSecurityViolations(string code, SandboxEnvironment sandbox)
     {
         var violations = new List<SecurityViolation>();
         
@@ -404,7 +404,7 @@ public class SandboxService : ISandboxService
             }
         }
 
-        return violations;
+        return Task.FromResult(violations);
     }
 
     private bool IsResourceLimitExceeded(ResourceUsage usage, ResourceLimits limits)

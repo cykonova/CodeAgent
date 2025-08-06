@@ -278,7 +278,7 @@ public class ThreatDetectionService : IThreatDetectionService
         return Task.FromResult(result);
     }
 
-    public async Task<ThreatAnalysisResult> ScanFileForThreatsAsync(string filePath, CancellationToken cancellationToken = default)
+    public Task<ThreatAnalysisResult> ScanFileForThreatsAsync(string filePath, CancellationToken cancellationToken = default)
     {
         // This would integrate with actual file scanning
         // For now, we'll do basic checks
@@ -321,7 +321,7 @@ public class ThreatDetectionService : IThreatDetectionService
         result.ConfidenceScore = CalculateConfidenceScore(result.Indicators);
         result.Summary = GenerateThreatSummary(result);
 
-        return result;
+        return Task.FromResult(result);
     }
 
     public Task<IEnumerable<SecurityIncident>> GetActiveIncidentsAsync(CancellationToken cancellationToken = default)

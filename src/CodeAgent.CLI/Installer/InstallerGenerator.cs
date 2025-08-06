@@ -122,7 +122,7 @@ public class InstallerGenerator
         File.Delete(tempZip);
     }
 
-    private async Task CreateZipArchiveAsync(string outputPath, CancellationToken cancellationToken)
+    private Task CreateZipArchiveAsync(string outputPath, CancellationToken cancellationToken)
     {
         using var archive = ZipFile.Open(outputPath, ZipArchiveMode.Create);
         
@@ -134,6 +134,8 @@ public class InstallerGenerator
             var entryName = Path.GetRelativePath(".", file);
             archive.CreateEntryFromFile(file, entryName);
         }
+        
+        return Task.CompletedTask;
     }
 
     private async Task CreateDebPackageAsync(string outputPath, string version, CancellationToken cancellationToken)

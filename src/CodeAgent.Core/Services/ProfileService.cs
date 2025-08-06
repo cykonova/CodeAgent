@@ -72,11 +72,11 @@ public class ProfileService : IProfileService
         return profile;
     }
 
-    public async Task<bool> DeleteProfileAsync(string profileId, CancellationToken cancellationToken = default)
+    public Task<bool> DeleteProfileAsync(string profileId, CancellationToken cancellationToken = default)
     {
         if (!_profiles.Remove(profileId, out var profile))
         {
-            return false;
+            return Task.FromResult(false);
         }
 
         var filePath = GetProfileFilePath(profileId);
@@ -92,10 +92,10 @@ public class ProfileService : IProfileService
 
         _logger.LogInformation("Deleted configuration profile: {Name}", profile.Name);
         
-        return true;
+        return Task.FromResult(true);
     }
 
-    public async Task<ConfigurationProfile?> GetActiveProfileAsync(CancellationToken cancellationToken = default)
+    public Task<ConfigurationProfile?> GetActiveProfileAsync(CancellationToken cancellationToken = default)
     {
         if (_activeProfileId == null)
         {
@@ -109,10 +109,10 @@ public class ProfileService : IProfileService
 
         if (_activeProfileId != null && _profiles.TryGetValue(_activeProfileId, out var profile))
         {
-            return profile;
+            return Task.FromResult<ConfigurationProfile?>(profile);
         }
 
-        return null;
+        return Task.FromResult<ConfigurationProfile?>(null);
     }
 
     public async Task<bool> SetActiveProfileAsync(string profileId, CancellationToken cancellationToken = default)
@@ -185,14 +185,14 @@ public class ProfileService : IProfileService
         return profile;
     }
 
-    public async Task<Dictionary<string, object>> ExportProfileAsync(string profileId, CancellationToken cancellationToken = default)
+    public Task<Dictionary<string, object>> ExportProfileAsync(string profileId, CancellationToken cancellationToken = default)
     {
         if (!_profiles.TryGetValue(profileId, out var profile))
         {
             throw new KeyNotFoundException($"Profile {profileId} not found");
         }
 
-        return new Dictionary<string, object>
+        return Task.FromResult(new Dictionary<string, object>
         {
             ["id"] = profile.Id,
             ["name"] = profile.Name,
@@ -201,7 +201,7 @@ public class ProfileService : IProfileService
             ["isDefault"] = profile.IsDefault,
             ["createdAt"] = profile.CreatedAt,
             ["modifiedAt"] = profile.ModifiedAt ?? DateTime.MinValue
-        };
+        });
     }
 
     public async Task<ConfigurationProfile> ImportProfileAsync(Dictionary<string, object> profileData, CancellationToken cancellationToken = default)
