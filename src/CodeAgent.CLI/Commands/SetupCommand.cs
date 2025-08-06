@@ -55,7 +55,10 @@ public class SetupCommand
         
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[green]✓ Setup complete![/]");
-        AnsiConsole.MarkupLine("[dim]Configuration saved to appsettings.json[/]");
+        
+        var userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var configPath = Path.Combine(userHome, ".codeagent", "settings.json");
+        AnsiConsole.MarkupLine($"[dim]Configuration saved to: {configPath}[/]");
     }
 
     private async Task SetupOpenAI(IConfigurationService configService)

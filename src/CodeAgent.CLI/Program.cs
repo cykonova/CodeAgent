@@ -11,9 +11,14 @@ using CodeAgent.Providers.Ollama;
 using CodeAgent.MCP;
 using Microsoft.Extensions.Configuration;
 
+// Build configuration with user settings from ~/.codeagent/settings.json
+var userHome = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+var userSettingsPath = Path.Combine(userHome, ".codeagent", "settings.json");
+
 var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: true)
+    .AddJsonFile(userSettingsPath, optional: true, reloadOnChange: true) // Load user settings
     .AddEnvironmentVariables()
     .AddUserSecrets<Program>(optional: true)
     .Build();
@@ -72,12 +77,27 @@ services.AddSingleton<ILLMProvider>(sp =>
 var serviceProvider = services.BuildServiceProvider();
 
 // Check if this is first run (no provider configured)
-var config = serviceProvider.GetRequiredService<IConfiguration>();
-var defaultProvider = config["DefaultProvider"];
+var configService = serviceProvider.GetRequiredService<IConfigurationService>();
+var defaultProvider = configService.GetValue("DefaultProvider");
 var cmdArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
 
+// Check if any provider is configured (either in settings or environment)
+var hasConfiguredProvider = !string.IsNullOrWhiteSpace(defaultProvider);
+
+// Also check if any provider has API keys configured
+if (!hasConfiguredProvider)
+{
+    var openAIKey = configService.GetValue("OpenAI:ApiKey");
+    var claudeKey = configService.GetValue("Claude:ApiKey");
+    var ollamaUrl = configService.GetValue("Ollama:BaseUrl");
+    
+    hasConfiguredProvider = !string.IsNullOrWhiteSpace(openAIKey) || 
+                           !string.IsNullOrWhiteSpace(claudeKey) || 
+                           !string.IsNullOrWhiteSpace(ollamaUrl);
+}
+
 // If no provider is configured and not running setup command, prompt for setup
-if (string.IsNullOrWhiteSpace(defaultProvider) && 
+if (!hasConfiguredProvider && 
     (cmdArgs.Length == 0 || cmdArgs[0].ToLower() != "setup"))
 {
     AnsiConsole.MarkupLine("[yellow]No LLM provider configured. Starting setup wizard...[/]");
@@ -86,7 +106,56 @@ if (string.IsNullOrWhiteSpace(defaultProvider) &&
     var setupCommand = new SetupCommand(serviceProvider);
     await setupCommand.ExecuteAsync();
     
-    // Reload configuration after setup
+    // Rebuild service provider to pick up new configuration
+    configuration = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: true)
+        .AddJsonFile(userSettingsPath, optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables()
+        .AddUserSecrets<Program>(optional: true)
+        .Build();
+    
+    services = new ServiceCollection();
+    
+    // Re-register all services with new configuration
+    services.AddSingleton<IConfiguration>(configuration);
+    services.Configure<OpenAIOptions>(configuration.GetSection("OpenAI"));
+    services.Configure<ClaudeOptions>(configuration.GetSection("Claude"));
+    services.Configure<OllamaOptions>(configuration.GetSection("Ollama"));
+    services.Configure<MCPOptions>(configuration.GetSection("MCP"));
+    
+    services.AddLogging(builder =>
+    {
+        builder.AddConsole();
+        builder.SetMinimumLevel(LogLevel.Warning);
+    });
+    
+    services.AddHttpClient();
+    services.AddSingleton<IConfigurationService, ConfigurationService>();
+    services.AddSingleton<IFileSystemService, FileSystemService>();
+    services.AddSingleton<IChatService, ChatService>();
+    services.AddSingleton<OpenAIProvider>();
+    services.AddSingleton<ClaudeProvider>();
+    services.AddSingleton<OllamaProvider>();
+    services.AddSingleton<IMCPClient, MCPClient>();
+    
+    services.AddSingleton<ILLMProviderFactory>(sp =>
+    {
+        var factory = new LLMProviderFactory(sp);
+        factory.RegisterProvider<OpenAIProvider>("openai");
+        factory.RegisterProvider<ClaudeProvider>("claude");
+        factory.RegisterProvider<OllamaProvider>("ollama");
+        return factory;
+    });
+    
+    services.AddSingleton<ILLMProvider>(sp =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+        var providerName = config["DefaultProvider"] ?? "openai";
+        var factory = sp.GetRequiredService<ILLMProviderFactory>();
+        return factory.GetProvider(providerName);
+    });
+    
     serviceProvider = services.BuildServiceProvider();
 }
 
@@ -122,7 +191,6 @@ if (cmdArgs.Length > 0)
                 if (factory.GetAvailableProviders().Contains(providerName))
                 {
                     // Update configuration
-                    var configService = serviceProvider.GetRequiredService<IConfigurationService>();
                     await configService.SetValueAsync("DefaultProvider", providerName);
                     AnsiConsole.MarkupLine($"[green]Provider set to: {providerName}[/]");
                 }
@@ -153,7 +221,6 @@ if (cmdArgs.Length > 0)
                 var key = cmdArgs[2];
                 var value = cmdArgs.Length > 3 ? cmdArgs[3] : string.Empty;
                 
-                var configService = serviceProvider.GetRequiredService<IConfigurationService>();
                 await configService.SetValueAsync(key, value);
                 AnsiConsole.MarkupLine($"[green]Configuration set: {key}[/]");
             }
