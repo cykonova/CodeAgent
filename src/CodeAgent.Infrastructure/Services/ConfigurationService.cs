@@ -55,6 +55,12 @@ public class ConfigurationService : IConfigurationService
         _runtimeSettings[key] = value;
     }
 
+    public async Task SetValueAsync(string key, string value, CancellationToken cancellationToken = default)
+    {
+        SetValue(key, value);
+        await SaveAsync(cancellationToken);
+    }
+
     public async Task SaveAsync(CancellationToken cancellationToken = default)
     {
         var json = JsonSerializer.Serialize(_runtimeSettings, new JsonSerializerOptions

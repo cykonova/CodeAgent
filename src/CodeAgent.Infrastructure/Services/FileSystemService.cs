@@ -79,6 +79,20 @@ public class FileSystemService : IFileSystemService
         return Task.CompletedTask;
     }
 
+    public async Task<IEnumerable<string>> GetProjectFilesAsync(string path, CancellationToken cancellationToken = default)
+    {
+        // Get all files recursively, excluding common build/temp directories
+        var allFiles = await GetFilesAsync(path, "*", true, cancellationToken);
+        
+        var excludePatterns = new[] { 
+            "/bin/", "/obj/", "/.git/", "/node_modules/", 
+            "/.vs/", "/.vscode/", "/packages/", "/TestResults/"
+        };
+        
+        return allFiles.Where(file => 
+            !excludePatterns.Any(pattern => file.Contains(pattern, StringComparison.OrdinalIgnoreCase)));
+    }
+
     public Task<FileOperation> TrackOperationAsync(FileOperation operation, CancellationToken cancellationToken = default)
     {
         _operations.Add(operation);
