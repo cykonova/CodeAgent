@@ -55,13 +55,33 @@ To create a flexible, extensible, and user-friendly coding agent that democratiz
 - **Security**: Secure credential storage using .NET's built-in mechanisms
 
 ### 7. Safety and Security Features
-- **Change Preview**: Always show diffs before applying modifications
-- **Confirmation Prompts**: User approval required for destructive operations
-- **Backup Creation**: Automatic backups before significant changes
-- **Rollback Capability**: Easy undo of recent AI-suggested modifications
-- **Gitignore Respect**: Honor existing ignore patterns and configurations
 
-### 9. MCP (Model Context Protocol) Integration
+#### **Phase 1: Core Security Boundaries**
+- **Working Directory Isolation**: Strict enforcement - cannot read/write files outside current working directory
+- **Git Repository Requirement**: Only operate within initialized Git repositories (safety net)
+- **Path Traversal Protection**: Prevent `../` and absolute path access outside working directory
+- **File Type Restrictions**: Block access to system files, executables, and sensitive file types
+- **Credential Isolation**: Secure API key storage using .NET ProtectedData with user scope
+- **Process Isolation**: LLM providers cannot execute system commands or spawn processes
+
+#### **Phase 2: Enhanced Security Controls**
+- **Change Preview**: Always show diffs before applying modifications (no auto-apply)
+- **Confirmation Prompts**: User approval required for ALL destructive operations
+- **Backup Creation**: Automatic file backups before ANY modification
+- **Rollback Capability**: Easy undo of recent AI-suggested modifications with complete restore
+- **Gitignore Respect**: Honor existing ignore patterns and never suggest changes to ignored files
+- **File Permission Validation**: Verify write permissions before attempting modifications
+- **Maximum File Size Limits**: Prevent processing of excessively large files that could cause issues
+
+#### **Phase 3: Advanced Security Features**
+- **Audit Logging**: Complete log of all file operations and AI interactions
+- **Permission Levels**: Configurable security levels (read-only, review-required, trusted)
+- **Sandbox Mode**: Optional containerized execution environment
+- **Rate Limiting**: Prevent excessive API calls or file operations
+- **Content Filtering**: Detect and prevent generation of potentially harmful code patterns
+- **Team Policies**: Organization-level security policies and restrictions
+
+### 8. MCP (Model Context Protocol) Integration
 
 - **MCP Server Support**: Connect to and communicate with MCP-compliant servers
 - **Tool Discovery**: Automatically discover available tools from connected MCP servers
@@ -70,36 +90,16 @@ To create a flexible, extensible, and user-friendly coding agent that democratiz
 - **Prompt Management**: Utilize MCP prompt templates for consistent interactions
 - **Multi-Server Support**: Connect to multiple MCP servers simultaneously
 - **Error Handling**: Robust error handling for MCP server communication failures
+
+### 9. Command-Line Interface
 - **Rich Help System**: Comprehensive help with examples using Spectre.Console
 - **Progressive Disclosure**: Context-sensitive command suggestions
 - **Keyboard Shortcuts**: Efficient navigation and common operations
 - **Status Indicators**: Clear feedback on operation progress and status
 
-## Technical Requirements
-
-### Platform Support
-- **Target Framework**: .NET 8.0
-- **Operating Systems**: Windows, macOS, Linux
-- **Architecture**: x64, ARM64 support
-
-### Dependencies
-- **UI Framework**: Spectre.Console for rich terminal interface
-- **HTTP Client**: System.Net.Http for API communications
-- **Git Integration**: LibGit2Sharp or similar for Git operations
-- **Configuration**: Microsoft.Extensions.Configuration
-- **Logging**: Microsoft.Extensions.Logging with Serilog
-- **JSON Processing**: System.Text.Json
-- **MCP Protocol**: Custom MCP client implementation or library for Model Context Protocol support
-
-### Performance Considerations
-- **Async Operations**: Non-blocking UI during API calls
-- **Streaming Support**: Real-time response display for supported providers
-- **Memory Efficiency**: Efficient handling of large codebases
-- **Caching**: Intelligent caching of model responses and project analysis
-
 ## CLI Command Structure
 
-## Initial Feature Set (MVP) Commands
+### Phase 1: Foundation Commands
 
 #### Core Commands
 ```bash
@@ -108,32 +108,42 @@ codeagent                               # Start interactive chat session (defaul
 codeagent chat                          # Alias for interactive session
 codeagent ask "question about code"     # Single question mode
 codeagent status                        # Show agent status and configuration
+```
 
-# Configuration management
+#### Configuration management
+```bash
 codeagent config list                   # List all configuration settings
 codeagent config set <key> <value>      # Set configuration value
 codeagent config get <key>              # Get configuration value
 codeagent config reset                  # Reset to default configuration
+```
 
-# Provider management
+#### Provider management
+```bash
 codeagent provider list                 # List available LLM providers
 codeagent provider add <name> <config>  # Add new provider configuration
 codeagent provider select <name>        # Switch active provider
 codeagent provider test <name>          # Test provider connectivity
+```
 
-# MCP integration
+#### MCP integration
+```bash
 codeagent mcp list                      # List connected MCP servers
 codeagent mcp connect <server-url>      # Connect to MCP server
 codeagent mcp disconnect <server-name>  # Disconnect from MCP server
 codeagent mcp tools                     # List available MCP tools
 codeagent mcp resources                 # List available MCP resources
+```
 
-# Project operations
+#### Project operations
+```bash
 codeagent init                          # Initialize agent in current directory
 codeagent scan                          # Scan and analyze project structure
 codeagent context                       # Show current context information
+```
 
-# Help and information
+#### Help and information
+```bash
 codeagent help [command]                # Show help for specific command
 codeagent version                       # Show version information
 codeagent doctor                        # Diagnose configuration issues
@@ -250,6 +260,47 @@ codeagent report generate               # Generate activity report
 codeagent metrics                       # Show usage metrics
 ```
 
+### Phase 4: Advanced Security & Enterprise Features Commands
+
+#### Security & Compliance
+```bash
+# Security scanning and analysis
+codeagent security audit               # Comprehensive security audit
+codeagent security policies            # Show active security policies
+codeagent security scan --deep         # Deep threat analysis
+codeagent compliance check <standard>  # Check compliance (SOC2, ISO27001)
+
+# Sandbox management
+codeagent sandbox status               # Show sandbox environment status
+codeagent sandbox enable               # Enable sandbox mode
+codeagent sandbox disable              # Disable sandbox mode
+codeagent sandbox logs                 # View sandbox activity logs
+
+# Access control
+codeagent rbac list                    # List role-based access controls
+codeagent rbac assign <user> <role>    # Assign role to user
+codeagent rbac policy <name>           # Apply security policy
+```
+
+#### Enterprise Management
+```bash
+# Organization controls
+codeagent org policy list              # List organization policies
+codeagent org policy apply <name>      # Apply organization policy
+codeagent org users                    # List organization users
+codeagent org audit <period>           # Generate organization audit report
+
+# Data protection
+codeagent dlp scan                     # Data loss prevention scan
+codeagent dlp classify <file>          # Classify data sensitivity
+codeagent dlp report                   # Generate DLP compliance report
+
+# Threat detection
+codeagent threat status                # Show threat detection status
+codeagent threat history               # Show threat detection history
+codeagent threat respond <id>          # Respond to security incident
+```
+
 ### Command Modifiers and Options
 
 #### Global Options (Available for most commands)
@@ -320,6 +371,40 @@ codeagent mcp run database-schema-analyzer --table users
 codeagent export session markdown > code-review-session.md
 ```
 
+#### Phase 4 Examples
+```bash
+# Security and compliance
+codeagent security audit
+codeagent sandbox enable
+codeagent compliance check SOC2
+codeagent dlp scan --classify-all
+codeagent org policy apply "enterprise-security-baseline"
+```
+
+## Technical Requirements
+
+### Platform Support
+- **Target Framework**: .NET 8.0
+- **Operating Systems**: Windows, macOS, Linux
+- **Architecture**: x64, ARM64 support
+
+### Dependencies
+- **UI Framework**: Spectre.Console for rich terminal interface
+- **HTTP Client**: System.Net.Http for API communications
+- **Git Integration**: LibGit2Sharp or similar for Git operations
+- **Configuration**: Microsoft.Extensions.Configuration
+- **Logging**: Microsoft.Extensions.Logging with Serilog
+- **JSON Processing**: System.Text.Json
+- **MCP Protocol**: Custom MCP client implementation or library for Model Context Protocol support
+
+### Performance Considerations
+- **Async Operations**: Non-blocking UI during API calls
+- **Streaming Support**: Real-time response display for supported providers
+- **Memory Efficiency**: Efficient handling of large codebases
+- **Caching**: Intelligent caching of model responses and project analysis
+
+## Initial Feature Set (MVP)
+
 ### Phase 1: Foundation
 1. Basic LLM provider abstraction layer
 2. Simple chat interface with Spectre.Console
@@ -343,6 +428,49 @@ codeagent export session markdown > code-review-session.md
 4. Advanced Git workflows
 5. Performance optimizations and caching
 
+### Phase 4: Advanced Security & Enterprise Features
+1. **Security Hardening & Compliance**
+   - Code signing for distributed binaries
+   - SBOM (Software Bill of Materials) generation
+   - Vulnerability scanning integration
+   - Compliance reporting (SOC2, ISO27001 readiness)
+   - Security policy templates for organizations
+
+2. **Advanced Sandboxing & Isolation**
+   - Container-based execution environment
+   - WebAssembly (WASM) runtime for untrusted code execution  
+   - Network isolation controls
+   - Resource consumption limits (CPU, memory, disk I/O)
+   - Filesystem virtualization layer
+
+3. **Enterprise Security Controls**
+   - Role-based access control (RBAC)
+   - Active Directory / LDAP integration
+   - Multi-factor authentication support
+   - Session timeout and automatic lockout
+   - Centralized policy management
+
+4. **Advanced Threat Protection**
+   - Real-time malware scanning of generated code
+   - Behavioral analysis of AI suggestions
+   - Anomaly detection for unusual file access patterns
+   - Integration with enterprise security tools (SIEM, EDR)
+   - Automated incident response workflows
+
+5. **Data Loss Prevention (DLP)**
+   - Sensitive data detection (API keys, credentials, PII)
+   - Data classification and labeling
+   - Encryption at rest and in transit
+   - Data residency compliance
+   - Automatic redaction of sensitive information
+
+6. **Audit & Compliance Infrastructure**
+   - Immutable audit trails
+   - Compliance dashboard and reporting
+   - Automated policy violation detection
+   - Integration with governance tools
+   - Digital forensics support for incident investigation
+
 ## Success Criteria
 
 - Successfully integrate with at least 3 different LLM providers
@@ -351,6 +479,7 @@ codeagent export session markdown > code-review-session.md
 - Maintain conversation context across multiple interactions
 - Handle various programming languages and project structures
 - Ensure secure credential management and user privacy
+- **Phase 4**: Meet enterprise security standards with proper isolation and threat protection
 
 ## Future Considerations
 
@@ -360,7 +489,8 @@ codeagent export session markdown > code-review-session.md
 - Integration with popular IDEs and editors
 - Advanced code analysis and refactoring capabilities
 - Support for specialized development workflows (testing, deployment, etc.)
+- **Enterprise features**: SSO integration, advanced analytics, and centralized management
 
 ---
 
-*This requirements document serves as the foundation for developing a comprehensive, multi-provider coding agent that prioritizes developer experience, safety, and flexibility.*
+*This requirements document serves as the foundation for developing a comprehensive, multi-provider coding agent that prioritizes developer experience, safety, and enterprise-grade security.*
