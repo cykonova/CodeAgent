@@ -183,6 +183,25 @@ public class CacheService : ICacheService
     {
         _cleanupTimer?.Dispose();
     }
+    
+    public Task ClearExpiredAsync(CancellationToken cancellationToken = default)
+    {
+        lock (_lockObject)
+        {
+            var expiredKeys = _cache
+                .Where(kvp => kvp.Value.ExpiresAt.HasValue && kvp.Value.ExpiresAt.Value <= DateTime.UtcNow)
+                .Select(kvp => kvp.Key)
+                .ToList();
+            
+            foreach (var key in expiredKeys)
+            {
+                _cache.TryRemove(key, out _);
+                _logger?.LogDebug("Removed expired cache entry: {Key}", key);
+            }
+        }
+        
+        return Task.CompletedTask;
+    }
 
     private class CacheEntry
     {
@@ -367,6 +386,33 @@ public class FileCacheService : ICacheService
         return Path.Combine(_cacheDirectory, subDir, $"{safeKey}.cache");
     }
 
+    public async Task ClearExpiredAsync(CancellationToken cancellationToken = default)
+    {
+        if (!Directory.Exists(_cacheDirectory))
+            return;
+        
+        var cacheFiles = Directory.GetFiles(_cacheDirectory, "*.cache", SearchOption.AllDirectories);
+        
+        foreach (var file in cacheFiles)
+        {
+            try
+            {
+                var content = await File.ReadAllTextAsync(file, cancellationToken);
+                var entry = JsonSerializer.Deserialize<FileCacheEntry>(content);
+                
+                if (entry != null && entry.ExpiresAt.HasValue && entry.ExpiresAt.Value <= DateTime.UtcNow)
+                {
+                    File.Delete(file);
+                    _logger?.LogDebug("Deleted expired cache file: {FileName}", file);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "Failed to check/delete cache file: {FileName}", file);
+            }
+        }
+    }
+    
     private class FileCacheEntry
     {
         public string Value { get; set; } = string.Empty;

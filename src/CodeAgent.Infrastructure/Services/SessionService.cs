@@ -311,4 +311,72 @@ public class SessionService : ISessionService
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
     }
+    
+    // Additional methods for web API
+    public Task<Session> CreateSessionAsync(Session session, CancellationToken cancellationToken = default)
+    {
+        session.Id = GenerateSessionId();
+        session.CreatedAt = DateTime.UtcNow;
+        session.LastAccessedAt = DateTime.UtcNow;
+        
+        _logger?.LogInformation("Created new session from template: {SessionId} - {Name}", session.Id, session.Name);
+        
+        return Task.FromResult(session);
+    }
+    
+    public Task<Session?> GetSessionAsync(string sessionId, CancellationToken cancellationToken = default)
+    {
+        return LoadSessionAsync(sessionId, cancellationToken);
+    }
+    
+    public async Task<IEnumerable<Session>> GetAllSessionsAsync(CancellationToken cancellationToken = default)
+    {
+        var sessions = new List<Session>();
+        
+        if (Directory.Exists(_sessionsDirectory))
+        {
+            var sessionFiles = Directory.GetFiles(_sessionsDirectory, "*.json", SearchOption.AllDirectories);
+            
+            foreach (var file in sessionFiles)
+            {
+                try
+                {
+                    var json = await File.ReadAllTextAsync(file, cancellationToken);
+                    var session = JsonSerializer.Deserialize<Session>(json, GetJsonOptions());
+                    if (session != null)
+                    {
+                        sessions.Add(session);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Failed to load session from file: {FileName}", file);
+                }
+            }
+        }
+        
+        return sessions;
+    }
+    
+    public async Task<int> GetActiveSessionsAsync(CancellationToken cancellationToken = default)
+    {
+        var sessions = await GetAllSessionsAsync(cancellationToken);
+        var cutoff = DateTime.UtcNow.AddHours(-24);
+        return sessions.Count(s => s.LastAccessedAt > cutoff);
+    }
+    
+    public async Task SaveMessageAsync(string sessionId, SessionMessage message, CancellationToken cancellationToken = default)
+    {
+        var session = await GetSessionAsync(sessionId, cancellationToken);
+        if (session != null)
+        {
+            session.Messages.Add(message);
+            session.LastAccessedAt = DateTime.UtcNow;
+            await SaveSessionAsync(session, cancellationToken);
+        }
+        else
+        {
+            _logger?.LogWarning("Cannot save message - session not found: {SessionId}", sessionId);
+        }
+    }
 }

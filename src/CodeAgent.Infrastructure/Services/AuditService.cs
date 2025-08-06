@@ -143,7 +143,7 @@ public class AuditService : IAuditService
                 .ToDictionary(g => g.Key, g => g.Count()),
             CriticalEvents = eventsList.Where(e => e.Severity == AuditSeverity.Critical).ToList(),
             TopUsers = eventsList.GroupBy(e => e.UserId)
-                .Select(g => new UserActivity
+                .Select(g => new CodeAgent.Domain.Models.Security.UserActivity
                 {
                     UserId = g.Key,
                     EventCount = g.Count(),

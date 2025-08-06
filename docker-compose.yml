@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  codeagent-web:
+    build:
+      context: .
+      target: web-runtime
+    container_name: codeagent-web
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - CodeAgent__DataPath=/data
+      - CodeAgent__Providers__OpenAI__ApiKey=${OPENAI_API_KEY}
+      - CodeAgent__Providers__Claude__ApiKey=${CLAUDE_API_KEY}
+      - CodeAgent__Jwt__Key=${JWT_KEY:-default-jwt-key-change-in-production}
+      - CodeAgent__Jwt__Issuer=CodeAgent
+      - CodeAgent__Jwt__Audience=CodeAgentUsers
+    volumes:
+      - codeagent-data:/data
+      - ./config:/app/config:ro
+    networks:
+      - codeagent-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  codeagent-cli:
+    build:
+      context: .
+      target: cli-runtime
+    container_name: codeagent-cli
+    environment:
+      - CodeAgent__DataPath=/data
+      - CodeAgent__Providers__OpenAI__ApiKey=${OPENAI_API_KEY}
+      - CodeAgent__Providers__Claude__ApiKey=${CLAUDE_API_KEY}
+    volumes:
+      - codeagent-data:/data
+      - ./workspace:/workspace
+    networks:
+      - codeagent-network
+    stdin_open: true
+    tty: true
+    restart: "no"
+
+  redis:
+    image: redis:7-alpine
+    container_name: codeagent-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - codeagent-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: codeagent-postgres
+    environment:
+      - POSTGRES_DB=codeagent
+      - POSTGRES_USER=codeagent
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - codeagent-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U codeagent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  codeagent-data:
+    driver: local
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+
+networks:
+  codeagent-network:
+    driver: bridge

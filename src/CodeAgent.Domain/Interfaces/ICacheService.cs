@@ -9,4 +9,5 @@ public interface ICacheService
     Task ClearAsync(CancellationToken cancellationToken = default);
     Task<bool> ExistsAsync(string key, CancellationToken cancellationToken = default);
     Task<IEnumerable<string>> GetKeysAsync(string pattern = "*", CancellationToken cancellationToken = default);
+    Task ClearExpiredAsync(CancellationToken cancellationToken = default);
 }

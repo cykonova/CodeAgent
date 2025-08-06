@@ -14,4 +14,11 @@ public interface ISessionService
     Task AddMessageAsync(string sessionId, SessionMessage message, CancellationToken cancellationToken = default);
     Task<IEnumerable<SessionMessage>> GetMessagesAsync(string sessionId, int? limit = null, CancellationToken cancellationToken = default);
     Task ClearSessionAsync(string sessionId, CancellationToken cancellationToken = default);
+    
+    // Additional methods for web API
+    Task<Session> CreateSessionAsync(Session session, CancellationToken cancellationToken = default);
+    Task<Session?> GetSessionAsync(string sessionId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Session>> GetAllSessionsAsync(CancellationToken cancellationToken = default);
+    Task<int> GetActiveSessionsAsync(CancellationToken cancellationToken = default);
+    Task SaveMessageAsync(string sessionId, SessionMessage message, CancellationToken cancellationToken = default);
 }
