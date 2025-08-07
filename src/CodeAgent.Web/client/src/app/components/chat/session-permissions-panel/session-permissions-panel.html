@@ -1,0 +1,241 @@
+<div class="permissions-panel">
+  <div class="panel-actions">
+    <button mat-button (click)="toggleAll(true)">
+      <mat-icon>check_box</mat-icon>
+      Grant All
+    </button>
+    <button mat-button (click)="toggleAll(false)">
+      <mat-icon>check_box_outline_blank</mat-icon>
+      Clear All
+    </button>
+  </div>
+  
+  <!-- Quick Toggles -->
+  <div class="quick-toggles">
+    <mat-chip-set>
+      <mat-chip 
+        [class.mat-chip-selected]="getGrantedCount(filePermissions()) === filePermissions().length"
+        (click)="toggleCategory('file', getGrantedCount(filePermissions()) !== filePermissions().length)">
+        <mat-icon>folder</mat-icon>
+        Files ({{ getGrantedCount(filePermissions()) }}/{{ filePermissions().length }})
+      </mat-chip>
+      <mat-chip 
+        [class.mat-chip-selected]="getGrantedCount(gitPermissions()) === gitPermissions().length"
+        (click)="toggleCategory('git', getGrantedCount(gitPermissions()) !== gitPermissions().length)">
+        <mat-icon>source</mat-icon>
+        Git ({{ getGrantedCount(gitPermissions()) }}/{{ gitPermissions().length }})
+      </mat-chip>
+      <mat-chip 
+        [class.mat-chip-selected]="getGrantedCount(systemPermissions()) === systemPermissions().length"
+        (click)="toggleCategory('system', getGrantedCount(systemPermissions()) !== systemPermissions().length)">
+        <mat-icon>computer</mat-icon>
+        System ({{ getGrantedCount(systemPermissions()) }}/{{ systemPermissions().length }})
+      </mat-chip>
+      <mat-chip 
+        [class.mat-chip-selected]="getGrantedCount(toolPermissions()) === toolPermissions().length"
+        (click)="toggleCategory('tool', getGrantedCount(toolPermissions()) !== toolPermissions().length)">
+        <mat-icon>build</mat-icon>
+        Tools ({{ getGrantedCount(toolPermissions()) }}/{{ toolPermissions().length }})
+      </mat-chip>
+    </mat-chip-set>
+  </div>
+  
+  <mat-divider></mat-divider>
+  
+  <!-- Permissions List -->
+  <mat-accordion multi>
+    <!-- File Permissions -->
+    @if (filePermissions().length > 0) {
+      <mat-expansion-panel expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>folder</mat-icon>
+            File Operations
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        
+        <div class="permission-list">
+          @for (permission of filePermissions(); track permission.id) {
+            <div class="permission-item compact" [class.granted]="permission.granted">
+              <mat-checkbox 
+                [checked]="permission.granted"
+                (change)="togglePermission(permission)">
+                <div class="permission-content">
+                  <mat-icon class="permission-icon">{{ permission.icon }}</mat-icon>
+                  <span class="permission-name">{{ permission.name }}</span>
+                  <mat-icon 
+                    class="risk-icon" 
+                    [color]="getRiskColor(permission.riskLevel)"
+                    [matTooltip]="permission.description">
+                    {{ getRiskIcon(permission.riskLevel) }}
+                  </mat-icon>
+                </div>
+              </mat-checkbox>
+            </div>
+          }
+        </div>
+      </mat-expansion-panel>
+    }
+    
+    <!-- Git Permissions -->
+    @if (gitPermissions().length > 0) {
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>source</mat-icon>
+            Git Operations
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        
+        <div class="permission-list">
+          @for (permission of gitPermissions(); track permission.id) {
+            <div class="permission-item compact" [class.granted]="permission.granted">
+              <mat-checkbox 
+                [checked]="permission.granted"
+                (change)="togglePermission(permission)">
+                <div class="permission-content">
+                  <mat-icon class="permission-icon">{{ permission.icon }}</mat-icon>
+                  <span class="permission-name">{{ permission.name }}</span>
+                  <mat-icon 
+                    class="risk-icon" 
+                    [color]="getRiskColor(permission.riskLevel)"
+                    [matTooltip]="permission.description">
+                    {{ getRiskIcon(permission.riskLevel) }}
+                  </mat-icon>
+                </div>
+              </mat-checkbox>
+            </div>
+          }
+        </div>
+      </mat-expansion-panel>
+    }
+    
+    <!-- System Permissions -->
+    @if (systemPermissions().length > 0) {
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>computer</mat-icon>
+            System Commands
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        
+        <div class="permission-list">
+          @for (permission of systemPermissions(); track permission.id) {
+            <div class="permission-item compact" [class.granted]="permission.granted">
+              <mat-checkbox 
+                [checked]="permission.granted"
+                (change)="togglePermission(permission)">
+                <div class="permission-content">
+                  <mat-icon class="permission-icon">{{ permission.icon }}</mat-icon>
+                  <span class="permission-name">{{ permission.name }}</span>
+                  <mat-icon 
+                    class="risk-icon" 
+                    [color]="getRiskColor(permission.riskLevel)"
+                    [matTooltip]="permission.description">
+                    {{ getRiskIcon(permission.riskLevel) }}
+                  </mat-icon>
+                </div>
+              </mat-checkbox>
+            </div>
+          }
+        </div>
+      </mat-expansion-panel>
+    }
+    
+    <!-- Tool Permissions -->
+    @if (toolPermissions().length > 0) {
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>build</mat-icon>
+            Tools & Extensions
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        
+        <div class="permission-list">
+          @for (permission of toolPermissions(); track permission.id) {
+            <div class="permission-item compact" [class.granted]="permission.granted">
+              <mat-checkbox 
+                [checked]="permission.granted"
+                (change)="togglePermission(permission)">
+                <div class="permission-content">
+                  <mat-icon class="permission-icon">{{ permission.icon }}</mat-icon>
+                  <span class="permission-name">{{ permission.name }}</span>
+                  <mat-icon 
+                    class="risk-icon" 
+                    [color]="getRiskColor(permission.riskLevel)"
+                    [matTooltip]="permission.description">
+                    {{ getRiskIcon(permission.riskLevel) }}
+                  </mat-icon>
+                </div>
+              </mat-checkbox>
+            </div>
+          }
+        </div>
+      </mat-expansion-panel>
+    }
+    
+    <!-- Path Restrictions -->
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>route</mat-icon>
+          Path Restrictions
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <div class="path-section">
+        <h5>Permitted Paths</h5>
+        <div class="add-path-compact">
+          <mat-form-field appearance="outline" class="compact-field">
+            <input matInput [(ngModel)]="newPermittedPath" 
+                   placeholder="Add path..."
+                   (keyup.enter)="addPermittedPath()">
+          </mat-form-field>
+          <button mat-icon-button color="primary" (click)="addPermittedPath()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        
+        @if (sessionPaths().permitted.length > 0) {
+          <mat-chip-set class="compact-chips">
+            @for (path of sessionPaths().permitted; track path) {
+              <mat-chip-row (removed)="removePermittedPath(path)">
+                {{ path }}
+                <button matChipRemove>
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip-row>
+            }
+          </mat-chip-set>
+        }
+        
+        <h5>Blocked Paths</h5>
+        <div class="add-path-compact">
+          <mat-form-field appearance="outline" class="compact-field">
+            <input matInput [(ngModel)]="newBlockedPath" 
+                   placeholder="Add path..."
+                   (keyup.enter)="addBlockedPath()">
+          </mat-form-field>
+          <button mat-icon-button color="warn" (click)="addBlockedPath()">
+            <mat-icon>block</mat-icon>
+          </button>
+        </div>
+        
+        @if (sessionPaths().blocked.length > 0) {
+          <mat-chip-set class="compact-chips">
+            @for (path of sessionPaths().blocked; track path) {
+              <mat-chip-row (removed)="removeBlockedPath(path)" class="blocked-chip">
+                {{ path }}
+                <button matChipRemove>
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip-row>
+            }
+          </mat-chip-set>
+        }
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

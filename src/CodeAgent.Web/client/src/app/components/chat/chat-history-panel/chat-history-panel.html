@@ -1,0 +1,151 @@
+<div class="history-panel">
+  <!-- Header with Search -->
+  <div class="history-header">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search conversations</mat-label>
+      <input matInput 
+             [(ngModel)]="searchQuery" 
+             (input)="onSearchChange()"
+             placeholder="Search by title, content, or tags...">
+      <mat-icon matPrefix>search</mat-icon>
+      @if (searchQuery()) {
+        <button matSuffix mat-icon-button (click)="searchQuery.set(''); onSearchChange()">
+          <mat-icon>clear</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+    
+    <button mat-icon-button (click)="refreshHistory()" [disabled]="loading()" matTooltip="Refresh">
+      <mat-icon [class.spinning]="loading()">refresh</mat-icon>
+    </button>
+  </div>
+  
+  <!-- Filter Chips -->
+  <div class="filter-section">
+    <mat-chip-set>
+      <mat-chip 
+        [class.selected]="selectedFilter() === 'all'"
+        (click)="setFilter('all')">
+        All
+        <mat-chip-trailing-icon>{{ getFilterCount('all') }}</mat-chip-trailing-icon>
+      </mat-chip>
+      <mat-chip 
+        [class.selected]="selectedFilter() === 'starred'"
+        (click)="setFilter('starred')">
+        <mat-icon>star</mat-icon>
+        Starred
+        <mat-chip-trailing-icon>{{ getFilterCount('starred') }}</mat-chip-trailing-icon>
+      </mat-chip>
+      <mat-chip 
+        [class.selected]="selectedFilter() === 'recent'"
+        (click)="setFilter('recent')">
+        <mat-icon>schedule</mat-icon>
+        Recent
+        <mat-chip-trailing-icon>{{ getFilterCount('recent') }}</mat-chip-trailing-icon>
+      </mat-chip>
+      <mat-chip 
+        [class.selected]="selectedFilter() === 'archived'"
+        (click)="setFilter('archived')">
+        <mat-icon>archive</mat-icon>
+        Archived
+        <mat-chip-trailing-icon>{{ getFilterCount('archived') }}</mat-chip-trailing-icon>
+      </mat-chip>
+    </mat-chip-set>
+  </div>
+  
+  <mat-divider></mat-divider>
+  
+  <!-- Sessions List -->
+  <div class="sessions-list">
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-progress-spinner diameter="32"></mat-progress-spinner>
+        <p>Loading conversations...</p>
+      </div>
+    } @else if (filteredSessions().length === 0) {
+      <div class="empty-state">
+        @if (searchQuery()) {
+          <mat-icon>search_off</mat-icon>
+          <h3>No conversations found</h3>
+          <p>Try adjusting your search terms or filters</p>
+        } @else if (selectedFilter() === 'starred') {
+          <mat-icon>star_border</mat-icon>
+          <h3>No starred conversations</h3>
+          <p>Star conversations to find them easily later</p>
+        } @else if (selectedFilter() === 'archived') {
+          <mat-icon>archive</mat-icon>
+          <h3>No archived conversations</h3>
+          <p>Archived conversations will appear here</p>
+        } @else {
+          <mat-icon>chat_bubble_outline</mat-icon>
+          <h3>No conversations yet</h3>
+          <p>Start a new conversation to see it here</p>
+        }
+      </div>
+    } @else {
+      <mat-nav-list>
+        @for (session of filteredSessions(); track session.id) {
+          <mat-list-item class="session-item" (click)="openSession(session.id)">
+            <div matListItemIcon class="session-avatar">
+              @if (session.starred) {
+                <mat-icon class="star-icon">star</mat-icon>
+              } @else {
+                <mat-icon>chat_bubble</mat-icon>
+              }
+            </div>
+            
+            <div matListItemTitle class="session-header">
+              <span class="session-title">{{ session.title }}</span>
+              <div class="session-meta">
+                <span class="message-count">{{ session.messageCount }} messages</span>
+                <span class="last-activity">{{ formatRelativeTime(session.lastActivity) }}</span>
+              </div>
+            </div>
+            
+            <div matListItemLine class="session-content">
+              <p class="session-preview">{{ session.preview }}</p>
+              @if (session.tags.length > 0) {
+                <div class="session-tags">
+                  @for (tag of session.tags; track tag) {
+                    <mat-chip class="tag-chip">{{ tag }}</mat-chip>
+                  }
+                </div>
+              }
+            </div>
+            
+            <div matListItemMeta class="session-actions">
+              <button mat-icon-button 
+                      (click)="toggleStar(session.id, $event)"
+                      [class.starred]="session.starred"
+                      [matTooltip]="session.starred ? 'Remove star' : 'Add star'">
+                <mat-icon>{{ session.starred ? 'star' : 'star_border' }}</mat-icon>
+              </button>
+              
+              <button mat-icon-button [matMenuTriggerFor]="sessionMenu" (click)="$event.stopPropagation()">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              
+              <mat-menu #sessionMenu="matMenu">
+                @if (!session.archived) {
+                  <button mat-menu-item (click)="archiveSession(session.id, $event)">
+                    <mat-icon>archive</mat-icon>
+                    Archive
+                  </button>
+                } @else {
+                  <button mat-menu-item (click)="restoreSession(session.id, $event)">
+                    <mat-icon>unarchive</mat-icon>
+                    Restore
+                  </button>
+                }
+                <button mat-menu-item (click)="deleteSession(session.id, $event)" class="delete-action">
+                  <mat-icon>delete</mat-icon>
+                  Delete
+                </button>
+              </mat-menu>
+            </div>
+          </mat-list-item>
+        }
+      </mat-nav-list>
+    }
+  </div>
+</div>

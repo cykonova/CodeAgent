@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace CodeAgent.Web.Hubs;
 
-[Authorize]
+// [Authorize] // Disabled for now - enable when adding authentication
 public class AgentHub : Hub
 {
     private readonly ProviderManager _providerManager;

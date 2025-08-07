@@ -1,0 +1,57 @@
+@use '@angular/material' as mat;
+
+// Light theme definition
+$light-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$violet-palette,
+  ),
+  typography: (
+    brand-family: 'Roboto, sans-serif',
+    plain-family: 'Roboto, sans-serif',
+  ),
+  density: (
+    scale: 0,
+  ),
+));
+
+// Apply light theme
+@mixin apply-light-theme() {
+  @include mat.theme($light-theme);
+  
+  // Additional custom properties for light theme
+  --app-background: #f8f9fa;
+  --app-surface: #ffffff;
+  --app-card-background: #ffffff;
+  --app-drawer-background: #ffffff;
+  --app-toolbar-background: #ffffff;
+  --app-toolbar-text: rgba(0, 0, 0, 0.87);
+  --app-text-primary: rgba(0, 0, 0, 0.87);
+  --app-text-secondary: rgba(0, 0, 0, 0.6);
+  --app-text-disabled: rgba(0, 0, 0, 0.38);
+  --app-divider: rgba(0, 0, 0, 0.12);
+  --app-border: rgba(0, 0, 0, 0.08);
+  --app-hover: rgba(0, 0, 0, 0.04);
+  --app-selected: rgba(0, 0, 0, 0.08);
+  --app-focus: rgba(33, 150, 243, 0.12);
+  --app-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --app-shadow-md: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  --app-shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  
+  // Status colors
+  --app-success: #4caf50;
+  --app-success-light: rgba(76, 175, 80, 0.12);
+  --app-info: #2196f3;
+  --app-info-light: rgba(33, 150, 243, 0.12);
+  --app-warning: #ff9800;
+  --app-warning-light: rgba(255, 152, 0, 0.12);
+  --app-error: #f44336;
+  --app-error-light: rgba(244, 67, 54, 0.12);
+  
+  // Legacy color names for compatibility
+  --success-color: #4caf50;
+  --error-color: #f44336;
+  --error-light: #ffebee;
+  --primary-rgb: 33, 150, 243;
+}

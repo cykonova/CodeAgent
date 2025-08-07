@@ -33,6 +33,9 @@ public interface ISecurityService
     Task InvalidateSessionAsync(string sessionToken, CancellationToken cancellationToken = default);
     Task<SecuritySession?> GetSessionAsync(string sessionToken, CancellationToken cancellationToken = default);
     
+    // Path security validation
+    Task<bool> IsPathAllowedAsync(string path, CancellationToken cancellationToken = default);
+    
     // MFA operations
     Task<bool> IsMfaEnabledAsync(string userId, CancellationToken cancellationToken = default);
     Task<string> GenerateMfaTokenAsync(string userId, CancellationToken cancellationToken = default);

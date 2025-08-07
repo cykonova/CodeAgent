@@ -1,0 +1,132 @@
+.sidenav-container {
+  height: 100vh;
+  background-color: var(--app-background);
+}
+
+.sidenav {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--app-surface);
+  border-right: 1px solid var(--app-divider);
+  box-shadow: var(--app-shadow-sm);
+  
+  .sidenav-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg) var(--spacing-md);
+    border-bottom: 1px solid var(--app-divider);
+    
+    .logo-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: var(--primary-color);
+    }
+    
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--app-text-primary);
+    }
+  }
+  
+  .nav-list {
+    flex: 1;
+    padding: var(--spacing-md) 0;
+    
+    .nav-item {
+      margin: var(--spacing-xs) var(--spacing-md);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-fast);
+      
+      &:hover {
+        background-color: var(--app-hover);
+      }
+      
+      &.active-link {
+        background-color: var(--app-selected);
+        
+        mat-icon {
+          color: var(--primary-color);
+        }
+        
+        span {
+          color: var(--primary-color);
+          font-weight: 500;
+        }
+      }
+      
+      mat-icon {
+        margin-right: var(--spacing-md);
+        color: var(--app-text-secondary);
+        transition: color var(--transition-fast);
+      }
+      
+      span {
+        color: var(--app-text-primary);
+      }
+    }
+  }
+  
+  .sidenav-footer {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--app-divider);
+    
+    .theme-toggle-btn {
+      width: 100%;
+      justify-content: flex-start;
+      padding: var(--spacing-sm) var(--spacing-md);
+      
+      mat-icon {
+        margin-right: var(--spacing-md);
+      }
+    }
+  }
+}
+
+.content-area {
+  background-color: var(--app-background);
+  
+  .main-content {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 0;
+  }
+}
+
+// Remove toolbar styles since we don't have one anymore
+.main-toolbar {
+  display: none;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .sidenav {
+    width: 240px;
+  }
+  
+  // Hide text on mobile
+  @media (max-width: 600px) {
+    .sidenav {
+      width: 80px;
+      
+      .logo-text {
+        display: none;
+      }
+      
+      .nav-item span {
+        display: none;
+      }
+      
+      .theme-toggle-btn span {
+        display: none;
+      }
+      
+      .theme-toggle-btn {
+        justify-content: center;
+      }
+    }
+  }
+}

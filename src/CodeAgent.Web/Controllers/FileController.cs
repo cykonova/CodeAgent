@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using CodeAgent.Domain.Interfaces;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace CodeAgent.Web.Controllers;
 
@@ -30,9 +31,15 @@ public class FileController : ControllerBase
     {
         try
         {
+            // Validate and sanitize path
+            if (!IsValidPath(path))
+            {
+                return Task.FromResult<IActionResult>(BadRequest(new { error = "Invalid path" }));
+            }
+
             var fullPath = string.IsNullOrEmpty(path) 
                 ? Directory.GetCurrentDirectory() 
-                : Path.GetFullPath(path);
+                : Path.GetFullPath(SanitizePath(path));
             
             if (!Directory.Exists(fullPath))
                 return Task.FromResult<IActionResult>(NotFound(new { error = "Directory not found" }));
@@ -233,6 +240,43 @@ public class FileController : ControllerBase
             _logger.LogError(ex, "Error searching files with pattern: {Pattern}", pattern);
             return StatusCode(500, new { error = "Failed to search files", details = ex.Message });
         }
+    }
+
+    // Security validation methods
+    private bool IsValidPath(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+            return true;
+
+        // Check for directory traversal attempts
+        if (path.Contains("..") || path.Contains("~"))
+            return false;
+
+        // Check for invalid characters
+        var invalidChars = Path.GetInvalidPathChars();
+        if (path.Any(c => invalidChars.Contains(c)))
+            return false;
+
+        return true;
+    }
+
+    private string SanitizePath(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+            return string.Empty;
+
+        // Remove dangerous patterns
+        var sanitized = path
+            .Replace("..", "")
+            .Replace("~", "")
+            .Replace("\\", "/")
+            .Trim();
+
+        // Normalize slashes
+        sanitized = Regex.Replace(sanitized, @"/+", "/");
+        sanitized = sanitized.TrimStart('/');
+
+        return sanitized;
     }
 }
 

@@ -1,0 +1,35 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav" mode="side" opened>
+    <div class="sidenav-header">
+      <mat-icon class="logo-icon">assistant</mat-icon>
+      <span class="logo-text">CodeAgent</span>
+    </div>
+    
+    <mat-nav-list class="nav-list">
+      @for (item of navItems; track item.path) {
+        <a mat-list-item 
+           [routerLink]="item.path"
+           routerLinkActive="active-link"
+           class="nav-item">
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+    
+    <div class="sidenav-footer">
+      <button mat-button 
+              class="theme-toggle-btn"
+              (click)="toggleTheme()">
+        <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        <span>{{ isDark() ? 'Light Mode' : 'Dark Mode' }}</span>
+      </button>
+    </div>
+  </mat-sidenav>
+  
+  <mat-sidenav-content class="content-area">
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,454 @@
+.config-container {
+  height: 100%;
+  padding: var(--spacing-lg);
+}
+
+.config-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--app-divider);
+    
+    mat-card-title {
+      margin: 0;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: center;
+      
+      button {
+        mat-icon {
+          margin-right: var(--spacing-xs);
+        }
+      }
+      
+      mat-spinner {
+        margin-right: var(--spacing-xs);
+      }
+    }
+  }
+  
+  mat-card-content {
+    flex: 1;
+    overflow: hidden;
+    padding: 0;
+    
+    ::ng-deep .mat-mdc-tab-group {
+      height: 100%;
+      
+      .mat-mdc-tab-body-wrapper {
+        flex: 1;
+      }
+    }
+  }
+}
+
+.tab-content {
+  padding: var(--spacing-lg);
+  height: 100%;
+  overflow-y: auto;
+}
+
+// Configuration Form Styles
+.config-form {
+  max-width: 800px;
+  
+  h3 {
+    color: var(--app-text-primary);
+    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+  }
+  
+  h4 {
+    color: var(--app-text-secondary);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .full-width {
+    width: 100%;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: var(--spacing-md);
+    
+    mat-form-field {
+      flex: 1;
+    }
+  }
+  
+  mat-divider {
+    margin: var(--spacing-xl) 0;
+  }
+}
+
+// Directory Management
+.directory-section {
+  margin-bottom: var(--spacing-lg);
+  
+  .add-directory {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+    
+    .flex-field {
+      flex: 1;
+    }
+  }
+  
+  .directory-chips {
+    mat-chip-row {
+      margin: var(--spacing-xs);
+    }
+  }
+}
+
+// Toggle Section
+.toggle-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  
+  mat-slide-toggle {
+    margin-bottom: var(--spacing-sm);
+  }
+}
+
+// Providers Tab
+.providers-tab {
+  padding: 0;
+  
+  .providers-layout {
+    display: flex;
+    height: 100%;
+    
+    .providers-list {
+      width: 300px;
+      border-right: 1px solid var(--app-divider);
+      overflow-y: auto;
+      
+      .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-md);
+        border-bottom: 1px solid var(--app-divider);
+        
+        h3 {
+          margin: 0;
+          font-weight: 500;
+        }
+      }
+      
+      mat-nav-list {
+        padding: 0;
+        
+        mat-list-item {
+          cursor: pointer;
+          transition: background-color var(--transition-fast);
+          
+          &:hover {
+            background-color: var(--app-hover);
+          }
+          
+          &.selected {
+            background-color: var(--app-selected);
+          }
+          
+          .provider-type {
+            font-size: 12px;
+            color: var(--app-text-secondary);
+            text-transform: uppercase;
+            margin-right: var(--spacing-sm);
+          }
+          
+          .status-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            
+            &.enabled {
+              color: var(--success-color, #4caf50);
+            }
+            
+            &.disabled {
+              color: var(--app-text-disabled);
+            }
+          }
+        }
+      }
+    }
+    
+    .provider-details {
+      flex: 1;
+      padding: var(--spacing-lg);
+      overflow-y: auto;
+      
+      .details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-lg);
+        
+        h3 {
+          margin: 0;
+          font-weight: 500;
+        }
+        
+        .details-actions {
+          display: flex;
+          gap: var(--spacing-sm);
+        }
+      }
+      
+      .provider-form {
+        max-width: 600px;
+        
+        .full-width {
+          width: 100%;
+          margin-bottom: var(--spacing-md);
+        }
+        
+        .test-section {
+          margin-top: var(--spacing-lg);
+        }
+      }
+      
+      .no-selection {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--app-text-secondary);
+        
+        mat-icon {
+          font-size: 64px;
+          width: 64px;
+          height: 64px;
+          opacity: 0.3;
+          margin-bottom: var(--spacing-md);
+        }
+      }
+    }
+  }
+}
+
+// Security Tab
+.permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  
+  mat-checkbox {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    min-width: 0;
+    
+    ::ng-deep .mat-mdc-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    mat-icon {
+      color: var(--app-text-secondary);
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.path-section {
+  margin-bottom: var(--spacing-lg);
+  
+  .add-path {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+    
+    .flex-field {
+      flex: 1;
+    }
+  }
+  
+  .path-chips {
+    mat-chip-row {
+      margin: var(--spacing-xs);
+      
+      &.blocked-chip {
+        --mat-chip-background-color: var(--error-light, #ffebee);
+        --mat-chip-text-color: var(--error-color, #f44336);
+        
+        mat-icon {
+          color: var(--error-color, #f44336);
+        }
+      }
+    }
+  }
+}
+
+// Provider Option Styling
+.provider-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  
+  .provider-option-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--app-text-secondary);
+  }
+  
+  .provider-option-text {
+    flex: 1;
+    font-weight: 500;
+  }
+  
+  .provider-status-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    
+    &.enabled {
+      color: var(--success-color, #4caf50);
+    }
+    
+    &.disabled {
+      color: var(--app-text-disabled);
+    }
+  }
+}
+
+// Material 3 Select Panel Theming - Using proper theme tokens
+::ng-deep {
+  .mat-mdc-select-panel {
+    background-color: var(--app-card-background) !important;
+    border: 1px solid var(--app-border) !important;
+    box-shadow: var(--app-shadow-md) !important;
+    border-radius: 8px !important;
+    
+    .mat-mdc-option {
+      background-color: transparent !important;
+      color: var(--app-text-primary) !important;
+      padding: 12px 16px !important;
+      min-height: 48px !important;
+      
+      &:hover,
+      &.mat-mdc-option-multiple:hover {
+        background-color: var(--app-hover) !important;
+      }
+      
+      &.mat-mdc-option-active,
+      &.mdc-list-item--selected {
+        background-color: var(--app-selected) !important;
+        color: var(--app-text-primary) !important;
+      }
+      
+      .mdc-list-item__primary-text {
+        color: inherit !important;
+      }
+      
+      // Style the provider option specifically
+      .provider-option {
+        .provider-option-icon {
+          color: var(--app-text-secondary);
+        }
+        
+        .provider-status-icon {
+          &.enabled {
+            color: var(--app-success);
+          }
+          
+          &.disabled {
+            color: var(--app-text-disabled);
+          }
+        }
+      }
+    }
+  }
+  
+  // Fix form field backgrounds using theme tokens
+  .mat-mdc-form-field {
+    .mat-mdc-text-field-wrapper {
+      background-color: var(--app-surface);
+    }
+    
+    &.mat-focused {
+      .mat-mdc-text-field-wrapper {
+        background-color: var(--app-surface);
+      }
+    }
+  }
+  
+  // Fix checkbox styling using theme tokens
+  .mat-mdc-checkbox {
+    .mdc-checkbox__background {
+      border-color: var(--app-text-secondary);
+    }
+    
+    &.mat-mdc-checkbox-checked {
+      .mdc-checkbox__background {
+        background-color: var(--mat-sys-primary);
+        border-color: var(--mat-sys-primary);
+      }
+    }
+  }
+  
+  // Style form field hints
+  .mat-mdc-form-field-hint {
+    font-size: 0.75em;
+    color: var(--app-text-disabled);
+    opacity: 0.8;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .config-container {
+    padding: var(--spacing-sm);
+  }
+  
+  .config-form {
+    .form-row {
+      flex-direction: column;
+    }
+  }
+  
+  .providers-tab {
+    .providers-layout {
+      flex-direction: column;
+      
+      .providers-list {
+        width: 100%;
+        max-height: 200px;
+        border-right: none;
+        border-bottom: 1px solid var(--app-divider);
+      }
+    }
+  }
+  
+  .permissions-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+}

@@ -11,11 +11,13 @@ using CodeAgent.Providers.OpenAI;
 using CodeAgent.Providers.Claude;
 using CodeAgent.Providers.Ollama;
 using CodeAgent.MCP;
+using CodeAgent.Web.Hubs;
 using Microsoft.Extensions.Options;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,16 +47,43 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add CORS for localhost only
+// Add CSRF protection
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+    options.SuppressXFrameOptionsHeader = false;
+});
+
+// Add SignalR
+builder.Services.AddSignalR();
+
+// Add SPA static files
+builder.Services.AddSpaStaticFiles(configuration =>
+{
+    configuration.RootPath = "wwwroot/browser";
+});
+
+// Add CORS for localhost only (including Angular dev server)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("LocalhostOnly", policy =>
     {
-        policy.WithOrigins("http://localhost:5001")
+        policy.WithOrigins("http://localhost:5001", "http://localhost:4200")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
+});
+
+// Add session services for persistence
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = ".CodeAgent.Session";
+    options.IdleTimeout = TimeSpan.FromHours(24);
+    options.Cookie.IsEssential = true;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
 
 // Configure logging
@@ -82,6 +111,12 @@ builder.Services.AddSingleton<IPermissionService, PermissionService>();
 builder.Services.AddSingleton<IInternalToolService, InternalToolService>();
 builder.Services.AddSingleton<ChatService>();
 builder.Services.AddSingleton<IChatService>(sp => sp.GetRequiredService<ChatService>());
+
+// Additional services for web
+builder.Services.AddScoped<ProviderManager>();
+builder.Services.AddScoped<IProviderManager>(sp => sp.GetRequiredService<ProviderManager>());
+builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<ISecurityService, SecurityService>();
 
 // LLM provider configuration
 builder.Services.Configure<OpenAIOptions>(builder.Configuration.GetSection("OpenAI"));
@@ -144,16 +179,35 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("LocalhostOnly");
 
-// Serve static files (HTML, CSS, JS)
-app.UseDefaultFiles();
-app.UseStaticFiles();
+// Add session middleware
+app.UseSession();
+
+// Add antiforgery middleware
+app.UseAntiforgery();
 
 app.UseRouting();
 app.UseAuthorization();
+
+// Enable static file serving
+app.UseStaticFiles();
+
+// Serve SPA static files
+app.UseSpaStaticFiles();
+
 app.MapControllers();
 
-// Fallback to index.html for client-side routing
-app.MapFallbackToFile("index.html");
+// Map SignalR hubs
+app.MapHub<AgentHub>("/hub/agent");
+app.MapHub<CollaborationHub>("/hub/collaboration");
+
+// Configure SPA - only if not overriding API routes
+app.UseSpa(spa =>
+{
+    spa.Options.SourcePath = "client";
+    
+    // Always serve from wwwroot (pre-built files) to avoid proxy conflicts
+    // This ensures API routes work correctly
+});
 
 // Auto-open browser in daemon mode
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
@@ -215,7 +269,7 @@ public static class ConfigurationBuilderExtensions
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
                 
-            var yamlObject = deserializer.Deserialize<Dictionary<string, object>>(yaml);
+            var yamlObject = deserializer.Deserialize<Dictionary<string, object>?>(yaml);
             if (yamlObject != null)
             {
                 var jsonString = System.Text.Json.JsonSerializer.Serialize(yamlObject);

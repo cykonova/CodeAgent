@@ -47,14 +47,14 @@ public class ChatService : IChatService
         // Enhanced default prompt with code quality instructions
         return @"You are CodeAgent, a professional coding assistant. You MUST use tools for EVERYTHING.
 
-CRITICAL RULES - VIOLATING THESE WILL CAUSE ERRORS:
-1. You MUST use tools for ALL interactions - no exceptions
-2. Use 'respond_to_user' tool ONLY for SHORT messages (max 2000 chars) to communicate
-3. Use 'write_file' tool to create files with COMPLETE code content
-4. NEVER output code in respond_to_user - code ALWAYS goes in write_file
-5. NEVER respond with plain text - ALWAYS use a tool
+🚨 ABSOLUTE RULES - VIOLATION CAUSES IMMEDIATE ERROR:
+1. You MUST use tools for ALL interactions - no exceptions whatsoever
+2. NEVER provide direct text responses - ALWAYS use a tool
+3. Use ONLY 'respond_to_user' tool for communication with users
+4. Use ONLY 'write_file' tool for creating/editing files
+5. If you respond with ANY plain text, your response will be REJECTED and you'll be forced to retry
 
-⚠️ IMPORTANT: If you try to send code through respond_to_user, it will be REJECTED!
+⚠️ CRITICAL: Every single response MUST be a tool call in JSON format. No exceptions!
 
 CURRENT WORKING DIRECTORY: " + Environment.CurrentDirectory + @"
 
@@ -243,13 +243,16 @@ REMEMBER:
         var lastToolResponse = _history.LastOrDefault(m => m.Role == "tool");
         if (lastToolResponse != null)
         {
-            // Extract any user messages from tool responses
+            // Extract user messages from respond_to_user tool responses
             var userMessages = new List<string>();
             for (int i = _history.Count - 1; i >= 0 && _history[i].Role == "tool"; i--)
             {
-                // Check if this tool response is marked as a user message
-                // For now, we'll check if it came from respond_to_user by looking at content
-                userMessages.Insert(0, _history[i].Content);
+                var toolContent = _history[i].Content;
+                var extractedMessage = ExtractMessageFromToolResponse(toolContent);
+                if (!string.IsNullOrEmpty(extractedMessage))
+                {
+                    userMessages.Insert(0, extractedMessage);
+                }
             }
             
             if (userMessages.Any())
@@ -266,6 +269,9 @@ REMEMBER:
         
         if (response.IsComplete && string.IsNullOrEmpty(response.Error) && !string.IsNullOrEmpty(response.Content))
         {
+            // Check if the LLM provided direct content instead of using tools - this violates the tool-only rule
+            _logger.LogWarning("LLM provided direct content instead of using tools: {Content}", response.Content);
+            
             // Check if the content looks like raw JSON tool calls that shouldn't be shown to user
             var contentLower = response.Content.ToLower();
             if ((contentLower.Contains("{\"name\":") && contentLower.Contains("\"arguments\":")) ||
@@ -280,7 +286,70 @@ REMEMBER:
                 };
             }
             
-            _history.Add(new ChatMessage("assistant", response.Content));
+            // If LLM provided direct content, this violates the tool-only constraint
+            // Force it to use tools by providing an error and retrying
+            _history.Add(new ChatMessage("system", 
+                "ERROR: You provided a direct response instead of using tools. You MUST use tools for ALL interactions. " +
+                "Use 'respond_to_user' tool to communicate with the user. NEVER respond with plain text."));
+            
+            // Retry with the original user message
+            var systemMessage = _history.FirstOrDefault(m => m.Role == "system");
+            var userMsg = _history.FirstOrDefault(m => m.Role == "user");
+            
+            var retryMessages = new List<ChatMessage>();
+            if (systemMessage != null) retryMessages.Add(systemMessage);
+            if (userMsg != null) retryMessages.Add(userMsg);
+            retryMessages.Add(_history.Last()); // Add the error message we just created
+            
+            // Retry once more with tool enforcement
+            var retryRequest = new ChatRequest
+            {
+                Messages = retryMessages,
+                Stream = false,
+                Tools = _toolService.GetAvailableTools(),
+                ToolChoice = "required" // FORCE tool usage
+            };
+            
+            var retryResponse = await _llmProvider.SendMessageAsync(retryRequest, cancellationToken);
+            if (retryResponse.ToolCalls != null && retryResponse.ToolCalls.Count > 0)
+            {
+                // Process the retry response with tools
+                foreach (var toolCall in retryResponse.ToolCalls)
+                {
+                    var result = await _toolService.ExecuteToolAsync(toolCall, cancellationToken);
+                    var toolMessage = result.Success ? result.Content : $"Error: {result.Error}";
+                    _history.Add(new ChatMessage("tool", toolMessage, toolCall.Id));
+                }
+                
+                // Extract user messages from the tool responses
+                var userMessages = new List<string>();
+                for (int i = _history.Count - 1; i >= 0 && _history[i].Role == "tool"; i--)
+                {
+                    var toolContent = _history[i].Content;
+                    var extractedMessage = ExtractMessageFromToolResponse(toolContent);
+                    if (!string.IsNullOrEmpty(extractedMessage))
+                    {
+                        userMessages.Insert(0, extractedMessage);
+                    }
+                }
+                
+                if (userMessages.Any())
+                {
+                    return new ChatResponse
+                    {
+                        Content = string.Join("\n", userMessages),
+                        IsComplete = true
+                    };
+                }
+            }
+            
+            // If retry also failed, return a fallback message
+            return new ChatResponse
+            {
+                Content = "I need to use tools to respond properly. Please try your request again.",
+                IsComplete = true,
+                Error = "Failed to enforce tool usage"
+            };
         }
 
         return response;
@@ -323,5 +392,87 @@ REMEMBER:
     public List<ChatMessage> GetHistory()
     {
         return new List<ChatMessage>(_history);
+    }
+
+    private string ExtractMessageFromToolResponse(string toolContent)
+    {
+        if (string.IsNullOrWhiteSpace(toolContent))
+            return string.Empty;
+
+        // Check if this is a JSON tool call response
+        try
+        {
+            if (toolContent.TrimStart().StartsWith("{"))
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(toolContent);
+                if (doc.RootElement.TryGetProperty("name", out var nameElement))
+                {
+                    var toolName = nameElement.GetString();
+                    if (doc.RootElement.TryGetProperty("arguments", out var argsElement))
+                    {
+                        switch (toolName)
+                        {
+                            case "respond_to_user":
+                                if (argsElement.TryGetProperty("message", out var messageElement))
+                                {
+                                    return messageElement.GetString() ?? string.Empty;
+                                }
+                                break;
+
+                            case "write_file":
+                                if (argsElement.TryGetProperty("path", out var pathElement))
+                                {
+                                    var filePath = pathElement.GetString() ?? "unknown file";
+                                    return $"📁 Created file: `{filePath}`";
+                                }
+                                break;
+
+                            case "read_file":
+                                if (argsElement.TryGetProperty("path", out var readPathElement))
+                                {
+                                    var filePath = readPathElement.GetString() ?? "unknown file";
+                                    return $"📖 Read file: `{filePath}`";
+                                }
+                                break;
+
+                            case "execute_bash":
+                                if (argsElement.TryGetProperty("command", out var commandElement))
+                                {
+                                    var command = commandElement.GetString() ?? "unknown command";
+                                    return $"🔨 Executed: `{command}`";
+                                }
+                                break;
+
+                            case "create_directory":
+                                if (argsElement.TryGetProperty("path", out var dirPathElement))
+                                {
+                                    var dirPath = dirPathElement.GetString() ?? "unknown directory";
+                                    return $"📂 Created directory: `{dirPath}`";
+                                }
+                                break;
+
+                            case "list_files":
+                                if (argsElement.TryGetProperty("path", out var listPathElement))
+                                {
+                                    var listPath = listPathElement.GetString() ?? ".";
+                                    return $"📋 Listed files in: `{listPath}`";
+                                }
+                                break;
+
+                            default:
+                                return $"🔧 Used tool: `{toolName}`";
+                        }
+                    }
+                }
+            }
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            // Not valid JSON, treat as plain text
+        }
+
+        // If it's not a tool call JSON, this might be tool execution results
+        // Return the content as-is (this could be file contents, command output, etc.)
+        return toolContent;
     }
 }

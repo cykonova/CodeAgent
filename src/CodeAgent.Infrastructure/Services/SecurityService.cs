@@ -331,6 +331,49 @@ public class SecurityService : ISecurityService
         return Task.CompletedTask;
     }
 
+    public Task<bool> IsPathAllowedAsync(string path, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(path))
+            return Task.FromResult(false);
+
+        // Basic path validation - prevent access to sensitive directories
+        var normalizedPath = Path.GetFullPath(path);
+        
+        // Block system directories
+        var blockedPaths = new[]
+        {
+            "/System",
+            "/Windows",
+            "/Program Files",
+            "/usr/bin",
+            "/usr/sbin",
+            "/etc",
+            "/root"
+        };
+
+        var isBlocked = blockedPaths.Any(blocked => 
+            normalizedPath.StartsWith(blocked, StringComparison.OrdinalIgnoreCase));
+
+        if (isBlocked)
+        {
+            _logger.LogWarning("Access denied to blocked path: {Path}", normalizedPath);
+            return Task.FromResult(false);
+        }
+
+        // Allow access to current working directory and subdirectories
+        var workingDir = Directory.GetCurrentDirectory();
+        var isWithinWorkingDir = normalizedPath.StartsWith(workingDir, StringComparison.OrdinalIgnoreCase);
+
+        if (!isWithinWorkingDir)
+        {
+            _logger.LogWarning("Access denied to path outside working directory: {Path}", normalizedPath);
+            return Task.FromResult(false);
+        }
+
+        _logger.LogDebug("Access granted to path: {Path}", normalizedPath);
+        return Task.FromResult(true);
+    }
+
     private static string GenerateSecureToken()
     {
         var bytes = new byte[32];

@@ -1,0 +1,161 @@
+<div class="context-panel">
+  <!-- Project Context Section -->
+  <div class="context-header">
+    <div class="project-info">
+      <mat-chip class="project-chip">
+        <mat-icon>folder</mat-icon>
+        {{ context().projectRoot.split('/').pop() }}
+      </mat-chip>
+      
+      <mat-chip class="git-chip" [matTooltip]="'Branch: ' + context().gitBranch">
+        <mat-icon>source</mat-icon>
+        {{ context().gitBranch }}
+      </mat-chip>
+      
+      @if (context().gitStatus.modified + context().gitStatus.staged + context().gitStatus.untracked > 0) {
+        <mat-chip class="status-chip" 
+                  [matBadge]="context().gitStatus.modified + context().gitStatus.staged + context().gitStatus.untracked"
+                  matBadgeSize="small"
+                  matBadgeColor="warn">
+          <mat-icon>edit</mat-icon>
+          Changes
+        </mat-chip>
+      }
+    </div>
+    
+    <div class="context-actions">
+      <button mat-icon-button (click)="refreshFileTree()" [disabled]="loading()" matTooltip="Refresh">
+        <mat-icon [class.spinning]="loading()">refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+  
+  <mat-divider></mat-divider>
+  
+  <!-- Active Files Section -->
+  @if (context().activeFiles.length > 0) {
+    <div class="context-section">
+      <h4>
+        <mat-icon>tab</mat-icon>
+        Active Files
+        <mat-chip class="count-chip">{{ context().activeFiles.length }}</mat-chip>
+      </h4>
+      
+      <mat-nav-list dense>
+        @for (filePath of context().activeFiles; track filePath) {
+          <mat-list-item (click)="onFileClick({name: filePath.split('/').pop() || '', path: filePath, type: 'file'})">
+            <mat-icon matListItemIcon>{{ getFileIcon(filePath, 'file') }}</mat-icon>
+            <div matListItemTitle>{{ filePath.split('/').pop() }}</div>
+            <div matListItemLine class="file-path">{{ filePath }}</div>
+            <button mat-icon-button matListItemMeta 
+                    (click)="$event.stopPropagation(); pinFile(filePath)"
+                    [class.pinned]="isFilePinned(filePath)"
+                    matTooltip="Pin file">
+              <mat-icon>{{ isFilePinned(filePath) ? 'push_pin' : 'push_pin' }}</mat-icon>
+            </button>
+          </mat-list-item>
+        }
+      </mat-nav-list>
+    </div>
+    
+    <mat-divider></mat-divider>
+  }
+  
+  <!-- Pinned Files Section -->
+  @if (context().pinnedFiles.length > 0) {
+    <div class="context-section">
+      <h4>
+        <mat-icon>push_pin</mat-icon>
+        Pinned Files
+        <mat-chip class="count-chip">{{ context().pinnedFiles.length }}</mat-chip>
+      </h4>
+      
+      <mat-nav-list dense>
+        @for (filePath of context().pinnedFiles; track filePath) {
+          <mat-list-item (click)="onFileClick({name: filePath.split('/').pop() || '', path: filePath, type: 'file'})">
+            <mat-icon matListItemIcon>{{ getFileIcon(filePath, 'file') }}</mat-icon>
+            <div matListItemTitle>{{ filePath.split('/').pop() }}</div>
+            <div matListItemLine class="file-path">{{ filePath }}</div>
+            <button mat-icon-button matListItemMeta 
+                    (click)="$event.stopPropagation(); unpinFile(filePath)"
+                    class="pinned"
+                    matTooltip="Unpin file">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-list-item>
+        }
+      </mat-nav-list>
+    </div>
+    
+    <mat-divider></mat-divider>
+  }
+  
+  <!-- Recent Files Section -->
+  <div class="context-section">
+    <h4>
+      <mat-icon>history</mat-icon>
+      Recent Files
+      <mat-chip class="count-chip">{{ recentFiles().length }}</mat-chip>
+    </h4>
+    
+    <mat-nav-list dense>
+      @for (file of recentFiles(); track file.path) {
+        <mat-list-item (click)="onRecentFileClick(file)">
+          <mat-icon matListItemIcon>{{ getFileTypeIcon(file.type) }}</mat-icon>
+          <div matListItemTitle>{{ file.name }}</div>
+          <div matListItemLine class="file-meta">
+            <span class="file-path">{{ file.path }}</span>
+            <span class="file-info">{{ formatFileSize(file.size) }} • {{ formatRelativeTime(file.modified) }}</span>
+          </div>
+          <button mat-icon-button matListItemMeta 
+                  (click)="$event.stopPropagation(); pinFile(file.path)"
+                  [class.pinned]="isFilePinned(file.path)"
+                  matTooltip="Pin file">
+            <mat-icon>{{ isFilePinned(file.path) ? 'push_pin' : 'push_pin' }}</mat-icon>
+          </button>
+        </mat-list-item>
+      }
+    </mat-nav-list>
+  </div>
+  
+  <mat-divider></mat-divider>
+  
+  <!-- File Browser Section -->
+  <div class="context-section file-browser">
+    <h4>
+      <mat-icon>folder_open</mat-icon>
+      Project Files
+    </h4>
+    
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+    
+    <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="file-tree">
+      <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+        <div class="tree-node file-node" (click)="onFileClick(node)">
+          <mat-icon class="file-icon">{{ getFileIcon(node.name, node.type) }}</mat-icon>
+          <span class="node-label">{{ node.name }}</span>
+          @if (node.type === 'file' && node.size) {
+            <span class="file-size">{{ formatFileSize(node.size) }}</span>
+          }
+        </div>
+      </mat-tree-node>
+      
+      <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodeToggle>
+        <div class="tree-node folder-node">
+          <button mat-icon-button matTreeNodeToggle>
+            <mat-icon>
+              {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+            </mat-icon>
+          </button>
+          <mat-icon class="folder-icon">{{ getFileIcon(node.name, node.type) }}</mat-icon>
+          <span class="node-label">{{ node.name }}</span>
+          @if (node.children) {
+            <span class="folder-count">({{ node.children.length }})</span>
+          }
+        </div>
+      </mat-tree-node>
+    </mat-tree>
+  </div>
+</div>

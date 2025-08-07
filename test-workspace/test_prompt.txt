@@ -1,6 +1,0 @@
-Create a Python Hello World application with the following requirements:
-1. Create a file named hello.py
-2. It should have a main() function that prints "Hello, World!"
-3. It should have a greet(name) function that prints "Hello, {name}!"
-4. Include proper docstrings
-5. Make it executable with if __name__ == "__main__"

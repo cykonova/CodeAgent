@@ -1,0 +1,57 @@
+@use '@angular/material' as mat;
+
+// Dark theme definition
+$dark-theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+    primary: mat.$cyan-palette,
+    tertiary: mat.$violet-palette,
+  ),
+  typography: (
+    brand-family: 'Roboto, sans-serif',
+    plain-family: 'Roboto, sans-serif',
+  ),
+  density: (
+    scale: 0,
+  ),
+));
+
+// Apply dark theme
+@mixin apply-dark-theme() {
+  @include mat.theme($dark-theme);
+  
+  // Additional custom properties for dark theme
+  --app-background: #121212;
+  --app-surface: #1e1e1e;
+  --app-card-background: #242424;
+  --app-drawer-background: #1a1a1a;
+  --app-toolbar-background: #00acc1;
+  --app-toolbar-text: #000000;
+  --app-text-primary: rgba(255, 255, 255, 0.87);
+  --app-text-secondary: rgba(255, 255, 255, 0.6);
+  --app-text-disabled: rgba(255, 255, 255, 0.38);
+  --app-divider: rgba(255, 255, 255, 0.12);
+  --app-border: rgba(255, 255, 255, 0.08);
+  --app-hover: rgba(255, 255, 255, 0.04);
+  --app-selected: rgba(255, 255, 255, 0.08);
+  --app-focus: rgba(0, 172, 193, 0.24);
+  --app-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --app-shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4);
+  --app-shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
+  
+  // Status colors for dark theme
+  --app-success: #66bb6a;
+  --app-success-light: rgba(102, 187, 106, 0.15);
+  --app-info: #42a5f5;
+  --app-info-light: rgba(66, 165, 245, 0.15);
+  --app-warning: #ffa726;
+  --app-warning-light: rgba(255, 167, 38, 0.15);
+  --app-error: #ef5350;
+  --app-error-light: rgba(239, 83, 80, 0.15);
+  
+  // Legacy color names for compatibility
+  --success-color: #66bb6a;
+  --error-color: #ef5350;
+  --error-light: rgba(239, 83, 80, 0.12);
+  --primary-rgb: 0, 172, 193;
+}

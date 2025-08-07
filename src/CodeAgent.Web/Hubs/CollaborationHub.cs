@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace CodeAgent.Web.Hubs;
 
-[Authorize]
+// [Authorize] // Disabled for now - enable when adding authentication
 public class CollaborationHub : Hub
 {
     private readonly ILogger<CollaborationHub> _logger;
