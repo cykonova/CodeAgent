@@ -1,0 +1,42 @@
+@if (isRespondToUser) {
+  <!-- Special handling for respond_to_user - show as text bubble -->
+  <div class="respond-to-user-bubble">
+    <div class="bubble-content">
+      {{ getMessageContent() }}
+    </div>
+  </div>
+} @else {
+  <!-- Regular tool call display -->
+  <div class="tool-call-container">
+    <div class="tool-header">
+      <mat-chip class="tool-chip">
+        <mat-icon class="tool-icon">{{ toolIcon }}</mat-icon>
+        <span class="tool-name">{{ toolCall.name }}</span>
+      </mat-chip>
+    </div>
+    
+    @if (toolCall.arguments && Object.keys(toolCall.arguments).length > 0) {
+      <mat-expansion-panel class="arguments-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>settings</mat-icon>
+            Arguments
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <pre class="arguments-content">{{ getArgumentsDisplay() }}</pre>
+      </mat-expansion-panel>
+    }
+    
+    @if (toolCall.result) {
+      <mat-expansion-panel class="result-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>check_circle</mat-icon>
+            Result
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <pre class="result-content">{{ toolCall.result | json }}</pre>
+      </mat-expansion-panel>
+    }
+  </div>
+}

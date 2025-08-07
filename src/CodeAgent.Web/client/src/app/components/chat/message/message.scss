@@ -38,6 +38,14 @@
     .message-content {
       flex: 1;
       word-wrap: break-word;
+      
+      .tool-calls-section {
+        margin-bottom: 8px;
+      }
+      
+      .text-content {
+        white-space: pre-wrap;
+      }
     }
     
     .message-timestamp {

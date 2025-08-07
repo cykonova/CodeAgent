@@ -3,7 +3,22 @@
      [class.assistant]="message.role === 'assistant'">
   <div class="message-bubble">
     <mat-icon class="message-avatar">{{ getIcon() }}</mat-icon>
-    <div class="message-content">{{ message.content }}</div>
+    <div class="message-content">
+      <!-- Show tool calls if present -->
+      @if (message.toolCalls && message.toolCalls.length > 0) {
+        <div class="tool-calls-section">
+          @for (toolCall of message.toolCalls; track $index) {
+            <app-tool-call [toolCall]="toolCall"></app-tool-call>
+          }
+        </div>
+      }
+      
+      <!-- Show regular message content if present and not just tool calls -->
+      @if (message.content && (!message.toolCalls || message.toolCalls.length === 0 || 
+           !message.toolCalls.some(tc => tc.name === 'respond_to_user'))) {
+        <div class="text-content">{{ message.content }}</div>
+      }
+    </div>
     @if (message.timestamp) {
       <div class="message-timestamp">{{ message.timestamp | date:'short' }}</div>
     }

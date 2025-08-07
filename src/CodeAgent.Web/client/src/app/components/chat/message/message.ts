@@ -1,18 +1,26 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { ToolCallComponent } from '../tool-call/tool-call';
+
+export interface ToolCall {
+  name: string;
+  arguments?: any;
+  result?: any;
+}
 
 export interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp?: Date;
+  toolCalls?: ToolCall[];
 }
 
 @Component({
   selector: 'app-message',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, ToolCallComponent],
   templateUrl: './message.html',
   styleUrl: './message.scss'
 })

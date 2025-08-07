@@ -1,0 +1,88 @@
+.respond-to-user-bubble {
+  .bubble-content {
+    background-color: var(--mat-app-surface);
+    border: 1px solid var(--mat-divider-color);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+}
+
+.tool-call-container {
+  margin: 8px 0;
+  
+  .tool-header {
+    margin-bottom: 8px;
+    
+    .tool-chip {
+      background-color: rgba(var(--mat-primary-rgb), 0.1);
+      border: 1px solid rgba(var(--mat-primary-rgb), 0.3);
+      
+      .tool-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        margin-right: 6px;
+      }
+      
+      .tool-name {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 13px;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .arguments-panel,
+  .result-panel {
+    margin-top: 8px;
+    background-color: var(--mat-app-background);
+    border: 1px solid var(--mat-divider-color);
+    
+    mat-expansion-panel-header {
+      height: 40px;
+      min-height: 40px;
+      padding: 0 16px;
+      
+      mat-panel-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+    
+    &.mat-expanded {
+      margin-top: 8px !important;
+      margin-bottom: 8px !important;
+    }
+  }
+  
+  .arguments-content,
+  .result-content {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 4px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    
+    .dark-theme & {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+  }
+}
