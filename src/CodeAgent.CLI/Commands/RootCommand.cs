@@ -28,27 +28,29 @@ public class RootCommand : AsyncCommand
         console.WriteLine("[dim]The web interface will open in your browser at http://localhost:5001[/]");
         console.WriteLine("[dim]Press Ctrl+C to stop the server[/]");
         
-        // Start the web application
-        var webAppPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "CodeAgent.Web");
-        var webDll = Path.Combine(webAppPath, "bin", "Debug", "net8.0", "CodeAgent.Web.dll");
+        // Start the web application from the correct directory
+        var currentDir = Directory.GetCurrentDirectory();
+        var webProjectPath = Path.Combine(currentDir, "src", "CodeAgent.Web");
         
-        // If running from published output, adjust path
-        if (!File.Exists(webDll))
+        if (!Directory.Exists(webProjectPath))
         {
-            webDll = Path.Combine(AppContext.BaseDirectory, "CodeAgent.Web.dll");
+            // Try finding it relative to the executable
+            var baseDir = AppContext.BaseDirectory;
+            webProjectPath = Path.Combine(baseDir, "..", "..", "..", "..", "CodeAgent.Web");
         }
         
-        if (!File.Exists(webDll))
+        if (!Directory.Exists(webProjectPath))
         {
-            console.WriteLine("[red]Error: Could not find CodeAgent.Web.dll[/]");
-            console.WriteLine("[yellow]Please ensure the web project is built.[/]");
+            console.WriteLine("[red]Error: Could not find CodeAgent.Web project directory[/]");
+            console.WriteLine("[yellow]Please ensure you're running from the solution root.[/]");
             return 1;
         }
         
         var startInfo = new System.Diagnostics.ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = $"\"{webDll}\"",
+            Arguments = "run --urls \"http://localhost:5001\"",
+            WorkingDirectory = webProjectPath,
             UseShellExecute = false,
             CreateNoWindow = false
         };

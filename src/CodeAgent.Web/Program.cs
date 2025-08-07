@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using CodeAgent.Core.Services;
 using CodeAgent.Domain.Interfaces;
 using CodeAgent.Infrastructure.Services;
+using CodeAgent.Web.Services;
 using CodeAgent.Providers.OpenAI;
 using CodeAgent.Providers.Claude;
 using CodeAgent.Providers.Ollama;
@@ -71,6 +72,7 @@ builder.Services.AddHttpClient("OllamaClient", client =>
 builder.Services.AddHttpClient();
 
 // Core services
+builder.Services.AddSingleton<IPermissionPrompt, WebPermissionPrompt>();
 builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
 builder.Services.AddSingleton<IFileSystemService, FileSystemService>();
 builder.Services.AddSingleton<IDiffService, DiffService>();
