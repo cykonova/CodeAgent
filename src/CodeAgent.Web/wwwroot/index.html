@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeAgent Web Portal</title>
+    
+    <!-- Material Design CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@material/web@1.0.0/dist/material-web.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- App Bar -->
+        <header class="mdc-top-app-bar">
+            <div class="mdc-top-app-bar__row">
+                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+                    <button class="material-icons mdc-top-app-bar__navigation-icon mdc-icon-button" id="menu-button">menu</button>
+                    <span class="mdc-top-app-bar__title">CodeAgent</span>
+                </section>
+                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end">
+                    <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" id="settings-button">settings</button>
+                    <span class="provider-indicator" id="provider-indicator">OpenAI</span>
+                </section>
+            </div>
+        </header>
+
+        <!-- Navigation Drawer -->
+        <aside class="mdc-drawer mdc-drawer--modal" id="drawer">
+            <div class="mdc-drawer__header">
+                <h3 class="mdc-drawer__title">CodeAgent</h3>
+                <h6 class="mdc-drawer__subtitle">AI Coding Assistant</h6>
+            </div>
+            <div class="mdc-drawer__content">
+                <nav class="mdc-list">
+                    <a class="mdc-list-item mdc-list-item--activated" href="#" data-view="chat">
+                        <span class="mdc-list-item__ripple"></span>
+                        <i class="material-icons mdc-list-item__graphic">chat</i>
+                        <span class="mdc-list-item__text">Chat</span>
+                    </a>
+                    <a class="mdc-list-item" href="#" data-view="files">
+                        <span class="mdc-list-item__ripple"></span>
+                        <i class="material-icons mdc-list-item__graphic">folder</i>
+                        <span class="mdc-list-item__text">Files</span>
+                    </a>
+                    <a class="mdc-list-item" href="#" data-view="config">
+                        <span class="mdc-list-item__ripple"></span>
+                        <i class="material-icons mdc-list-item__graphic">settings</i>
+                        <span class="mdc-list-item__text">Configuration</span>
+                    </a>
+                    <a class="mdc-list-item" href="#" data-view="about">
+                        <span class="mdc-list-item__ripple"></span>
+                        <i class="material-icons mdc-list-item__graphic">info</i>
+                        <span class="mdc-list-item__text">About</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="mdc-drawer-scrim"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Chat View -->
+            <div id="chat-view" class="view active">
+                <div class="chat-container">
+                    <div class="messages-container" id="messages-container">
+                        <div class="welcome-message">
+                            <h2>Welcome to CodeAgent</h2>
+                            <p>Start a conversation by typing a message below.</p>
+                        </div>
+                    </div>
+                    <div class="input-container">
+                        <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--textarea">
+                            <textarea class="mdc-text-field__input" id="message-input" rows="3" placeholder="Type your message..."></textarea>
+                            <div class="mdc-notched-outline">
+                                <div class="mdc-notched-outline__leading"></div>
+                                <div class="mdc-notched-outline__notch">
+                                    <label class="mdc-floating-label">Message</label>
+                                </div>
+                                <div class="mdc-notched-outline__trailing"></div>
+                            </div>
+                        </div>
+                        <div class="input-actions">
+                            <button class="mdc-button mdc-button--raised" id="send-button">
+                                <span class="mdc-button__label">Send</span>
+                                <i class="material-icons mdc-button__icon">send</i>
+                            </button>
+                            <button class="mdc-button mdc-button--outlined" id="clear-button">
+                                <span class="mdc-button__label">Clear</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files View -->
+            <div id="files-view" class="view">
+                <div class="file-browser">
+                    <div class="file-browser-header">
+                        <div class="path-bar">
+                            <input type="text" class="mdc-text-field__input" id="current-path" readonly>
+                            <button class="mdc-icon-button material-icons" id="refresh-files">refresh</button>
+                        </div>
+                    </div>
+                    <div class="file-list" id="file-list">
+                        <!-- Files will be populated here -->
+                    </div>
+                    <div class="file-editor" id="file-editor" style="display: none;">
+                        <div class="editor-header">
+                            <span id="editing-file"></span>
+                            <button class="mdc-button" id="close-editor">Close</button>
+                        </div>
+                        <textarea id="file-content" class="file-content-editor"></textarea>
+                        <div class="editor-actions">
+                            <button class="mdc-button mdc-button--raised" id="save-file">Save</button>
+                            <button class="mdc-button" id="cancel-edit">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration View -->
+            <div id="config-view" class="view">
+                <div class="config-container">
+                    <h2>Configuration</h2>
+                    
+                    <div class="config-section">
+                        <h3>Provider Settings</h3>
+                        <div class="mdc-form-field">
+                            <label for="provider-select">Default Provider:</label>
+                            <select id="provider-select" class="mdc-select__native-control">
+                                <option value="openai">OpenAI</option>
+                                <option value="claude">Claude</option>
+                                <option value="ollama">Ollama</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="config-section" id="openai-config">
+                        <h4>OpenAI Settings</h4>
+                        <div class="mdc-text-field mdc-text-field--outlined">
+                            <input type="password" class="mdc-text-field__input" id="openai-api-key">
+                            <div class="mdc-notched-outline">
+                                <div class="mdc-notched-outline__leading"></div>
+                                <div class="mdc-notched-outline__notch">
+                                    <label class="mdc-floating-label">API Key</label>
+                                </div>
+                                <div class="mdc-notched-outline__trailing"></div>
+                            </div>
+                        </div>
+                        <div class="mdc-text-field mdc-text-field--outlined">
+                            <input type="text" class="mdc-text-field__input" id="openai-model" value="gpt-4">
+                            <div class="mdc-notched-outline">
+                                <div class="mdc-notched-outline__leading"></div>
+                                <div class="mdc-notched-outline__notch">
+                                    <label class="mdc-floating-label">Model</label>
+                                </div>
+                                <div class="mdc-notched-outline__trailing"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section" id="claude-config">
+                        <h4>Claude Settings</h4>
+                        <div class="mdc-text-field mdc-text-field--outlined">
+                            <input type="password" class="mdc-text-field__input" id="claude-api-key">
+                            <div class="mdc-notched-outline">
+                                <div class="mdc-notched-outline__leading"></div>
+                                <div class="mdc-notched-outline__notch">
+                                    <label class="mdc-floating-label">API Key</label>
+                                </div>
+                                <div class="mdc-notched-outline__trailing"></div>
+                            </div>
+                        </div>
+                        <div class="mdc-text-field mdc-text-field--outlined">
+                            <input type="text" class="mdc-text-field__input" id="claude-model" value="claude-3-sonnet-20240229">
+                            <div class="mdc-notched-outline">
+                                <div class="mdc-notched-outline__leading"></div>
+                                <div class="mdc-notched-outline__notch">
+                                    <label class="mdc-floating-label">Model</label>
+                                </div>
+                                <div class="mdc-notched-outline__trailing"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section" id="ollama-config">
+                        <h4>Ollama Settings</h4>
+                        <div class="mdc-text-field mdc-text-field--outlined">
+                            <input type="text" class="mdc-text-field__input" id="ollama-base-url" value="http://localhost:11434">
+                            <div class="mdc-notched-outline">
+                                <div class="mdc-notched-outline__leading"></div>
+                                <div class="mdc-notched-outline__notch">
+                                    <label class="mdc-floating-label">Base URL</label>
+                                </div>
+                                <div class="mdc-notched-outline__trailing"></div>
+                            </div>
+                        </div>
+                        <div class="mdc-text-field mdc-text-field--outlined">
+                            <input type="text" class="mdc-text-field__input" id="ollama-model" value="llama2">
+                            <div class="mdc-notched-outline">
+                                <div class="mdc-notched-outline__leading"></div>
+                                <div class="mdc-notched-outline__notch">
+                                    <label class="mdc-floating-label">Model</label>
+                                </div>
+                                <div class="mdc-notched-outline__trailing"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>File Format</h3>
+                        <div class="mdc-form-field">
+                            <div class="mdc-radio">
+                                <input class="mdc-radio__native-control" type="radio" id="format-json" name="format" value="json" checked>
+                                <div class="mdc-radio__background">
+                                    <div class="mdc-radio__outer-circle"></div>
+                                    <div class="mdc-radio__inner-circle"></div>
+                                </div>
+                                <div class="mdc-radio__ripple"></div>
+                            </div>
+                            <label for="format-json">JSON</label>
+                        </div>
+                        <div class="mdc-form-field">
+                            <div class="mdc-radio">
+                                <input class="mdc-radio__native-control" type="radio" id="format-yaml" name="format" value="yaml">
+                                <div class="mdc-radio__background">
+                                    <div class="mdc-radio__outer-circle"></div>
+                                    <div class="mdc-radio__inner-circle"></div>
+                                </div>
+                                <div class="mdc-radio__ripple"></div>
+                            </div>
+                            <label for="format-yaml">YAML</label>
+                        </div>
+                    </div>
+
+                    <div class="config-actions">
+                        <button class="mdc-button mdc-button--raised" id="save-config">
+                            <span class="mdc-button__label">Save Configuration</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About View -->
+            <div id="about-view" class="view">
+                <div class="about-container">
+                    <h2>About CodeAgent</h2>
+                    <p>CodeAgent is an AI-powered coding assistant that helps you write, refactor, and understand code more efficiently.</p>
+                    <div class="about-info">
+                        <p><strong>Version:</strong> 1.0.0</p>
+                        <p><strong>Server:</strong> Running on localhost:5001</p>
+                        <p><strong>Configuration:</strong> ~/.codeagent/settings.json or settings.yaml</p>
+                    </div>
+                    <div class="about-features">
+                        <h3>Features</h3>
+                        <ul>
+                            <li>Multi-provider support (OpenAI, Claude, Ollama)</li>
+                            <li>File browsing and editing</li>
+                            <li>Code analysis and refactoring</li>
+                            <li>Context-aware suggestions</li>
+                            <li>File-based configuration (JSON/YAML)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Snackbar for notifications -->
+        <div class="mdc-snackbar" id="snackbar">
+            <div class="mdc-snackbar__surface">
+                <div class="mdc-snackbar__label" role="status" aria-live="polite"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+</body>
+</html>

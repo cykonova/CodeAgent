@@ -35,7 +35,7 @@ public class ChatServiceRegressionTests
         };
         _toolServiceMock.Setup(x => x.GetAvailableTools()).Returns(tools);
         
-        _sut = new ChatService(_llmProviderMock.Object, _toolServiceMock.Object, _configServiceMock.Object);
+        _sut = new ChatService(_llmProviderMock.Object, _toolServiceMock.Object, _configServiceMock.Object, _loggerMock.Object);
     }
 
     [Fact]

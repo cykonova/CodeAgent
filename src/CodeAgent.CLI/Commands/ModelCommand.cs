@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using System.Text.Json;
 
 namespace CodeAgent.CLI.Commands;
 
@@ -62,12 +63,16 @@ public class ModelCommand : AsyncCommand<ModelCommand.Settings>
             {
                 console.MarkupLine($"[bold]Current Ollama model:[/] {currentModel}");
                 console.MarkupLine("[dim]Use '/model list' to see available models[/]");
+                console.MarkupLine("[dim]Use '/model list-tools' to see models with tool support[/]");
                 console.MarkupLine("[dim]Use '/model <model-name>' to change model[/]");
                 console.MarkupLine("[red]No models found. Make sure Ollama is running and has models installed.[/]");
             }
         }
-        else if (settings.ActionOrModel.Equals("list", StringComparison.OrdinalIgnoreCase))
+        else if (settings.ActionOrModel.Equals("list", StringComparison.OrdinalIgnoreCase) || 
+                 settings.ActionOrModel.Equals("list-tools", StringComparison.OrdinalIgnoreCase))
         {
+            var showOnlyToolSupport = settings.ActionOrModel.Equals("list-tools", StringComparison.OrdinalIgnoreCase);
+            
             // List available models
             console.MarkupLine($"[bold]Current model:[/] {currentModel}");
             console.WriteLine();
@@ -75,11 +80,36 @@ public class ModelCommand : AsyncCommand<ModelCommand.Settings>
             var availableModels = await GetAvailableModelsAsync();
             if (availableModels.Any())
             {
-                console.MarkupLine("[bold]Available models:[/]");
-                foreach (var model in availableModels)
+                if (showOnlyToolSupport)
                 {
-                    var current = model == currentModel ? " [green](current)[/]" : "";
-                    console.MarkupLine($"  • {model}{current}");
+                    console.MarkupLine("[bold]Models with tool/function support:[/]");
+                    var modelsWithTools = await GetModelsWithToolSupportAsync(availableModels);
+                    
+                    if (modelsWithTools.Any())
+                    {
+                        foreach (var model in modelsWithTools)
+                        {
+                            var current = model == currentModel ? " [green](current)[/]" : "";
+                            console.MarkupLine($"  • {model}{current} [dim]✓ tools[/]");
+                        }
+                    }
+                    else
+                    {
+                        console.MarkupLine("[yellow]No models with tool support found.[/]");
+                        console.MarkupLine("[dim]Try: ollama pull llama3.2 or ollama pull qwen2.5[/]");
+                    }
+                }
+                else
+                {
+                    console.MarkupLine("[bold]Available models:[/]");
+                    var modelsWithTools = await GetModelsWithToolSupportAsync(availableModels);
+                    
+                    foreach (var model in availableModels)
+                    {
+                        var current = model == currentModel ? " [green](current)[/]" : "";
+                        var toolSupport = modelsWithTools.Contains(model) ? " [dim]✓ tools[/]" : "";
+                        console.MarkupLine($"  • {model}{current}{toolSupport}");
+                    }
                 }
             }
             else
@@ -127,18 +157,65 @@ public class ModelCommand : AsyncCommand<ModelCommand.Settings>
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var models = System.Text.Json.JsonSerializer.Deserialize<OllamaModelsResponse>(content);
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    PropertyNameCaseInsensitive = true
+                };
+                var models = System.Text.Json.JsonSerializer.Deserialize<OllamaModelsResponse>(content, options);
                 return models?.Models?.Select(m => m.Name.Split(':')[0]).Distinct().OrderBy(x => x).ToList() ?? new List<string>();
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Fallback to common models if API call fails
+            System.Console.WriteLine($"Debug: API call failed: {ex.Message}");
         }
         
         return new List<string> { "llama3.2", "llama3.1", "codellama", "mistral", "phi3", "qwen2", "gemma2" };
     }
 
+    private Task<List<string>> GetModelsWithToolSupportAsync(List<string> models)
+    {
+        var modelsWithTools = new List<string>();
+        
+        // Known models that support tools/functions
+        var knownToolModels = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "llama3.2", "llama3.1", "llama3",
+            "qwen2.5", "qwen2", "qwen3",
+            "mistral", "mixtral",
+            "gemma2", "gemma3",
+            "phi3", "phi3.5",
+            "deepseek-coder", "deepseek",
+            "command-r", "command-r-plus"
+        };
+        
+        foreach (var model in models)
+        {
+            // Check if model is in known list
+            if (knownToolModels.Contains(model))
+            {
+                modelsWithTools.Add(model);
+                continue;
+            }
+            
+            // Also check if model starts with a known tool-supporting base
+            foreach (var knownModel in knownToolModels)
+            {
+                if (model.StartsWith(knownModel, StringComparison.OrdinalIgnoreCase))
+                {
+                    modelsWithTools.Add(model);
+                    break;
+                }
+            }
+        }
+        
+        // Optionally, we could test each model by making a dummy request with tools
+        // but that would be slow. For now, we use a known list.
+        
+        return Task.FromResult(modelsWithTools);
+    }
     private class OllamaModelsResponse
     {
         public List<OllamaModel> Models { get; set; } = new();

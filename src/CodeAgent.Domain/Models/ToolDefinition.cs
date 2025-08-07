@@ -28,4 +28,5 @@ public class ToolResult
     public string Content { get; set; } = string.Empty;
     public bool Success { get; set; } = true;
     public string? Error { get; set; }
+    public bool IsUserMessage { get; set; } = false; // Indicates this is a message for the user
 }

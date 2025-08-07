@@ -28,6 +28,13 @@ public class FileSystemService : IFileSystemService
             originalContent = await File.ReadAllTextAsync(path, cancellationToken);
         }
 
+        // Ensure the directory exists
+        var directory = Path.GetDirectoryName(path);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
         await File.WriteAllTextAsync(path, content, cancellationToken);
         
         await TrackOperationAsync(new FileOperation

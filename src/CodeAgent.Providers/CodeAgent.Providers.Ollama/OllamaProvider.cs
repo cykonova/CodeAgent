@@ -340,36 +340,76 @@ public class OllamaProvider : ILLMProvider
         if (string.IsNullOrWhiteSpace(content))
             return toolCalls;
         
-        // Split content by semicolons and parse each potential tool call
-        var potentialCalls = content.Split(';', StringSplitOptions.RemoveEmptyEntries);
+        // Try to find JSON objects in the content
+        // Look for patterns like {"name":"...", "parameters":{...}} or {"function":"...", "arguments":{...}}
+        var jsonPattern = @"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}";
+        var matches = System.Text.RegularExpressions.Regex.Matches(content, jsonPattern);
         
-        foreach (var potentialCall in potentialCalls)
+        foreach (System.Text.RegularExpressions.Match match in matches)
         {
-            var trimmed = potentialCall.Trim();
-            if (trimmed.StartsWith("{") && trimmed.EndsWith("}"))
+            var jsonStr = match.Value;
+            try
             {
-                try
+                using var doc = JsonDocument.Parse(jsonStr);
+                var root = doc.RootElement;
+                
+                // Check for standard tool call format
+                if (root.TryGetProperty("name", out var nameElement) &&
+                    root.TryGetProperty("parameters", out var parametersElement))
                 {
-                    using var doc = JsonDocument.Parse(trimmed);
-                    var root = doc.RootElement;
-                    
-                    // Check if it has the structure of a tool call
-                    if (root.TryGetProperty("name", out var nameElement) &&
-                        root.TryGetProperty("parameters", out var parametersElement))
+                    var toolCall = new ToolCall
                     {
-                        var toolCall = new ToolCall
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            Name = nameElement.GetString() ?? string.Empty,
-                            Arguments = ParseArgumentsFromJson(parametersElement.GetRawText())
-                        };
-                        toolCalls.Add(toolCall);
-                    }
+                        Id = Guid.NewGuid().ToString(),
+                        Name = nameElement.GetString() ?? string.Empty,
+                        Arguments = ParseArgumentsFromJson(parametersElement.GetRawText())
+                    };
+                    toolCalls.Add(toolCall);
                 }
-                catch
+                // Also check for OpenAI-style format
+                else if (root.TryGetProperty("function", out var functionElement) &&
+                         root.TryGetProperty("arguments", out var argumentsElement))
                 {
-                    // Invalid JSON, skip this one
+                    var toolCall = new ToolCall
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = functionElement.GetString() ?? string.Empty,
+                        Arguments = ParseArgumentsFromJson(argumentsElement.GetRawText())
+                    };
+                    toolCalls.Add(toolCall);
                 }
+                // Also check if the entire object is a tool call (just name at root level)
+                else if (root.TryGetProperty("name", out var simpleNameElement))
+                {
+                    // Extract all other properties as arguments
+                    var args = new Dictionary<string, object>();
+                    foreach (var prop in root.EnumerateObject())
+                    {
+                        if (prop.Name != "name")
+                        {
+                            args[prop.Name] = prop.Value.ValueKind switch
+                            {
+                                JsonValueKind.String => prop.Value.GetString() ?? string.Empty,
+                                JsonValueKind.Number => prop.Value.GetDecimal(),
+                                JsonValueKind.True => true,
+                                JsonValueKind.False => false,
+                                JsonValueKind.Null => null!,
+                                _ => prop.Value.GetRawText()
+                            };
+                        }
+                    }
+                    
+                    var toolCall = new ToolCall
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = simpleNameElement.GetString() ?? string.Empty,
+                        Arguments = args
+                    };
+                    toolCalls.Add(toolCall);
+                }
+            }
+            catch
+            {
+                // Invalid JSON, skip this one
             }
         }
         

@@ -1,4 +1,3 @@
-using CodeAgent.CLI.Shell;
 using CodeAgent.Domain.Interfaces;
 using CodeAgent.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,39 +23,54 @@ public class RootCommand : AsyncCommand
     {
         var console = AnsiConsole.Console;
         
-        // Check if provider is configured
-        var configService = _serviceProvider.GetRequiredService<IConfigurationService>();
-        var currentProvider = configService.GetValue("DefaultProvider");
-        var hasProvider = !string.IsNullOrWhiteSpace(currentProvider);
-
-        if (!hasProvider)
-        {
-            // Show setup prompt for first-time users
-            console.WriteLine("Welcome to CodeAgent! No LLM provider is configured.");
-            console.WriteLine("Starting setup wizard...");
-            console.WriteLine();
-            
-            var setupCommand = new SetupCommand(_serviceProvider);
-            await setupCommand.ExecuteAsync(context);
-        }
-        else
-        {
-            // Quick validation without breaking the build
-            await ValidateProviderQuietly();
-        }
-
-        // Start interactive shell
-        var historyFile = GetHistoryFilePath();
-        var shellSettings = new ShellSettings();
+        // Launch web portal in daemon mode
+        console.WriteLine("[green]Starting CodeAgent Web Portal...[/]");
+        console.WriteLine("[dim]The web interface will open in your browser at http://localhost:5001[/]");
+        console.WriteLine("[dim]Press Ctrl+C to stop the server[/]");
         
-        var shell = new InteractiveShell(
-            "CodeAgent$ ",
-            shellSettings.History,
-            context.Data as Spectre.Console.Cli.ICommandApp ?? throw new InvalidOperationException("CommandApp not available"),
-            _serviceProvider,
-            shellSettings);
-
-        return await shell.ShowAsync(console, CancellationToken.None);
+        // Start the web application
+        var webAppPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "CodeAgent.Web");
+        var webDll = Path.Combine(webAppPath, "bin", "Debug", "net8.0", "CodeAgent.Web.dll");
+        
+        // If running from published output, adjust path
+        if (!File.Exists(webDll))
+        {
+            webDll = Path.Combine(AppContext.BaseDirectory, "CodeAgent.Web.dll");
+        }
+        
+        if (!File.Exists(webDll))
+        {
+            console.WriteLine("[red]Error: Could not find CodeAgent.Web.dll[/]");
+            console.WriteLine("[yellow]Please ensure the web project is built.[/]");
+            return 1;
+        }
+        
+        var startInfo = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "dotnet",
+            Arguments = $"\"{webDll}\"",
+            UseShellExecute = false,
+            CreateNoWindow = false
+        };
+        
+        try
+        {
+            using var process = System.Diagnostics.Process.Start(startInfo);
+            if (process == null)
+            {
+                console.WriteLine("[red]Failed to start web server[/]");
+                return 1;
+            }
+            
+            // Wait for process to exit or Ctrl+C
+            await process.WaitForExitAsync();
+            return process.ExitCode;
+        }
+        catch (Exception ex)
+        {
+            console.WriteLine($"[red]Error starting web server: {ex.Message}[/]");
+            return 1;
+        }
     }
 
     private async Task ValidateProviderQuietly()

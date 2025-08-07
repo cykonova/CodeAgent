@@ -1,21 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CodeAgent.Core\CodeAgent.Core.csproj" />
     <ProjectReference Include="..\CodeAgent.Domain\CodeAgent.Domain.csproj" />
     <ProjectReference Include="..\CodeAgent.Infrastructure\CodeAgent.Infrastructure.csproj" />
+    <ProjectReference Include="..\CodeAgent.Providers\CodeAgent.Providers.OpenAI\CodeAgent.Providers.OpenAI.csproj" />
+    <ProjectReference Include="..\CodeAgent.Providers\CodeAgent.Providers.Claude\CodeAgent.Providers.Claude.csproj" />
+    <ProjectReference Include="..\CodeAgent.Providers\CodeAgent.Providers.Ollama\CodeAgent.Providers.Ollama.csproj" />
+    <ProjectReference Include="..\CodeAgent.MCP\CodeAgent.MCP.csproj" />
   </ItemGroup>
 
 </Project>

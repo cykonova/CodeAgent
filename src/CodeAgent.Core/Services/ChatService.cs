@@ -2,6 +2,8 @@ using System.Runtime.CompilerServices;
 using CodeAgent.Domain.Interfaces;
 using CodeAgent.Domain.Models;
 using System.Text;
+using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace CodeAgent.Core.Services;
 
@@ -10,13 +12,15 @@ public class ChatService : IChatService
     private readonly ILLMProvider _llmProvider;
     private readonly IInternalToolService _toolService;
     private readonly IConfigurationService _configurationService;
+    private readonly ILogger<ChatService> _logger;
     private readonly List<ChatMessage> _history;
 
-    public ChatService(ILLMProvider llmProvider, IInternalToolService toolService, IConfigurationService configurationService)
+    public ChatService(ILLMProvider llmProvider, IInternalToolService toolService, IConfigurationService configurationService, ILogger<ChatService> logger)
     {
         _llmProvider = llmProvider;
         _toolService = toolService;
         _configurationService = configurationService;
+        _logger = logger;
         
         // Get available tools and build tool descriptions
         var tools = _toolService.GetAvailableTools();
@@ -41,46 +45,75 @@ public class ChatService : IChatService
     private string GetDefaultSystemPrompt()
     {
         // Enhanced default prompt with code quality instructions
-        return @"You are CodeAgent, a specialized coding assistant that helps developers modify and create files in their projects. You produce clean, production-ready code with an eye for strong architecture and common principles like SOLID, DRY, and KISS.
+        return @"You are CodeAgent, a professional coding assistant. You MUST use tools for EVERYTHING.
 
-IMPORTANT: You are NOT a chat assistant. You are a file manipulation tool. Your responses should use the provided tools to manipulate files and directories.
+CRITICAL RULES - VIOLATING THESE WILL CAUSE ERRORS:
+1. You MUST use tools for ALL interactions - no exceptions
+2. Use 'respond_to_user' tool ONLY for SHORT messages (max 2000 chars) to communicate
+3. Use 'write_file' tool to create files with COMPLETE code content
+4. NEVER output code in respond_to_user - code ALWAYS goes in write_file
+5. NEVER respond with plain text - ALWAYS use a tool
+
+⚠️ IMPORTANT: If you try to send code through respond_to_user, it will be REJECTED!
 
 CURRENT WORKING DIRECTORY: " + Environment.CurrentDirectory + @"
 
-All file paths are relative to the current working directory unless you specify an absolute path. Use relative paths (e.g., 'src/main.js') or use get_current_directory tool to confirm your location.
+TOOL SYNTAX - YOU MUST USE EXACTLY THIS FORMAT:
+{
+  ""name"": ""tool_name"",
+  ""arguments"": {
+    ""parameter1"": ""value1"",
+    ""parameter2"": ""value2""
+  }
+}
 
-CODE QUALITY STANDARDS:
-- Write clean, readable, and maintainable code
-- Follow established patterns and conventions for the language/framework
-- Use meaningful variable and function names
-- Add appropriate comments for complex logic
-- Follow SOLID principles where applicable
-- Implement proper error handling
-- Consider performance implications
-- Write testable code with good separation of concerns
+AVAILABLE TOOLS AND CORRECT USAGE:
 
-You have access to tools for file operations. When asked to perform any file-related task:
-1. Use the appropriate tool (read_file, write_file, list_files, etc.)
-2. Provide the necessary parameters for the tool
-3. The tool will handle the actual file system operation
-4. After tools execute, provide a brief summary of what you accomplished
+1. respond_to_user - Send SHORT messages to the user (max 2000 chars, NO CODE)
+   CORRECT: {""name"": ""respond_to_user"", ""arguments"": {""message"": ""I'll create a web app for you now""}}
+   WRONG: {""name"": ""respond_to_user"", ""arguments"": {""message"": ""<html>...</html>""}}
+   ⚠️ CODE IN THIS TOOL WILL BE REJECTED!
+   
+2. write_file - Create or update files with COMPLETE content (this is where ALL CODE goes)
+   CORRECT: {""name"": ""write_file"", ""arguments"": {""path"": ""index.html"", ""content"": ""<!DOCTYPE html>\n<html>...</html>""}}
+   WRONG: Showing code snippets in respond_to_user
+   ✅ ALL CODE MUST GO HERE, NOT IN respond_to_user!
 
-When asked to modify a file:
-1. First use read_file to get the current content (if it exists)
-2. Apply the requested changes following best practices
-3. Use write_file to save the modified content
+3. create_directory - Create a new directory
+   CORRECT: {""name"": ""create_directory"", ""arguments"": {""path"": ""folder_name""}}
+   
+4. list_files - List files in a directory
+   CORRECT: {""name"": ""list_files"", ""arguments"": {""path"": "".""}}
+   
+5. read_file - Read a file's contents
+   CORRECT: {""name"": ""read_file"", ""arguments"": {""path"": ""file.txt""}}
 
-When asked to create a new file:
-1. Use write_file with complete, well-structured content
-2. Follow language conventions and best practices
+6. execute_bash - Execute bash commands (npm, git, dotnet, etc.)
+   CORRECT: {""name"": ""execute_bash"", ""arguments"": {""command"": ""npm install""}}
+   CORRECT: {""name"": ""execute_bash"", ""arguments"": {""command"": ""npm run build"", ""working_directory"": ""./frontend""}}
+   Note: Only safe commands are allowed. Dangerous operations will be blocked
 
-After executing tools, always provide a concise summary of:
-- What files/directories were created, modified, or deleted
-- The overall structure or changes made
-- Any architectural decisions or patterns used
-- Any next steps or suggestions
+WHEN BUILDING APPLICATIONS - FOLLOW THIS PATTERN:
+1. Use respond_to_user to briefly acknowledge the request (e.g., ""Creating your web app..."")
+2. Use create_directory if subdirectories are needed
+3. Use write_file with COMPLETE file content for EACH file (ALL CODE GOES HERE)
+4. NEVER show code in respond_to_user messages
+5. Use respond_to_user at the end to briefly summarize (e.g., ""Created 3 files: index.html, style.css, script.js"")
 
-DO NOT return file content as text responses. Always use the appropriate tools.";
+EXAMPLE OF CORRECT BEHAVIOR:
+User: Build a web app
+Your response:
+{""name"": ""respond_to_user"", ""arguments"": {""message"": ""Creating a web application for you...""}}
+{""name"": ""write_file"", ""arguments"": {""path"": ""index.html"", ""content"": ""<!DOCTYPE html>\n<html lang=\""en\"">\n<head>\n    <meta charset=\""UTF-8\"">\n    <title>My App</title>\n    <link rel=\""stylesheet\"" href=\""style.css\"">\n</head>\n<body>\n    <h1>Welcome to My App</h1>\n    <script src=\""script.js\""></script>\n</body>\n</html>""}}
+{""name"": ""write_file"", ""arguments"": {""path"": ""style.css"", ""content"": ""body {\n    font-family: Arial, sans-serif;\n    margin: 0;\n    padding: 20px;\n    background: #f0f0f0;\n}\n\nh1 {\n    color: #333;\n}""}}
+{""name"": ""write_file"", ""arguments"": {""path"": ""script.js"", ""content"": ""// Application logic\nfunction init() {\n    console.log('App initialized');\n    // Add your JavaScript code here\n}\n\n// Initialize when DOM is ready\nif (document.readyState === 'loading') {\n    document.addEventListener('DOMContentLoaded', init);\n} else {\n    init();\n}""}}
+{""name"": ""respond_to_user"", ""arguments"": {""message"": ""✅ Created web application with 3 files: index.html, style.css, and script.js""}}
+
+REMEMBER:
+- respond_to_user is for SHORT MESSAGES ONLY (max 2000 chars)
+- write_file is where ALL CODE must go
+- NEVER mix code with communication - they use different tools
+- If you put code in respond_to_user, it WILL BE REJECTED";
     }
 
     public async Task<ChatResponse> ProcessMessageAsync(string message, CancellationToken cancellationToken = default)
@@ -93,54 +126,160 @@ DO NOT return file content as text responses. Always use the appropriate tools."
             Messages = new List<ChatMessage>(_history),
             Stream = false,
             Tools = _toolService.GetAvailableTools(),
-            ToolChoice = "auto" // Let the model decide when to use tools
+            ToolChoice = "required" // FORCE the model to use tools
         };
 
-        var response = await _llmProvider.SendMessageAsync(request, cancellationToken);
+        ChatResponse response;
+        int maxIterations = 10; // Prevent infinite loops
+        int iteration = 0;
         
-        // Handle tool calls if present
-        if (response.ToolCalls != null && response.ToolCalls.Count > 0)
+        do
         {
-            // Execute each tool call
-            foreach (var toolCall in response.ToolCalls)
+            response = await _llmProvider.SendMessageAsync(request, cancellationToken);
+            iteration++;
+            
+            // Validate that the response contains tool calls
+            if (response.ToolCalls == null || response.ToolCalls.Count == 0)
             {
-                var result = await _toolService.ExecuteToolAsync(toolCall, cancellationToken);
-                
-                // Add tool response to history for context
-                var toolMessage = result.Success ? result.Content : $"Error: {result.Error}";
-                _history.Add(new ChatMessage("tool", toolMessage, toolCall.Id));
+                // LLM didn't use tools - this is an error
+                if (!string.IsNullOrEmpty(response.Content))
+                {
+                    // Alert the user about the invalid response
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("⚠️  LLM sent invalid response - forcing tool usage...");
+                    Console.ResetColor();
+                    
+                    // Check if response looks like malformed tool syntax or raw JSON tool calls
+                    var responseText = response.Content?.ToLower() ?? "";
+                    if (responseText.Contains("write_file(") || responseText.Contains("respond_to_user(") || 
+                        responseText.Contains("create_directory(") || responseText.Contains("import ") ||
+                        responseText.Contains("os.makedirs") || 
+                        (responseText.Contains("{\"name\":") && responseText.Contains("\"arguments\":")) ||
+                        (responseText.Contains("\"parameters\":") && responseText.Contains("\"name\":")))
+                    {
+                        // Build detailed error with tool list
+                        var toolList = new StringBuilder();
+                        toolList.AppendLine("ERROR: Invalid tool syntax detected! You MUST use JSON format for tools.");
+                        toolList.AppendLine();
+                        toolList.AppendLine("AVAILABLE TOOLS (use these EXACTLY):");
+                        
+                        foreach (var tool in _toolService.GetAvailableTools())
+                        {
+                            toolList.AppendLine($"- {tool.Name}: {tool.Description}");
+                            if (tool.Parameters != null && tool.Parameters.Any())
+                            {
+                                toolList.Append("  Parameters: ");
+                                toolList.AppendLine(string.Join(", ", tool.Parameters.Keys));
+                            }
+                        }
+                        
+                        toolList.AppendLine();
+                        toolList.AppendLine("CORRECT FORMAT:");
+                        toolList.AppendLine("{\"name\": \"respond_to_user\", \"arguments\": {\"message\": \"Your message here\"}}");
+                        toolList.AppendLine("{\"name\": \"write_file\", \"arguments\": {\"path\": \"filename.ext\", \"content\": \"Full file content here\"}}");
+                        toolList.AppendLine();
+                        toolList.AppendLine("NEVER use function() syntax, import statements, or show code outside of write_file!");
+                        
+                        _history.Add(new ChatMessage("system", toolList.ToString()));
+                    }
+                    else
+                    {
+                        // Generic error for non-tool responses
+                        _history.Add(new ChatMessage("system", 
+                            "ERROR: You MUST use tools. Use 'respond_to_user' to send messages. " +
+                            "Use 'write_file' to create files. NEVER respond with plain text."));
+                    }
+                    
+                    // Resend the user's original message with error guidance
+                    // Keep only system prompt and original user message, plus error
+                    var systemMessage = _history.FirstOrDefault(m => m.Role == "system");
+                    var userMsg = _history.FirstOrDefault(m => m.Role == "user");
+                    
+                    var retryMessages = new List<ChatMessage>();
+                    if (systemMessage != null) retryMessages.Add(systemMessage);
+                    if (userMsg != null) retryMessages.Add(userMsg);
+                    retryMessages.Add(_history.Last()); // Add the error message we just created
+                    
+                    request.Messages = retryMessages;
+                    continue; // Retry
+                }
             }
             
-            // Now let the LLM provide a follow-up response summarizing what it did
-            var followUpRequest = new ChatRequest
+            // Handle tool calls if present
+            if (response.ToolCalls != null && response.ToolCalls.Count > 0)
             {
-                Messages = new List<ChatMessage>(_history),
-                Stream = false,
-                Tools = _toolService.GetAvailableTools(),
-                ToolChoice = "none" // Don't allow more tool calls in the follow-up
-            };
-            
-            var followUpResponse = await _llmProvider.SendMessageAsync(followUpRequest, cancellationToken);
-            
-            if (followUpResponse.IsComplete && string.IsNullOrEmpty(followUpResponse.Error))
-            {
-                _history.Add(new ChatMessage("assistant", followUpResponse.Content));
-                return followUpResponse;
+                // Execute each tool call
+                foreach (var toolCall in response.ToolCalls)
+                {
+                    var result = await _toolService.ExecuteToolAsync(toolCall, cancellationToken);
+                    
+                    // Add tool response to history for context
+                    var toolMessage = result.Success ? result.Content : $"Error: {result.Error}";
+                    
+                    // If the tool failed due to code in respond_to_user, add explicit guidance
+                    if (!result.Success && result.Error != null && result.Error.Contains("appears you're trying to send code"))
+                    {
+                        toolMessage += "\n\nREMINDER: You MUST use the 'write_file' tool for ALL code content. " +
+                                      "The 'respond_to_user' tool is ONLY for short messages to communicate with the user. " +
+                                      "Please retry: use write_file for code, respond_to_user for brief messages only.";
+                    }
+                    
+                    _history.Add(new ChatMessage("tool", toolMessage, toolCall.Id));
+                }
+                
+                // Update request with new history for next iteration
+                request.Messages = new List<ChatMessage>(_history);
             }
             else
             {
-                // Fallback to tool execution summary if follow-up fails
-                var toolResults = new StringBuilder();
-                foreach (var toolCall in response.ToolCalls)
-                {
-                    toolResults.AppendLine($"Tool '{toolCall.Name}' executed");
-                }
-                response.Content = toolResults.ToString();
-                _history.Add(new ChatMessage("assistant", response.Content));
+                // No more tool calls, we're done
+                break;
             }
         }
-        else if (response.IsComplete && string.IsNullOrEmpty(response.Error))
+        while (iteration < maxIterations && response.ToolCalls?.Count > 0);
+        
+        // Check if the last tool response was a user message
+        var lastToolResponse = _history.LastOrDefault(m => m.Role == "tool");
+        if (lastToolResponse != null)
         {
+            // Extract any user messages from tool responses
+            var userMessages = new List<string>();
+            for (int i = _history.Count - 1; i >= 0 && _history[i].Role == "tool"; i--)
+            {
+                // Check if this tool response is marked as a user message
+                // For now, we'll check if it came from respond_to_user by looking at content
+                userMessages.Insert(0, _history[i].Content);
+            }
+            
+            if (userMessages.Any())
+            {
+                // Combine all user messages and return as the response
+                var combinedMessage = string.Join("\n", userMessages);
+                return new ChatResponse
+                {
+                    Content = combinedMessage,
+                    IsComplete = true
+                };
+            }
+        }
+        
+        if (response.IsComplete && string.IsNullOrEmpty(response.Error) && !string.IsNullOrEmpty(response.Content))
+        {
+            // Check if the content looks like raw JSON tool calls that shouldn't be shown to user
+            var contentLower = response.Content.ToLower();
+            if ((contentLower.Contains("{\"name\":") && contentLower.Contains("\"arguments\":")) ||
+                (contentLower.Contains("\"parameters\":") && contentLower.Contains("\"name\":")))
+            {
+                // Don't return raw JSON to the user
+                return new ChatResponse
+                {
+                    Content = "I encountered an issue with the response format. Please try rephrasing your request.",
+                    IsComplete = true,
+                    Error = "Invalid response format from LLM"
+                };
+            }
+            
             _history.Add(new ChatMessage("assistant", response.Content));
         }
 
