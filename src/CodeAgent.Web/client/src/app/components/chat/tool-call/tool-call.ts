@@ -7,6 +7,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 export interface ToolCall {
   name: string;
   arguments?: any;
+  parameters?: any;
   result?: any;
 }
 
@@ -42,22 +43,68 @@ export class ToolCallComponent {
     return iconMap[this.toolCall.name] || iconMap['default'];
   }
   
-  getArgumentsDisplay(): string {
-    if (!this.toolCall.arguments) return '{}';
+  getParametersList(): { key: string, value: string }[] {
+    if (!this.toolCall.arguments) return [];
     
-    try {
-      if (typeof this.toolCall.arguments === 'string') {
-        return this.toolCall.arguments;
+    const params: { key: string, value: string }[] = [];
+    
+    // Handle both arguments and parameters properties
+    const args = this.toolCall.arguments || this.toolCall.parameters;
+    
+    if (args && typeof args === 'object') {
+      for (const [key, value] of Object.entries(args)) {
+        let displayValue = '';
+        
+        if (value === null || value === undefined) {
+          displayValue = 'null';
+        } else if (typeof value === 'object') {
+          // For objects/arrays, show a brief summary
+          if (Array.isArray(value)) {
+            displayValue = `[${value.length} items]`;
+          } else {
+            displayValue = `{${Object.keys(value).length} properties}`;
+          }
+        } else {
+          displayValue = String(value);
+        }
+        
+        params.push({ key, value: displayValue });
       }
-      return JSON.stringify(this.toolCall.arguments, null, 2);
-    } catch {
-      return String(this.toolCall.arguments);
     }
+    
+    return params;
+  }
+  
+  formatResult(): string {
+    if (!this.toolCall.result) return '';
+    
+    if (typeof this.toolCall.result === 'string') {
+      return this.toolCall.result;
+    }
+    
+    // If it's an object with a message or content property, show that
+    if (this.toolCall.result.message) {
+      return this.toolCall.result.message;
+    }
+    if (this.toolCall.result.content) {
+      return this.toolCall.result.content;
+    }
+    
+    // Otherwise show a summary
+    if (typeof this.toolCall.result === 'object') {
+      return `Completed successfully`;
+    }
+    
+    return String(this.toolCall.result);
   }
   
   getMessageContent(): string {
-    if (this.isRespondToUser && this.toolCall.arguments?.message) {
+    // Extract message from respond_to_user arguments
+    if (this.toolCall.arguments?.message) {
       return this.toolCall.arguments.message;
+    }
+    if (this.toolCall.parameters?.message) {
+      return this.toolCall.parameters.message;
     }
     return '';
   }

@@ -1,9 +1,7 @@
 @if (isRespondToUser) {
-  <!-- Special handling for respond_to_user - show as text bubble -->
-  <div class="respond-to-user-bubble">
-    <div class="bubble-content">
-      {{ getMessageContent() }}
-    </div>
+  <!-- respond_to_user shows ONLY the message text -->
+  <div class="message-text">
+    {{ getMessageContent() }}
   </div>
 } @else {
   <!-- Regular tool call display -->
@@ -20,10 +18,17 @@
         <mat-expansion-panel-header>
           <mat-panel-title>
             <mat-icon>settings</mat-icon>
-            Arguments
+            Parameters
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <pre class="arguments-content">{{ getArgumentsDisplay() }}</pre>
+        <div class="parameters-list">
+          @for (param of getParametersList(); track param.key) {
+            <div class="parameter-item">
+              <span class="param-key">{{ param.key }}:</span>
+              <span class="param-value">{{ param.value }}</span>
+            </div>
+          }
+        </div>
       </mat-expansion-panel>
     }
     
@@ -35,7 +40,9 @@
             Result
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <pre class="result-content">{{ toolCall.result | json }}</pre>
+        <div class="result-content">
+          {{ formatResult() }}
+        </div>
       </mat-expansion-panel>
     }
   </div>
