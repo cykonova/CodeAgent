@@ -35,26 +35,28 @@
       icon="settings"
       class="provider-details-panel">
       @if (selectedProvider()) {
-        <div panel-actions>
-          @if (!editingProvider()) {
-            <button mat-button (click)="startEditing()">
-              <mat-icon>edit</mat-icon>
-              Edit
+        <ng-container>
+          <div panel-actions>
+            @if (!editingProvider()) {
+              <button mat-button (click)="startEditing()">
+                <mat-icon>edit</mat-icon>
+                Edit
+              </button>
+            } @else {
+              <button mat-button (click)="saveProvider()" color="primary">
+                <mat-icon>save</mat-icon>
+                Save
+              </button>
+              <button mat-button (click)="cancelEditing()">
+                Cancel
+              </button>
+            }
+            <button mat-button color="warn" (click)="deleteProvider()">
+              <mat-icon>delete</mat-icon>
+              Delete
             </button>
-          } @else {
-            <button mat-button (click)="saveProvider()" color="primary">
-              <mat-icon>save</mat-icon>
-              Save
-            </button>
-            <button mat-button (click)="cancelEditing()">
-              Cancel
-            </button>
-          }
-          <button mat-button color="warn" (click)="deleteProvider()">
-            <mat-icon>delete</mat-icon>
-            Delete
-          </button>
-        </div>
+          </div>
+        </ng-container>
         
         <form [formGroup]="form" class="provider-form">
           <app-form-field

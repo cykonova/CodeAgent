@@ -4,7 +4,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { ToolCallComponent } from '../tool-call/tool-call';
 
 export interface ToolCall {
+  id?: string;
   name: string;
+  parameters?: any;
   arguments?: any;
   result?: any;
 }
@@ -13,8 +15,9 @@ export interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  timestamp?: Date;
+  timestamp: Date;
   toolCalls?: ToolCall[];
+  metadata?: any;
 }
 
 @Component({

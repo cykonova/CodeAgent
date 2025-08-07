@@ -7,6 +7,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ListItemComponent } from '../../shared/lists/list-item/list-item';
 import { PanelComponent } from '../../shared/panels/panel/panel';
 import { FormFieldComponent } from '../../shared/forms/form-field/form-field';
@@ -14,10 +16,10 @@ import { FormFieldComponent } from '../../shared/forms/form-field/form-field';
 export interface Provider {
   id: string;
   name: string;
-  type: string;
+  type: 'openai' | 'claude' | 'ollama' | 'lmstudio';
   apiKey?: string;
   baseUrl?: string;
-  model: string;
+  model?: string;
   enabled: boolean;
 }
 
@@ -34,6 +36,8 @@ export interface Provider {
     MatSlideToggleModule,
     MatButtonModule,
     MatIconModule,
+    MatListModule,
+    MatTooltipModule,
     ListItemComponent,
     PanelComponent,
     FormFieldComponent

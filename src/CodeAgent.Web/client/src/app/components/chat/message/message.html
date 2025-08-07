@@ -14,9 +14,10 @@
       }
       
       <!-- Show regular message content if present and not just tool calls -->
-      @if (message.content && (!message.toolCalls || message.toolCalls.length === 0 || 
-           !message.toolCalls.some(tc => tc.name === 'respond_to_user'))) {
-        <div class="text-content">{{ message.content }}</div>
+      @if (message.content) {
+        @if (!message.toolCalls || message.toolCalls.length === 0) {
+          <div class="text-content">{{ message.content }}</div>
+        }
       }
     </div>
     @if (message.timestamp) {

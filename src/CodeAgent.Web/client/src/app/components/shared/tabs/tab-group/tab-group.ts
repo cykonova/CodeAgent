@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ContentChildren, QueryList, AfterContentInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
+import { ThemePalette } from '@angular/material/core';
 import { TabPanelComponent } from '../tab-panel/tab-panel';
 
 @Component({
@@ -13,7 +14,7 @@ import { TabPanelComponent } from '../tab-panel/tab-panel';
 export class TabGroupComponent implements AfterContentInit {
   @Input() selectedIndex: number = 0;
   @Input() animationDuration: string = '500ms';
-  @Input() backgroundColor?: string;
+  @Input() backgroundColor?: ThemePalette;
   @Input() color?: 'primary' | 'accent' | 'warn';
   
   @Output() selectedIndexChange = new EventEmitter<number>();

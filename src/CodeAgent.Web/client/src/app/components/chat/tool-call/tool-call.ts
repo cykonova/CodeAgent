@@ -20,6 +20,9 @@ export interface ToolCall {
 export class ToolCallComponent {
   @Input() toolCall!: ToolCall;
   
+  // Expose Object.keys to template
+  objectKeys = Object.keys;
+  
   get isRespondToUser(): boolean {
     return this.toolCall.name === 'respond_to_user';
   }

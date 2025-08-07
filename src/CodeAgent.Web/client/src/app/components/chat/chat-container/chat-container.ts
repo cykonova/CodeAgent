@@ -14,26 +14,19 @@ import { Subscription } from 'rxjs';
 import { ChatHeaderComponent, HeaderAction } from '../chat-header/chat-header';
 import { MessagesListComponent } from '../messages-list/messages-list';
 import { ChatInputComponent } from '../chat-input/chat-input';
-import { Message } from '../message/message';
 import { PanelComponent } from '../../shared/panels/panel/panel';
-import { SessionPermissionsPanelComponent } from '../session-permissions-panel/session-permissions-panel';
-import { ContextFilesPanelComponent } from '../context-files-panel/context-files-panel';
-import { ChatHistoryPanelComponent } from '../chat-history-panel/chat-history-panel';
-import { ToolsPanelComponent } from '../tools-panel/tools-panel';
-import { ChatService } from '../../../services/chat.service';
-import { SessionPermissionsDialog } from '../session-permissions-dialog/session-permissions-dialog';
+import { SessionPermissionsPanel } from '../session-permissions-panel/session-permissions-panel';
+import { ContextFilesPanel } from '../context-files-panel/context-files-panel';
+import { ChatHistoryPanel } from '../chat-history-panel/chat-history-panel';
+import { ToolsPanel } from '../tools-panel/tools-panel';
+import { ChatService, Message } from '../../../services/chat.service';
+import { SessionPermissionsDialog, SessionPermission } from '../session-permissions-dialog/session-permissions-dialog';
 
 interface ChatRequest {
   message: string;
   provider: string;
   model: string;
   stream?: boolean;
-}
-
-interface SessionPermission {
-  id: string;
-  name: string;
-  granted: boolean;
 }
 
 @Component({
@@ -52,10 +45,10 @@ interface SessionPermission {
     MessagesListComponent,
     ChatInputComponent,
     PanelComponent,
-    SessionPermissionsPanelComponent,
-    ContextFilesPanelComponent,
-    ChatHistoryPanelComponent,
-    ToolsPanelComponent
+    SessionPermissionsPanel,
+    ContextFilesPanel,
+    ChatHistoryPanel,
+    ToolsPanel
   ],
   templateUrl: './chat-container.html',
   styleUrl: './chat-container.scss',

@@ -5,7 +5,7 @@
     <mat-chip-row 
       [color]="chip.color"
       [disabled]="chip.disabled"
-      [selected]="isSelected(chip)"
+      [class.selected]="isSelected(chip)"
       (click)="onSelect(chip)"
       (removed)="onRemove(chip)">
       @if (chip.icon) {
