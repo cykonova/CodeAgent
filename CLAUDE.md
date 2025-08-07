@@ -127,3 +127,7 @@ Use strongly-typed configuration with IOptions<T> pattern.
 - Test on Windows, Linux, and macOS
 - Use platform-agnostic file system operations
 - Support both forward and backward slashes in paths
+
+## Project Management Notes
+
+- This is your project, I'm just the project planner. Commit and push as you see fit.

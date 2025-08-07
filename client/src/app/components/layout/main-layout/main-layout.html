@@ -1,0 +1,46 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav" mode="side" opened>
+    <mat-toolbar class="sidenav-header">
+      <span class="logo">CodeAgent</span>
+    </mat-toolbar>
+    
+    <mat-nav-list>
+      @for (item of navItems; track item.path) {
+        <a mat-list-item 
+           [routerLink]="item.path"
+           routerLinkActive="active-link"
+           [matTooltip]="item.tooltip || ''"
+           matTooltipPosition="right">
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+    
+    <div class="sidenav-footer">
+      <mat-divider></mat-divider>
+      <div class="theme-toggle">
+        <button mat-icon-button 
+                (click)="toggleTheme()"
+                [matTooltip]="isDark() ? 'Switch to Light Theme' : 'Switch to Dark Theme'">
+          <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-sidenav>
+  
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="main-toolbar">
+      <button mat-icon-button (click)="drawer.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span>CodeAgent Web Portal</span>
+      <span class="spacer"></span>
+      <span class="status-indicator">Connected</span>
+    </mat-toolbar>
+    
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

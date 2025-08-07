@@ -1,0 +1,61 @@
+// Custom CSS variables for theming
+// These will be updated when switching between light and dark themes
+
+:root {
+  // Primary colors
+  --primary-color: var(--mat-sys-primary);
+  --primary-variant: var(--mat-sys-primary-container);
+  --on-primary: var(--mat-sys-on-primary);
+  
+  // Secondary colors
+  --secondary-color: var(--mat-sys-secondary);
+  --secondary-variant: var(--mat-sys-secondary-container);
+  --on-secondary: var(--mat-sys-on-secondary);
+  
+  // Background colors
+  --background: var(--mat-sys-surface);
+  --surface: var(--mat-sys-surface-container);
+  --surface-variant: var(--mat-sys-surface-variant);
+  
+  // Text colors
+  --text-primary: var(--mat-sys-on-surface);
+  --text-secondary: var(--mat-sys-on-surface-variant);
+  
+  // Error colors
+  --error: var(--mat-sys-error);
+  --on-error: var(--mat-sys-on-error);
+  
+  // Border and divider
+  --divider: var(--mat-sys-outline);
+  --border: var(--mat-sys-outline-variant);
+  
+  // Elevation shadows
+  --elevation-1: 0 2px 4px rgba(0,0,0,0.1);
+  --elevation-2: 0 4px 8px rgba(0,0,0,0.12);
+  --elevation-3: 0 8px 16px rgba(0,0,0,0.14);
+  
+  // Spacing
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  // Border radius
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  
+  // Transitions
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Dark theme overrides
+[data-theme="dark"] {
+  --elevation-1: 0 2px 4px rgba(0,0,0,0.3);
+  --elevation-2: 0 4px 8px rgba(0,0,0,0.4);
+  --elevation-3: 0 8px 16px rgba(0,0,0,0.5);
+}

@@ -1,0 +1,47 @@
+@use '@angular/material' as mat;
+
+// Light theme definition
+$light-primary: mat.$blue-palette;
+$light-secondary: mat.$cyan-palette;
+$light-tertiary: mat.$deep-purple-palette;
+
+$light-theme: mat.theme((
+  color: (
+    primary: $light-primary,
+    secondary: $light-secondary,
+    tertiary: $light-tertiary,
+    error: mat.$red-palette,
+  ),
+  typography: mat.theme-typography((
+    plain-family: 'Roboto, sans-serif',
+    brand-family: 'Roboto, sans-serif',
+    regular-weight: 400,
+    medium-weight: 500,
+    bold-weight: 700,
+  )),
+  density: 0,
+));
+
+// Apply light theme
+@mixin apply-light-theme() {
+  @include mat.theme($light-theme);
+  
+  // Additional custom properties for light theme
+  --app-background: #fafafa;
+  --app-surface: #ffffff;
+  --app-card-background: #ffffff;
+  --app-drawer-background: #f5f5f5;
+  --app-toolbar-background: #1976d2;
+  --app-toolbar-text: #ffffff;
+  --app-text-primary: rgba(0, 0, 0, 0.87);
+  --app-text-secondary: rgba(0, 0, 0, 0.6);
+  --app-text-disabled: rgba(0, 0, 0, 0.38);
+  --app-divider: rgba(0, 0, 0, 0.12);
+  --app-border: rgba(0, 0, 0, 0.08);
+  --app-hover: rgba(0, 0, 0, 0.04);
+  --app-selected: rgba(0, 0, 0, 0.08);
+  --app-focus: rgba(25, 118, 210, 0.12);
+  --app-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --app-shadow-md: 0 3px 6px rgba(0, 0, 0, 0.16);
+  --app-shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.19);
+}
