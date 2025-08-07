@@ -1,0 +1,9 @@
+<mat-tab-group 
+  [(selectedIndex)]="selectedIndex"
+  [animationDuration]="animationDuration"
+  [backgroundColor]="backgroundColor"
+  [color]="color"
+  (selectedIndexChange)="onTabChange($event)"
+  class="app-tab-group">
+  <ng-content></ng-content>
+</mat-tab-group>

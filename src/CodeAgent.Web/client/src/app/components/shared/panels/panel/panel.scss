@@ -1,0 +1,45 @@
+.app-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--mat-app-background);
+  border-radius: 4px;
+  
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    min-height: 48px;
+    
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      
+      .panel-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+    
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+  
+  .panel-content {
+    flex: 1;
+    overflow: auto;
+    padding: 16px;
+  }
+}

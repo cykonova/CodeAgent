@@ -19,6 +19,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ChatService } from '../../../services/chat.service';
+import { AppCardComponent } from '../../shared/card/app-card/app-card';
+import { GeneralConfigComponent } from '../general-config/general-config';
+import { ProviderConfigComponent } from '../provider-config/provider-config';
+import { SecurityConfigComponent } from '../security-config/security-config';
 
 interface Provider {
   id: string;
@@ -58,23 +62,17 @@ interface SecurityConfig {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
     MatButtonModule,
     MatIconModule,
     MatTabsModule,
-    MatSlideToggleModule,
-    MatExpansionModule,
-    MatDividerModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatDialogModule,
-    MatListModule,
-    MatChipsModule,
-    MatCheckboxModule
+    AppCardComponent,
+    GeneralConfigComponent,
+    ProviderConfigComponent,
+    SecurityConfigComponent
   ],
   templateUrl: './config-panel.html',
   styleUrl: './config-panel.scss'
@@ -82,6 +80,13 @@ interface SecurityConfig {
 export class ConfigPanel implements OnInit {
   generalForm: FormGroup;
   securityForm: FormGroup;
+  
+  // Card actions for the header
+  cardActions = [
+    { icon: 'upload_file', label: 'Import', action: 'import' },
+    { icon: 'download', label: 'Export', action: 'export' },
+    { icon: 'save', label: 'Save All', action: 'save', color: 'primary' }
+  ];
   
   isSaving = signal(false);
   selectedTab = signal(0);
@@ -450,19 +455,41 @@ export class ConfigPanel implements OnInit {
     });
   }
   
+  // Card action handler
+  onCardAction(action: string): void {
+    switch (action) {
+      case 'import':
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e: any) => this.importConfiguration(e);
+        input.click();
+        break;
+      case 'export':
+        this.exportConfiguration();
+        break;
+      case 'save':
+        this.saveConfiguration();
+        break;
+    }
+  }
+  
   // Directory Management
-  addPermittedDirectory(): void {
-    if (!this.newPermittedDir.trim()) return;
+  addPermittedDirectory(dir?: string): void {
+    const directoryToAdd = dir || this.newPermittedDir.trim();
+    if (!directoryToAdd) return;
     
     this.generalConfig.update(config => ({
       ...config,
       additionalPermittedDirectories: [
         ...config.additionalPermittedDirectories,
-        this.newPermittedDir.trim()
+        directoryToAdd
       ]
     }));
     
-    this.newPermittedDir = '';
+    if (!dir) {
+      this.newPermittedDir = '';
+    }
   }
   
   removePermittedDirectory(dir: string): void {
@@ -473,15 +500,18 @@ export class ConfigPanel implements OnInit {
   }
   
   // Security Path Management
-  addPermittedPath(): void {
-    if (!this.newPermittedPath.trim()) return;
+  addPermittedPath(path?: string): void {
+    const pathToAdd = path || this.newPermittedPath.trim();
+    if (!pathToAdd) return;
     
     this.securityConfig.update(config => ({
       ...config,
-      permittedPaths: [...config.permittedPaths, this.newPermittedPath.trim()]
+      permittedPaths: [...config.permittedPaths, pathToAdd]
     }));
     
-    this.newPermittedPath = '';
+    if (!path) {
+      this.newPermittedPath = '';
+    }
   }
   
   removePermittedPath(path: string): void {
@@ -491,15 +521,18 @@ export class ConfigPanel implements OnInit {
     }));
   }
   
-  addBlockedPath(): void {
-    if (!this.newBlockedPath.trim()) return;
+  addBlockedPath(path?: string): void {
+    const pathToAdd = path || this.newBlockedPath.trim();
+    if (!pathToAdd) return;
     
     this.securityConfig.update(config => ({
       ...config,
-      blockedPaths: [...config.blockedPaths, this.newBlockedPath.trim()]
+      blockedPaths: [...config.blockedPaths, pathToAdd]
     }));
     
-    this.newBlockedPath = '';
+    if (!path) {
+      this.newBlockedPath = '';
+    }
   }
   
   removeBlockedPath(path: string): void {

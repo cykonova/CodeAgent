@@ -1,29 +1,40 @@
-import { Component, ElementRef, ViewChild, inject, signal, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, signal, inject, ViewChild, ElementRef, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatBadgeModule } from '@angular/material/badge';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { HttpClientModule } from '@angular/common/http';
-import { ChatService, Message, ChatRequest } from '../../../services/chat.service';
-import { SessionPermissionsDialog, SessionPermission } from '../session-permissions-dialog/session-permissions-dialog';
-import { SessionPermissionsPanel } from '../session-permissions-panel/session-permissions-panel';
-import { ContextFilesPanel } from '../context-files-panel/context-files-panel';
-import { ChatHistoryPanel } from '../chat-history-panel/chat-history-panel';
-import { ToolsPanel } from '../tools-panel/tools-panel';
-import { Subscription } from 'rxjs';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { Subscription } from 'rxjs';
+import { ChatHeaderComponent, HeaderAction } from '../chat-header/chat-header';
+import { MessagesListComponent } from '../messages-list/messages-list';
+import { ChatInputComponent } from '../chat-input/chat-input';
+import { Message } from '../message/message';
+import { PanelComponent } from '../../shared/panels/panel/panel';
+import { SessionPermissionsPanelComponent } from '../session-permissions-panel/session-permissions-panel';
+import { ContextFilesPanelComponent } from '../context-files-panel/context-files-panel';
+import { ChatHistoryPanelComponent } from '../chat-history-panel/chat-history-panel';
+import { ToolsPanelComponent } from '../tools-panel/tools-panel';
+import { ChatService } from '../../../services/chat.service';
+import { SessionPermissionsDialog } from '../session-permissions-dialog/session-permissions-dialog';
+
+interface ChatRequest {
+  message: string;
+  provider: string;
+  model: string;
+  stream?: boolean;
+}
+
+interface SessionPermission {
+  id: string;
+  name: string;
+  granted: boolean;
+}
 
 @Component({
   selector: 'app-chat-container',
@@ -31,25 +42,20 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
   imports: [
     CommonModule,
     FormsModule,
-    HttpClientModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatSnackBarModule,
-    MatDialogModule,
-    MatTooltipModule,
-    MatBadgeModule,
+    MatButtonModule,
     MatDividerModule,
-    MatListModule,
-    MatExpansionModule,
-    SessionPermissionsPanel,
-    ContextFilesPanel,
-    ChatHistoryPanel,
-    ToolsPanel
+    MatChipsModule,
+    MatBadgeModule,
+    MatTooltipModule,
+    ChatHeaderComponent,
+    MessagesListComponent,
+    ChatInputComponent,
+    PanelComponent,
+    SessionPermissionsPanelComponent,
+    ContextFilesPanelComponent,
+    ChatHistoryPanelComponent,
+    ToolsPanelComponent
   ],
   templateUrl: './chat-container.html',
   styleUrl: './chat-container.scss',
@@ -80,6 +86,14 @@ export class ChatContainer implements OnInit, OnDestroy {
   isLoading = signal(false);
   isStreaming = signal(false);
   currentStreamMessage = signal('');
+  
+  // Header actions configuration
+  headerActions: HeaderAction[] = [
+    { id: 'permissions', icon: 'security', tooltip: 'Session Permissions' },
+    { id: 'context', icon: 'folder_open', tooltip: 'Context & Files' },
+    { id: 'history', icon: 'history', tooltip: 'Chat History' },
+    { id: 'tools', icon: 'build', tooltip: 'Available Tools' }
+  ];
   
   // Session permissions
   sessionPermissions = signal<SessionPermission[]>([]);
@@ -138,10 +152,13 @@ export class ChatContainer implements OnInit, OnDestroy {
     });
   }
   
-  sendMessage(): void {
-    if (!this.inputMessage.trim() || this.isLoading() || this.isStreaming()) return;
-    
-    const messageContent = this.inputMessage.trim();
+  onHeaderAction(actionId: string): void {
+    this.toggleSidecar(actionId as 'permissions' | 'context' | 'history' | 'tools');
+  }
+  
+  sendMessage(message?: string): void {
+    const messageContent = message || this.inputMessage.trim();
+    if (!messageContent || this.isLoading() || this.isStreaming()) return;
     
     // Add user message
     const userMessage: Message = {

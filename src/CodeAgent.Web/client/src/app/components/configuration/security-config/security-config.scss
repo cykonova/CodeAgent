@@ -1,0 +1,51 @@
+.security-config {
+  .config-form {
+    padding: 16px;
+  }
+  
+  .permissions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    
+    mat-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+  
+  .path-section {
+    margin-bottom: 24px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    h4 {
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+    
+    .add-path {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      
+      .flex-field {
+        flex: 1;
+      }
+    }
+  }
+  
+  mat-divider {
+    margin: 24px 0;
+  }
+}

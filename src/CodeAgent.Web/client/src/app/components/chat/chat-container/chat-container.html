@@ -1,122 +1,33 @@
 <div class="chat-layout">
   <div class="chat-container" [class.with-sidecar]="showSidecar()">
-  <div class="chat-header">
-    <div class="header-left">
-      <h2>AI Assistant</h2>
-      <div class="session-info">
-        @if (hasActivePermissions()) {
-          <mat-chip class="permissions-chip">
-            <mat-icon>security</mat-icon>
-            {{ activePermissionsCount() }} permissions active
-          </mat-chip>
-        }
-      </div>
-    </div>
-    <div class="header-actions">
-      <button mat-icon-button 
-              (click)="toggleSidecar('permissions')"
-              [class.active]="showSidecar() && sidecarView() === 'permissions'"
-              [matBadge]="activePermissionsCount()"
-              [matBadgeHidden]="!hasActivePermissions()"
-              matBadgeColor="accent"
-              matBadgeSize="small"
-              matTooltip="Session Permissions">
-        <mat-icon>security</mat-icon>
-      </button>
-      <button mat-icon-button 
-              (click)="toggleSidecar('context')"
-              [class.active]="showSidecar() && sidecarView() === 'context'"
-              matTooltip="Context & Files">
-        <mat-icon>folder_open</mat-icon>
-      </button>
-      <button mat-icon-button 
-              (click)="toggleSidecar('history')"
-              [class.active]="showSidecar() && sidecarView() === 'history'"
-              matTooltip="Chat History">
-        <mat-icon>history</mat-icon>
-      </button>
-      <button mat-icon-button 
-              (click)="toggleSidecar('tools')"
-              [class.active]="showSidecar() && sidecarView() === 'tools'"
-              matTooltip="Available Tools">
-        <mat-icon>build</mat-icon>
-      </button>
-      <mat-divider [vertical]="true"></mat-divider>
-      <button mat-icon-button 
-              (click)="clearSession()" 
-              matTooltip="Clear Session">
-        <mat-icon>clear_all</mat-icon>
-      </button>
-    </div>
-  </div>
-  
-  <div class="messages-container" #messagesContainer>
-    @if (messages().length === 0) {
-      <div class="welcome-message">
-        <mat-icon class="welcome-icon">assistant</mat-icon>
-        <h2>Welcome to CodeAgent</h2>
-        <p>How can I help you today?</p>
-      </div>
-    }
+    <app-chat-header
+      [title]="'AI Assistant'"
+      [showPermissionsBadge]="hasActivePermissions()"
+      [permissionsCount]="activePermissionsCount()"
+      [actions]="headerActions"
+      (actionClick)="onHeaderAction($event)"
+      (clearSession)="clearSession()">
+    </app-chat-header>
     
-    <div class="messages-list">
-      @for (message of messages(); track message.id) {
-        <div class="message" [class.user]="message.role === 'user'" [class.assistant]="message.role === 'assistant'">
-          <div class="message-bubble">
-            <mat-icon class="message-avatar">
-              {{ message.role === 'user' ? 'person' : 'assistant' }}
-            </mat-icon>
-            <div class="message-content">{{ message.content }}</div>
-          </div>
-        </div>
-      }
-      
-      @if (isLoading()) {
-        <div class="message assistant">
-          <div class="message-bubble">
-            <mat-icon class="message-avatar">assistant</mat-icon>
-            <div class="typing-indicator">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </div>
-        </div>
-      }
-    </div>
+    <app-messages-list
+      [messages]="messages()"
+      [isLoading]="isLoading()"
+      [showWelcome]="true">
+    </app-messages-list>
+    
+    <app-chat-input
+      [disabled]="isLoading()"
+      (messageSent)="sendMessage($event)">
+    </app-chat-input>
   </div>
-  
-  <div class="input-container">
-    <div class="input-wrapper">
-      <textarea 
-        class="message-input"
-        [(ngModel)]="inputMessage"
-        placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
-        [disabled]="isLoading()"
-        (keydown)="handleKeyDown($event)"
-        rows="1">
-      </textarea>
-      <button 
-        mat-icon-button
-        class="send-button"
-        (click)="sendMessage()"
-        [disabled]="!inputMessage.trim() || isLoading()">
-        <mat-icon>send</mat-icon>
-      </button>
-    </div>
-  </div>
-</div>
   
   <!-- Sidecar Panel -->
   <div class="chat-sidecar" [@slideIn]="showSidecar()" *ngIf="showSidecar()">
-    <div class="sidecar-header">
-      <h3>{{ getSidecarTitle() }}</h3>
-      <button mat-icon-button (click)="closeSidecar()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-    
-    <div class="sidecar-content">
+    <app-panel 
+      [title]="getSidecarTitle()"
+      [showCloseButton]="true"
+      (close)="closeSidecar()">
+      
       @switch (sidecarView()) {
         @case ('permissions') {
           <app-session-permissions-panel
@@ -136,6 +47,6 @@
           <app-tools-panel></app-tools-panel>
         }
       }
-    </div>
+    </app-panel>
   </div>
 </div>

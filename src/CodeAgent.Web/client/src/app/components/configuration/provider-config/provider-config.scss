@@ -1,0 +1,65 @@
+.provider-config {
+  height: 100%;
+  
+  .providers-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 16px;
+    height: 100%;
+    
+    .providers-list-panel {
+      border-right: 1px solid rgba(0, 0, 0, 0.12);
+    }
+    
+    .provider-details-panel {
+      overflow: auto;
+    }
+  }
+  
+  .provider-status {
+    margin-left: auto;
+    
+    .status-icon {
+      font-size: 18px;
+      
+      &.enabled {
+        color: var(--mat-success);
+      }
+      
+      &.disabled {
+        color: var(--mat-warn);
+      }
+    }
+  }
+  
+  .provider-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    
+    .full-width {
+      width: 100%;
+    }
+    
+    .test-section {
+      margin-top: 16px;
+    }
+  }
+  
+  .no-selection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: var(--mat-secondary-text);
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+    }
+  }
+}

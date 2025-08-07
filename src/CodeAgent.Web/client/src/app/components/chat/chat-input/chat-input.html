@@ -1,0 +1,19 @@
+<div class="input-container">
+  <div class="input-wrapper">
+    <textarea 
+      class="message-input"
+      [(ngModel)]="inputMessage"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      (keydown)="handleKeyDown($event)"
+      rows="1">
+    </textarea>
+    <button 
+      mat-icon-button
+      class="send-button"
+      (click)="sendMessage()"
+      [disabled]="!inputMessage.trim() || disabled">
+      <mat-icon>send</mat-icon>
+    </button>
+  </div>
+</div>

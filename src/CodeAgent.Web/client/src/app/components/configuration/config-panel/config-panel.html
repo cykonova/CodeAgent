@@ -1,360 +1,48 @@
 <div class="config-container">
-  <mat-card class="config-card">
-    <mat-card-header>
-      <mat-card-title>Configuration</mat-card-title>
-      <div class="header-actions">
-        <input #fileInput type="file" accept=".json" (change)="importConfiguration($event)" style="display: none">
-        <button mat-button (click)="fileInput.click()">
-          <mat-icon>upload_file</mat-icon>
-          Import
-        </button>
-        <button mat-button (click)="exportConfiguration()">
-          <mat-icon>download</mat-icon>
-          Export
-        </button>
-        <button mat-raised-button color="primary" (click)="saveConfiguration()" [disabled]="isSaving()">
-          @if (isSaving()) {
-            <mat-spinner diameter="20"></mat-spinner>
-          } @else {
-            <ng-container>
-              <mat-icon>save</mat-icon>
-              Save All
-            </ng-container>
-          }
-        </button>
-      </div>
-    </mat-card-header>
+  <app-card 
+    title="Configuration"
+    [actions]="cardActions"
+    (actionClick)="onCardAction($event)">
     
-    <mat-card-content>
+    <div card-content>
       <mat-tab-group [(selectedIndex)]="selectedTab">
         <!-- General Tab -->
         <mat-tab label="General">
-          <div class="tab-content">
-            <form [formGroup]="generalForm" class="config-form">
-              <h3>Project Settings</h3>
-              
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Project Directory</mat-label>
-                <input matInput formControlName="projectDirectory" placeholder="/path/to/project">
-                <mat-icon matSuffix>folder</mat-icon>
-                <mat-hint>Primary working directory for CodeAgent</mat-hint>
-              </mat-form-field>
-              
-              <div class="directory-section">
-                <h4>Additional Permitted Directories</h4>
-                <div class="add-directory">
-                  <mat-form-field appearance="outline" class="flex-field">
-                    <mat-label>Add Directory</mat-label>
-                    <input matInput [(ngModel)]="newPermittedDir" [ngModelOptions]="{standalone: true}" 
-                           placeholder="/path/to/additional/directory">
-                  </mat-form-field>
-                  <button mat-icon-button color="primary" (click)="addPermittedDirectory()">
-                    <mat-icon>add_circle</mat-icon>
-                  </button>
-                </div>
-                
-                <mat-chip-set class="directory-chips">
-                  @for (dir of generalConfig().additionalPermittedDirectories; track dir) {
-                    <mat-chip-row (removed)="removePermittedDirectory(dir)">
-                      <mat-icon matChipAvatar>folder_open</mat-icon>
-                      {{ dir }}
-                      <button matChipRemove>
-                        <mat-icon>cancel</mat-icon>
-                      </button>
-                    </mat-chip-row>
-                  }
-                </mat-chip-set>
-              </div>
-              
-              <mat-divider></mat-divider>
-              
-              <h3>Chat Settings</h3>
-              
-              <div class="form-row">
-                <mat-form-field appearance="outline">
-                  <mat-label>Default Provider</mat-label>
-                  <mat-select formControlName="defaultProvider">
-                    @for (provider of providers(); track provider.id) {
-                      <mat-option [value]="provider.id">
-                        <span class="provider-option">
-                          <mat-icon class="provider-option-icon">{{ getProviderIcon(provider.type) }}</mat-icon>
-                          <span class="provider-option-text">{{ provider.name }}</span>
-                          @if (provider.enabled) {
-                            <mat-icon class="provider-status-icon enabled">check_circle</mat-icon>
-                          } @else {
-                            <mat-icon class="provider-status-icon disabled">cancel</mat-icon>
-                          }
-                        </span>
-                      </mat-option>
-                    }
-                  </mat-select>
-                  <mat-hint>Select the default AI provider for new chats</mat-hint>
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline">
-                  <mat-label>Max Tokens</mat-label>
-                  <input matInput type="number" formControlName="maxTokens">
-                  <mat-hint>Maximum tokens for response (100-32000)</mat-hint>
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline">
-                  <mat-label>Temperature</mat-label>
-                  <input matInput type="number" step="0.1" formControlName="temperature">
-                  <mat-hint>Creativity level (0-2)</mat-hint>
-                </mat-form-field>
-              </div>
-              
-              <mat-divider></mat-divider>
-              
-              <h3>Behavior</h3>
-              
-              <div class="toggle-section">
-                <mat-slide-toggle formControlName="autoSave">
-                  Auto-save configuration changes
-                </mat-slide-toggle>
-                
-                <mat-slide-toggle formControlName="confirmBeforeDelete">
-                  Confirm before deleting items
-                </mat-slide-toggle>
-              </div>
-            </form>
-          </div>
+          <app-general-config
+            [form]="generalForm"
+            [config]="generalConfig()"
+            [providers]="providers()"
+            (addDirectory)="addPermittedDirectory($event)"
+            (removeDirectory)="removePermittedDirectory($event)">
+          </app-general-config>
         </mat-tab>
         
         <!-- Providers Tab -->
         <mat-tab label="Providers">
-          <div class="tab-content providers-tab">
-            <div class="providers-layout">
-              <div class="providers-list">
-                <div class="list-header">
-                  <h3>Configured Providers</h3>
-                  <button mat-icon-button color="primary" (click)="addNewProvider()" matTooltip="Add Provider">
-                    <mat-icon>add</mat-icon>
-                  </button>
-                </div>
-                
-                <mat-nav-list>
-                  @for (provider of providers(); track provider.id) {
-                    <mat-list-item 
-                      [class.selected]="selectedProvider()?.id === provider.id"
-                      (click)="selectProvider(provider)">
-                      <mat-icon matListItemIcon>{{ getProviderIcon(provider.type) }}</mat-icon>
-                      <div matListItemTitle>{{ provider.name }}</div>
-                      <div matListItemLine>
-                        <span class="provider-type">{{ provider.type }}</span>
-                        @if (provider.enabled) {
-                          <mat-icon class="status-icon enabled">check_circle</mat-icon>
-                        } @else {
-                          <mat-icon class="status-icon disabled">cancel</mat-icon>
-                        }
-                      </div>
-                    </mat-list-item>
-                  }
-                </mat-nav-list>
-              </div>
-              
-              <div class="provider-details">
-                @if (selectedProvider()) {
-                  <div class="details-header">
-                    <h3>Provider Details</h3>
-                    <div class="details-actions">
-                      @if (!editingProvider()) {
-                        <button mat-button (click)="editingProvider.set(true)">
-                          <mat-icon>edit</mat-icon>
-                          Edit
-                        </button>
-                      } @else {
-                        <button mat-button (click)="saveProvider()" color="primary">
-                          <mat-icon>save</mat-icon>
-                          Save
-                        </button>
-                        <button mat-button (click)="editingProvider.set(false)">
-                          Cancel
-                        </button>
-                      }
-                      <button mat-button color="warn" (click)="deleteProvider()">
-                        <mat-icon>delete</mat-icon>
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <form [formGroup]="providerForm" class="provider-form">
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Provider Name</mat-label>
-                      <input matInput formControlName="name" [readonly]="!editingProvider()">
-                    </mat-form-field>
-                    
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Provider Type</mat-label>
-                      <mat-select formControlName="type" [disabled]="!editingProvider()">
-                        <mat-option value="openai">
-                          <mat-icon>auto_awesome</mat-icon>
-                          OpenAI
-                        </mat-option>
-                        <mat-option value="claude">
-                          <mat-icon>psychology</mat-icon>
-                          Claude
-                        </mat-option>
-                        <mat-option value="ollama">
-                          <mat-icon>computer</mat-icon>
-                          Ollama
-                        </mat-option>
-                        <mat-option value="lmstudio">
-                          <mat-icon>desktop_windows</mat-icon>
-                          LM Studio
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    
-                    @if (providerForm.get('type')?.value === 'openai' || providerForm.get('type')?.value === 'claude') {
-                      <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>API Key</mat-label>
-                        <input matInput type="password" formControlName="apiKey" [readonly]="!editingProvider()">
-                        <mat-icon matSuffix>key</mat-icon>
-                      </mat-form-field>
-                    }
-                    
-                    @if (providerForm.get('type')?.value === 'ollama' || providerForm.get('type')?.value === 'lmstudio') {
-                      <mat-form-field appearance="outline" class="full-width">
-                        <mat-label>Base URL</mat-label>
-                        <input matInput formControlName="baseUrl" [readonly]="!editingProvider()">
-                        <mat-hint>API endpoint URL</mat-hint>
-                      </mat-form-field>
-                    }
-                    
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Model</mat-label>
-                      @if (providerForm.get('type')?.value === 'lmstudio' || editingProvider()) {
-                        <input matInput formControlName="model" [readonly]="!editingProvider()">
-                      } @else {
-                        <mat-select formControlName="model" [disabled]="!editingProvider()">
-                          @for (model of availableModels[providerForm.get('type')?.value || 'openai']; track model) {
-                            <mat-option [value]="model">{{ model }}</mat-option>
-                          }
-                        </mat-select>
-                      }
-                    </mat-form-field>
-                    
-                    <mat-slide-toggle formControlName="enabled" [disabled]="!editingProvider()">
-                      Provider Enabled
-                    </mat-slide-toggle>
-                    
-                    <div class="test-section">
-                      <button mat-raised-button (click)="testProvider()">
-                        <mat-icon>speed</mat-icon>
-                        Test Connection
-                      </button>
-                    </div>
-                  </form>
-                } @else {
-                  <div class="no-selection">
-                    <mat-icon>touch_app</mat-icon>
-                    <p>Select a provider to view details</p>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
+          <app-provider-config
+            [providers]="providers()"
+            [availableModels]="availableModels"
+            [form]="providerForm"
+            (providerSelected)="selectProvider($event)"
+            (providerAdded)="addNewProvider()"
+            (providerSaved)="saveProvider()"
+            (providerDeleted)="deleteProvider()"
+            (providerTested)="testProvider()">
+          </app-provider-config>
         </mat-tab>
         
         <!-- Security Tab -->
         <mat-tab label="Security">
-          <div class="tab-content">
-            <form [formGroup]="securityForm" class="config-form">
-              <h3>File Operations</h3>
-              
-              <div class="permissions-grid">
-                <mat-checkbox formControlName="allowFileRead">
-                  <mat-icon>visibility</mat-icon>
-                  File Read
-                </mat-checkbox>
-                
-                <mat-checkbox formControlName="allowFileWrite">
-                  <mat-icon>edit</mat-icon>
-                  File Write
-                </mat-checkbox>
-                
-                <mat-checkbox formControlName="allowFileDelete">
-                  <mat-icon>delete</mat-icon>
-                  File Delete
-                </mat-checkbox>
-                
-                <mat-checkbox formControlName="allowGitOperations">
-                  <mat-icon>source</mat-icon>
-                  Git Operations
-                </mat-checkbox>
-                
-                <mat-checkbox formControlName="allowSystemCommands">
-                  <mat-icon>terminal</mat-icon>
-                  System Commands
-                </mat-checkbox>
-                
-                <mat-checkbox formControlName="requireConfirmation">
-                  <mat-icon>verified_user</mat-icon>
-                  Require Confirmation
-                </mat-checkbox>
-              </div>
-              
-              <mat-divider></mat-divider>
-              
-              <h3>Path Restrictions</h3>
-              
-              <div class="path-section">
-                <h4>Permitted Paths</h4>
-                <div class="add-path">
-                  <mat-form-field appearance="outline" class="flex-field">
-                    <mat-label>Add Permitted Path</mat-label>
-                    <input matInput [(ngModel)]="newPermittedPath" [ngModelOptions]="{standalone: true}" 
-                           placeholder="/path/to/permit">
-                  </mat-form-field>
-                  <button mat-icon-button color="primary" (click)="addPermittedPath()">
-                    <mat-icon>add_circle</mat-icon>
-                  </button>
-                </div>
-                
-                <mat-chip-set class="path-chips">
-                  @for (path of securityConfig().permittedPaths; track path) {
-                    <mat-chip-row (removed)="removePermittedPath(path)">
-                      <mat-icon matChipAvatar>check_circle</mat-icon>
-                      {{ path }}
-                      <button matChipRemove>
-                        <mat-icon>cancel</mat-icon>
-                      </button>
-                    </mat-chip-row>
-                  }
-                </mat-chip-set>
-              </div>
-              
-              <div class="path-section">
-                <h4>Blocked Paths</h4>
-                <div class="add-path">
-                  <mat-form-field appearance="outline" class="flex-field">
-                    <mat-label>Add Blocked Path</mat-label>
-                    <input matInput [(ngModel)]="newBlockedPath" [ngModelOptions]="{standalone: true}" 
-                           placeholder="/path/to/block">
-                  </mat-form-field>
-                  <button mat-icon-button color="warn" (click)="addBlockedPath()">
-                    <mat-icon>block</mat-icon>
-                  </button>
-                </div>
-                
-                <mat-chip-set class="path-chips">
-                  @for (path of securityConfig().blockedPaths; track path) {
-                    <mat-chip-row (removed)="removeBlockedPath(path)" class="blocked-chip">
-                      <mat-icon matChipAvatar>block</mat-icon>
-                      {{ path }}
-                      <button matChipRemove>
-                        <mat-icon>cancel</mat-icon>
-                      </button>
-                    </mat-chip-row>
-                  }
-                </mat-chip-set>
-              </div>
-            </form>
-          </div>
+          <app-security-config
+            [form]="securityForm"
+            [config]="securityConfig()"
+            (addPermittedPath)="addPermittedPath($event)"
+            (removePermittedPath)="removePermittedPath($event)"
+            (addBlockedPath)="addBlockedPath($event)"
+            (removeBlockedPath)="removeBlockedPath($event)">
+          </app-security-config>
         </mat-tab>
       </mat-tab-group>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </app-card>
 </div>

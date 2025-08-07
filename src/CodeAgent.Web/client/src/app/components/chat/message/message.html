@@ -1,0 +1,11 @@
+<div class="message" 
+     [class.user]="message.role === 'user'" 
+     [class.assistant]="message.role === 'assistant'">
+  <div class="message-bubble">
+    <mat-icon class="message-avatar">{{ getIcon() }}</mat-icon>
+    <div class="message-content">{{ message.content }}</div>
+    @if (message.timestamp) {
+      <div class="message-timestamp">{{ message.timestamp | date:'short' }}</div>
+    }
+  </div>
+</div>

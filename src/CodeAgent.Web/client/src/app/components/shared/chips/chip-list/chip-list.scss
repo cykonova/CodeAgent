@@ -1,0 +1,10 @@
+.app-chip-list {
+  &.vertical {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    mat-chip-row {
+      margin-bottom: 8px;
+    }
+  }
+}

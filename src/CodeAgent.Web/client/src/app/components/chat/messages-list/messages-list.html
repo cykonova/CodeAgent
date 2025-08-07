@@ -1,0 +1,28 @@
+<div class="messages-container" #messagesContainer>
+  @if (showWelcome && messages.length === 0) {
+    <div class="welcome-message">
+      <mat-icon class="welcome-icon">assistant</mat-icon>
+      <h2>Welcome to CodeAgent</h2>
+      <p>How can I help you today?</p>
+    </div>
+  }
+  
+  <div class="messages-list">
+    @for (message of messages; track message.id) {
+      <app-message [message]="message"></app-message>
+    }
+    
+    @if (isLoading) {
+      <div class="message assistant">
+        <div class="message-bubble">
+          <mat-icon class="message-avatar">assistant</mat-icon>
+          <div class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

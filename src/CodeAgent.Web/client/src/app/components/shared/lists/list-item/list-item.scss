@@ -1,0 +1,26 @@
+.app-list-item {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover:not(.disabled) {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+  
+  &.selected {
+    background-color: rgba(var(--mat-primary-rgb), 0.12);
+  }
+  
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  .list-item-content {
+    flex: 1;
+  }
+  
+  .list-item-actions {
+    display: flex;
+    gap: 4px;
+  }
+}
