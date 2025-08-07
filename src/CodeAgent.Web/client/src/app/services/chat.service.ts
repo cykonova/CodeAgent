@@ -224,9 +224,15 @@ export class ChatService implements OnDestroy {
     this.saveToLocalStorage();
   }
   
-  clearMessages(): void {
-    this.messages.set([]);
-    this.clearLocalStorage();
+  clearMessages(): Observable<any> {
+    // Call backend to clear server-side history
+    return this.http.post<any>(`${this.apiUrl}/chat/reset`, {}).pipe(
+      tap(() => {
+        // Clear local state after successful server clear
+        this.messages.set([]);
+        this.clearLocalStorage();
+      })
+    );
   }
   
   private saveToLocalStorage(): void {
@@ -280,8 +286,8 @@ export class ChatService implements OnDestroy {
   }
   
   // Clear history (alias for clearMessages for compatibility)
-  clearHistory(): void {
-    this.clearMessages();
+  clearHistory(): Observable<any> {
+    return this.clearMessages();
   }
 
   // Session management

@@ -358,21 +358,32 @@ export class ChatContainer implements OnInit, OnDestroy {
   
   clearSession(): void {
     if (confirm('This will clear all messages and session permissions. Continue?')) {
-      // Clear messages
-      this.chatService.clearHistory();
-      this.messages.set([]);
-      
-      // Clear session permissions
-      this.sessionPermissions.set([]);
-      this.sessionPaths.set({ permitted: [], blocked: [] });
-      this.activePermissionsCount.set(0);
-      
-      // Notify backend
-      this.updateBackendPermissions();
-      
-      this.snackBar.open('Session cleared', 'Close', {
-        duration: 2000,
-        panelClass: ['success-snackbar']
+      // Clear messages from backend and local state
+      this.chatService.clearHistory().subscribe({
+        next: () => {
+          // Clear local state after successful backend clear
+          this.messages.set([]);
+          
+          // Clear session permissions
+          this.sessionPermissions.set([]);
+          this.sessionPaths.set({ permitted: [], blocked: [] });
+          this.activePermissionsCount.set(0);
+          
+          // Notify backend about cleared permissions
+          this.updateBackendPermissions();
+          
+          this.snackBar.open('Session cleared successfully', 'Close', {
+            duration: 2000,
+            panelClass: ['success-snackbar']
+          });
+        },
+        error: (error) => {
+          console.error('Failed to clear session:', error);
+          this.snackBar.open('Failed to clear session', 'Close', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
       });
     }
   }
