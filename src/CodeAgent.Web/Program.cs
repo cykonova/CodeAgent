@@ -18,6 +18,7 @@ using YamlDotNet.Serialization.NamingConventions;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -188,10 +189,10 @@ app.UseAntiforgery();
 app.UseRouting();
 app.UseAuthorization();
 
-// Enable static file serving
+// Enable static file serving from wwwroot
 app.UseStaticFiles();
 
-// Serve SPA static files
+// Serve SPA static files from browser subfolder
 app.UseSpaStaticFiles();
 
 app.MapControllers();
@@ -201,12 +202,10 @@ app.MapHub<AgentHub>("/hub/agent");
 app.MapHub<CollaborationHub>("/hub/collaboration");
 
 // Configure SPA - only if not overriding API routes
-app.UseSpa(spa =>
+app.MapFallbackToFile("index.html", new StaticFileOptions
 {
-    spa.Options.SourcePath = "client";
-    
-    // Always serve from wwwroot (pre-built files) to avoid proxy conflicts
-    // This ensures API routes work correctly
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "browser"))
 });
 
 // Auto-open browser in daemon mode
