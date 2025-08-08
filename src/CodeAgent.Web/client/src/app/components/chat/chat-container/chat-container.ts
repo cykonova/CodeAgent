@@ -104,8 +104,8 @@ export class ChatContainer implements OnInit, OnDestroy {
   
   // Configuration
   useStreaming = true;
-  selectedProvider = 'openai';
-  selectedModel = 'gpt-4';
+  selectedProvider = '';
+  selectedModel = '';
   availableProviders = signal<Provider[]>([]);
   availableModels = signal<string[]>([]);
   
