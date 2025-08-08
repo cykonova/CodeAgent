@@ -1,22 +1,23 @@
 .message {
   display: flex;
-  margin-bottom: 16px;
+  flex-direction: column;
+  margin-bottom: 20px;
   
   &.user {
-    justify-content: flex-end;
+    align-items: flex-end;
     
     .message-bubble {
-      background-color: var(--mat-primary);
+      background-color: var(--primary-color);
       color: white;
     }
   }
   
   &.assistant {
-    justify-content: flex-start;
+    align-items: flex-start;
     
     .message-bubble {
-      background-color: var(--mat-surface);
-      border: 1px solid var(--mat-divider);
+      background-color: var(--app-surface);
+      border: 1px solid var(--app-divider);
     }
   }
   
@@ -25,18 +26,36 @@
     padding: 12px 16px;
     border-radius: 16px;
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
     gap: 8px;
     
-    .message-avatar {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      
+      .message-avatar {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+      
+      .message-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--app-text-secondary);
+        
+        .provider-info {
+          font-weight: 400;
+          opacity: 0.8;
+          font-size: 11px;
+        }
+      }
     }
     
     .message-content {
-      flex: 1;
       word-wrap: break-word;
       
       .tool-calls-section {
@@ -47,11 +66,12 @@
         white-space: pre-wrap;
       }
     }
-    
-    .message-timestamp {
-      font-size: 11px;
-      opacity: 0.7;
-      margin-top: 4px;
-    }
+  }
+  
+  .message-timestamp {
+    font-size: 11px;
+    color: var(--app-text-disabled);
+    margin-top: 4px;
+    padding: 0 16px;
   }
 }

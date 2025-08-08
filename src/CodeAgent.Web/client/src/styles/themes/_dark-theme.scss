@@ -20,20 +20,20 @@ $dark-theme: mat.define-theme((
 @mixin apply-dark-theme() {
   @include mat.theme($dark-theme);
   
-  // Additional custom properties for dark theme
-  --app-background: #121212;
-  --app-surface: #1e1e1e;
-  --app-card-background: #242424;
-  --app-drawer-background: #1a1a1a;
+  // Additional custom properties for dark theme (softer contrast)
+  --app-background: #1a1a1a;
+  --app-surface: #242424;
+  --app-card-background: #2a2a2a;
+  --app-drawer-background: #1f1f1f;
   --app-toolbar-background: #00acc1;
   --app-toolbar-text: #000000;
-  --app-text-primary: rgba(255, 255, 255, 0.87);
-  --app-text-secondary: rgba(255, 255, 255, 0.6);
-  --app-text-disabled: rgba(255, 255, 255, 0.38);
-  --app-divider: rgba(255, 255, 255, 0.12);
-  --app-border: rgba(255, 255, 255, 0.08);
-  --app-hover: rgba(255, 255, 255, 0.04);
-  --app-selected: rgba(255, 255, 255, 0.08);
+  --app-text-primary: rgba(240, 240, 240, 0.87);
+  --app-text-secondary: rgba(240, 240, 240, 0.6);
+  --app-text-disabled: rgba(240, 240, 240, 0.38);
+  --app-divider: rgba(240, 240, 240, 0.12);
+  --app-border: rgba(240, 240, 240, 0.08);
+  --app-hover: rgba(240, 240, 240, 0.04);
+  --app-selected: rgba(240, 240, 240, 0.08);
   --app-focus: rgba(0, 172, 193, 0.24);
   --app-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --app-shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4);

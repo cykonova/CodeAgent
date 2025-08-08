@@ -56,3 +56,58 @@
     }
   }
 }
+
+// Responsive styles
+@media (max-width: 768px) {
+  .chat-header {
+    padding: 12px;
+    
+    .header-left {
+      h2 {
+        font-size: 18px;
+      }
+      
+      .subtitle {
+        display: none;
+      }
+      
+      .session-info {
+        .permissions-chip {
+          display: none;
+        }
+      }
+    }
+    
+    .header-actions {
+      button {
+        width: 36px;
+        height: 36px;
+        
+        mat-icon {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-header {
+    .header-left {
+      h2 {
+        font-size: 16px;
+      }
+    }
+    
+    .header-actions {
+      // Show only essential actions on very small screens
+      button:nth-child(n+3):not(:last-child) {
+        display: none;
+      }
+      
+      mat-divider {
+        display: none;
+      }
+    }
+  }
+}

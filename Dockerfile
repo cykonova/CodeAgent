@@ -1,53 +1,71 @@
-# Build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /source
+# Multi-stage build for CodeAgent Web Application
+# Stage 1: Build Angular frontend
+FROM node:20-alpine AS frontend-builder
 
-# Copy csproj files and restore dependencies
-COPY src/CodeAgent.Domain/*.csproj ./src/CodeAgent.Domain/
-COPY src/CodeAgent.Core/*.csproj ./src/CodeAgent.Core/
-COPY src/CodeAgent.Infrastructure/*.csproj ./src/CodeAgent.Infrastructure/
-COPY src/CodeAgent.CLI/*.csproj ./src/CodeAgent.CLI/
-COPY src/CodeAgent.Web/*.csproj ./src/CodeAgent.Web/
-COPY src/CodeAgent.MCP/*.csproj ./src/CodeAgent.MCP/
-COPY src/CodeAgent.Providers/CodeAgent.Providers.OpenAI/*.csproj ./src/CodeAgent.Providers/CodeAgent.Providers.OpenAI/
-COPY src/CodeAgent.Providers/CodeAgent.Providers.Claude/*.csproj ./src/CodeAgent.Providers/CodeAgent.Providers.Claude/
-COPY src/CodeAgent.Providers/CodeAgent.Providers.Ollama/*.csproj ./src/CodeAgent.Providers/CodeAgent.Providers.Ollama/
+WORKDIR /app/client
 
-RUN dotnet restore src/CodeAgent.CLI/CodeAgent.CLI.csproj
-RUN dotnet restore src/CodeAgent.Web/CodeAgent.Web.csproj
+# Copy package files
+COPY src/CodeAgent.Web/client/package*.json ./
 
-# Copy everything else and build
-COPY . .
-WORKDIR /source/src/CodeAgent.CLI
-RUN dotnet publish -c Release -o /app/cli --no-restore
+# Install dependencies
+RUN npm ci
 
-WORKDIR /source/src/CodeAgent.Web
-RUN dotnet publish -c Release -o /app/web --no-restore
+# Copy Angular source code
+COPY src/CodeAgent.Web/client/ ./
 
-# Runtime stage for CLI
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS cli-runtime
+# Build Angular app
+RUN npm run build:prod
+
+# Stage 2: Build .NET backend
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS backend-builder
+
+WORKDIR /src
+
+# Copy all project files
+COPY src/ ./
+
+# Restore dependencies for all projects
+RUN dotnet restore CodeAgent.Web/CodeAgent.Web.csproj
+
+# Build the web project
+RUN dotnet publish CodeAgent.Web/CodeAgent.Web.csproj -c Release -o /app/publish
+
+# Stage 3: Runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+# Install additional tools that CodeAgent might need
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-COPY --from=build /app/cli .
-ENTRYPOINT ["dotnet", "CodeAgent.CLI.dll"]
 
-# Runtime stage for Web
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS web-runtime
-WORKDIR /app
-COPY --from=build /app/web .
+# Copy published .NET app
+COPY --from=backend-builder /app/publish .
 
-# Create volume for data persistence
-VOLUME ["/data"]
+# Copy built Angular app to wwwroot
+COPY --from=frontend-builder /app/browser ./wwwroot/browser
 
-# Set environment variables
-ENV ASPNETCORE_URLS=http://+:5000
-ENV ASPNETCORE_ENVIRONMENT=Production
-ENV CodeAgent__DataPath=/data
+# Create directories for CodeAgent
+RUN mkdir -p /workspace && \
+    mkdir -p /app/data && \
+    mkdir -p /app/logs
+
+# Environment variables
+ENV ASPNETCORE_URLS=http://+:5001 \
+    ASPNETCORE_ENVIRONMENT=Development \
+    CodeAgent__ProjectDirectory=/workspace \
+    CodeAgent__DataDirectory=/app/data \
+    CodeAgent__LogDirectory=/app/logs
 
 # Expose ports
-EXPOSE 5000
+EXPOSE 5001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
+    CMD curl -f http://localhost:5001/health || exit 1
 
+# Start the application
 ENTRYPOINT ["dotnet", "CodeAgent.Web.dll"]

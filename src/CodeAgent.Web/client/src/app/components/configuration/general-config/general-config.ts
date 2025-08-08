@@ -8,6 +8,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ChipListComponent, ChipItem } from '../../shared/chips/chip-list/chip-list';
 import { FormFieldComponent } from '../../shared/forms/form-field/form-field';
 import { PanelComponent } from '../../shared/panels/panel/panel';
@@ -43,6 +44,7 @@ export interface Provider {
     MatDividerModule,
     MatIconModule,
     MatButtonModule,
+    MatTooltipModule,
     ChipListComponent,
     FormFieldComponent,
     PanelComponent
@@ -89,5 +91,30 @@ export class GeneralConfigComponent {
   
   onChipRemoved(chip: ChipItem) {
     this.removeDirectory.emit(chip.id);
+  }
+  
+  onFolderSelected(event: Event, type: 'project' | 'additional') {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      // Get the path from the first file's webkitRelativePath
+      const file = input.files[0];
+      const path = (file as any).webkitRelativePath;
+      
+      if (path) {
+        // Extract the folder path (remove the file name)
+        const folderPath = path.substring(0, path.indexOf('/'));
+        
+        if (type === 'project') {
+          // Update the project directory form control
+          this.form.get('projectDirectory')?.setValue('/' + folderPath);
+        } else {
+          // Set the additional directory input
+          this.newPermittedDir = '/' + folderPath;
+        }
+      }
+    }
+    
+    // Reset the input so the same folder can be selected again
+    input.value = '';
   }
 }

@@ -59,6 +59,19 @@
       padding: 0 16px;
       background-color: transparent;
       
+      // Move chevron to the top-left
+      ::ng-deep .mat-expansion-indicator {
+        order: -1;
+        margin-right: 8px;
+        align-self: flex-start;
+        margin-top: 8px;
+        
+        &::after {
+          border-width: 0 2px 2px 0;
+          padding: 3px;
+        }
+      }
+      
       mat-panel-title {
         display: flex;
         align-items: center;

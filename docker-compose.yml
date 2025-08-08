@@ -1,89 +1,44 @@
 version: '3.8'
 
 services:
-  codeagent-web:
+  codeagent:
     build:
       context: .
-      target: web-runtime
+      dockerfile: Dockerfile
     container_name: codeagent-web
     ports:
-      - "5000:5000"
+      - "5001:5001"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - CodeAgent__DataPath=/data
-      - CodeAgent__Providers__OpenAI__ApiKey=${OPENAI_API_KEY}
-      - CodeAgent__Providers__Claude__ApiKey=${CLAUDE_API_KEY}
-      - CodeAgent__Jwt__Key=${JWT_KEY:-default-jwt-key-change-in-production}
-      - CodeAgent__Jwt__Issuer=CodeAgent
-      - CodeAgent__Jwt__Audience=CodeAgentUsers
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5001
+      - CodeAgent__ProjectDirectory=/workspace
+      - CodeAgent__DataDirectory=/app/data
+      - CodeAgent__LogDirectory=/app/logs
+      # Add your API keys here or use .env file
+      # - OpenAI__ApiKey=${OPENAI_API_KEY}
+      # - Anthropic__ApiKey=${ANTHROPIC_API_KEY}
     volumes:
-      - codeagent-data:/data
-      - ./config:/app/config:ro
+      # Map test_workspace to container's workspace
+      - ./test_workspace:/workspace
+      # Persist data and logs
+      - codeagent-data:/app/data
+      - codeagent-logs:/app/logs
+      # For development: uncomment to use local source code
+      # - ./src/CodeAgent.Web/wwwroot:/app/wwwroot
+    restart: unless-stopped
     networks:
       - codeagent-network
-    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
       interval: 30s
       timeout: 3s
       retries: 3
-
-  codeagent-cli:
-    build:
-      context: .
-      target: cli-runtime
-    container_name: codeagent-cli
-    environment:
-      - CodeAgent__DataPath=/data
-      - CodeAgent__Providers__OpenAI__ApiKey=${OPENAI_API_KEY}
-      - CodeAgent__Providers__Claude__ApiKey=${CLAUDE_API_KEY}
-    volumes:
-      - codeagent-data:/data
-      - ./workspace:/workspace
-    networks:
-      - codeagent-network
-    stdin_open: true
-    tty: true
-    restart: "no"
-
-  redis:
-    image: redis:7-alpine
-    container_name: codeagent-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - codeagent-network
-    restart: unless-stopped
-    command: redis-server --appendonly yes
-
-  postgres:
-    image: postgres:15-alpine
-    container_name: codeagent-postgres
-    environment:
-      - POSTGRES_DB=codeagent
-      - POSTGRES_USER=codeagent
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - codeagent-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U codeagent"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      start_period: 40s
 
 volumes:
   codeagent-data:
     driver: local
-  redis-data:
-    driver: local
-  postgres-data:
+  codeagent-logs:
     driver: local
 
 networks:

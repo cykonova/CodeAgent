@@ -117,6 +117,69 @@ a {
   background-color: var(--app-drawer-background) !important;
 }
 
+// Custom toggle switch styling
+.mat-mdc-slide-toggle {
+  .mdc-switch {
+    .mdc-switch__track {
+      border: 1px solid var(--app-divider);
+      background-color: var(--app-surface);
+      opacity: 1;
+      
+      &::after {
+        background-color: var(--app-surface);
+        opacity: 1;
+      }
+    }
+    
+    .mdc-switch__handle-track {
+      .mdc-switch__handle {
+        border: 1px solid var(--app-divider);
+        background-color: var(--app-background);
+        
+        &::after {
+          background-color: var(--app-text-secondary);
+        }
+      }
+    }
+    
+    &.mdc-switch--selected {
+      .mdc-switch__track {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        opacity: 0.8;
+        
+        &::after {
+          background-color: var(--primary-color);
+          opacity: 0.8;
+        }
+      }
+      
+      .mdc-switch__handle {
+        border-color: var(--primary-color);
+        background-color: white;
+        
+        &::after {
+          background-color: var(--primary-color);
+        }
+      }
+    }
+    
+    &:hover:not(.mdc-switch--disabled) {
+      .mdc-switch__track {
+        border-color: var(--app-text-secondary);
+      }
+      
+      .mdc-switch__handle {
+        border-color: var(--app-text-secondary);
+      }
+    }
+  }
+  
+  &:hover {
+    cursor: pointer;
+  }
+}
+
 // Loading spinner
 @keyframes spin {
   to { transform: rotate(360deg); }

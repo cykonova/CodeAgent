@@ -10,6 +10,20 @@
     margin-bottom: 16px;
   }
   
+  .directory-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    
+    app-form-field {
+      flex: 1;
+    }
+    
+    button {
+      margin-top: 8px;
+    }
+  }
+  
   .directory-section {
     margin-top: 16px;
     
@@ -22,9 +36,14 @@
       display: flex;
       gap: 8px;
       margin-bottom: 12px;
+      align-items: flex-start;
       
       .flex-field {
         flex: 1;
+      }
+      
+      button {
+        margin-top: 4px;
       }
     }
   }

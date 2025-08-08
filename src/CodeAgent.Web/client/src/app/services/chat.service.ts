@@ -93,7 +93,7 @@ export class ChatService implements OnDestroy {
         this.handleStreamChunk(data);
       });
 
-      this.hubConnection.on('MessageResponse', (data: { sessionId: string; content: string; timestamp: string }) => {
+      this.hubConnection.on('MessageResponse', (data: { sessionId: string; content: string; timestamp: string; toolCalls?: ToolCall[]; metadata?: any }) => {
         this.handleMessageResponse(data);
       });
 
@@ -140,12 +140,14 @@ export class ChatService implements OnDestroy {
     });
   }
 
-  private handleMessageResponse(data: { sessionId: string; content: string; timestamp: string }): void {
+  private handleMessageResponse(data: { sessionId: string; content: string; timestamp: string; toolCalls?: ToolCall[]; metadata?: any }): void {
     const message: Message = {
       id: crypto.randomUUID(),
       content: data.content,
       role: 'assistant',
-      timestamp: new Date(data.timestamp)
+      timestamp: new Date(data.timestamp),
+      toolCalls: data.toolCalls,
+      metadata: data.metadata
     };
     this.addMessage(message);
   }

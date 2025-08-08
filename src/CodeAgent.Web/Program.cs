@@ -10,6 +10,7 @@ using CodeAgent.Web.Services;
 using CodeAgent.Providers.OpenAI;
 using CodeAgent.Providers.Claude;
 using CodeAgent.Providers.Ollama;
+using CodeAgent.Providers.Docker;
 using CodeAgent.MCP;
 using CodeAgent.Web.Hubs;
 using Microsoft.Extensions.Options;
@@ -123,6 +124,8 @@ builder.Services.AddScoped<ISecurityService, SecurityService>();
 builder.Services.Configure<OpenAIOptions>(builder.Configuration.GetSection("OpenAI"));
 builder.Services.Configure<ClaudeOptions>(builder.Configuration.GetSection("Claude"));
 builder.Services.Configure<OllamaOptions>(builder.Configuration.GetSection("Ollama"));
+builder.Services.Configure<DockerLLMOptions>(builder.Configuration.GetSection("DockerLLM"));
+builder.Services.Configure<DockerMCPOptions>(builder.Configuration.GetSection("DockerMCP"));
 builder.Services.Configure<MCPOptions>(builder.Configuration.GetSection("MCP"));
 
 // LLM providers
@@ -137,6 +140,34 @@ builder.Services.AddSingleton<OllamaProvider>(sp =>
     return new OllamaProvider(options, logger, httpClient);
 });
 
+// Docker LLM provider
+builder.Services.AddSingleton<DockerLLMProvider>(sp =>
+{
+    var httpClient = sp.GetRequiredService<HttpClient>();
+    var options = sp.GetRequiredService<IOptions<DockerLLMOptions>>();
+    var logger = sp.GetRequiredService<ILogger<DockerLLMProvider>>();
+    return new DockerLLMProvider(options, logger, httpClient);
+});
+
+// Docker MCP provider
+builder.Services.AddSingleton<DockerMCPProvider>(sp =>
+{
+    var httpClient = sp.GetRequiredService<HttpClient>();
+    var options = sp.GetRequiredService<IOptions<DockerMCPOptions>>();
+    var logger = sp.GetRequiredService<ILogger<DockerMCPProvider>>();
+    return new DockerMCPProvider(logger, options, httpClient);
+});
+
+// Model management services
+builder.Services.AddSingleton<OllamaModelManager>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient("OllamaClient");
+    var options = sp.GetRequiredService<IOptions<OllamaOptions>>();
+    var logger = sp.GetRequiredService<ILogger<OllamaModelManager>>();
+    return new OllamaModelManager(options, logger, httpClient);
+});
+
 // MCP client
 builder.Services.AddSingleton<IMCPClient, MCPClient>();
 
@@ -147,6 +178,8 @@ builder.Services.AddSingleton<ILLMProviderFactory>(sp =>
     factory.RegisterProvider<OpenAIProvider>("openai");
     factory.RegisterProvider<ClaudeProvider>("claude");
     factory.RegisterProvider<OllamaProvider>("ollama");
+    factory.RegisterProvider<DockerLLMProvider>("docker");
+    factory.RegisterProvider<DockerLLMProvider>("docker-llm");
     return factory;
 });
 

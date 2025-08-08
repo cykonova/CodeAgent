@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  codeagent-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: codeagent-dev
+    ports:
+      - "5001:5001"    # .NET API
+      - "4200:4200"    # Angular Dev Server
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5001
+      - CodeAgent__ProjectDirectory=/workspace
+      - CodeAgent__DataDirectory=/app/data
+      - CodeAgent__LogDirectory=/app/logs
+    volumes:
+      # Map test_workspace to container's workspace
+      - ./test_workspace:/workspace
+      # Map source code for hot-reload
+      - ./src:/app/src
+      # Persist node_modules to avoid reinstalling
+      - node_modules:/app/src/CodeAgent.Web/client/node_modules
+      # Persist NuGet packages
+      - nuget_packages:/root/.nuget/packages
+      # Data and logs
+      - codeagent-data:/app/data
+      - codeagent-logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - codeagent-network
+    stdin_open: true
+    tty: true
+
+volumes:
+  node_modules:
+    driver: local
+  nuget_packages:
+    driver: local
+  codeagent-data:
+    driver: local
+  codeagent-logs:
+    driver: local
+
+networks:
+  codeagent-network:
+    driver: bridge

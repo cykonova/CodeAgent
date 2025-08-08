@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build outputs
+**/bin
+**/obj
+**/out
+**/dist
+**/.angular
+
+# Node
+**/node_modules
+**/npm-debug.log
+**/yarn-error.log
+
+# .NET
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+**/.vs
+
+# Test results
+**/TestResults
+**/*.trx
+**/coverage
+
+# Documentation
+*.md
+docs/
+README.md
+LICENSE
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Scripts
+*.sh
+*.ps1
+
+# Test workspace (we'll mount it as volume)
+test_workspace/

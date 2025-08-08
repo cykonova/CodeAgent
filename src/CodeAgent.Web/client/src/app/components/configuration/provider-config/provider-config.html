@@ -130,6 +130,124 @@
             </button>
           </div>
         </form>
+        
+        @if (supportsModelManagement(selectedProvider())) {
+          <app-panel 
+            title="Model Management" 
+            icon="model_training"
+            class="model-management-panel">
+            
+            <div class="model-search">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search Models</mat-label>
+                <input matInput [(ngModel)]="searchQuery" (keyup.enter)="searchModels()">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+              <button mat-raised-button color="primary" (click)="searchModels()">
+                Search
+              </button>
+              <button mat-button (click)="loadModelsForProvider()">
+                <mat-icon>refresh</mat-icon>
+                Refresh
+              </button>
+            </div>
+            
+            @if (isLoadingModels()) {
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            }
+            
+            @if (installProgress() !== null) {
+              <div class="install-progress">
+                <p>Installing model...</p>
+                <mat-progress-bar mode="determinate" [value]="installProgress()"></mat-progress-bar>
+              </div>
+            }
+            
+            <div class="models-tabs">
+              <mat-tab-group>
+                <mat-tab label="Installed Models">
+                  <div class="models-list">
+                    @for (model of installedModels(); track model.id) {
+                      <div class="model-card">
+                        <div class="model-info">
+                          <h4>{{ model.name }}</h4>
+                          <p>{{ model.description }}</p>
+                          <div class="model-meta">
+                            @if (model.size) {
+                              <span class="size">{{ formatModelSize(model.size) }}</span>
+                            }
+                            @if (model.capabilities) {
+                              <mat-chip-set>
+                                @if (model.capabilities.supportsChat) {
+                                  <mat-chip>Chat</mat-chip>
+                                }
+                                @if (model.capabilities.supportsTools) {
+                                  <mat-chip>Tools</mat-chip>
+                                }
+                                @if (model.capabilities.supportsVision) {
+                                  <mat-chip>Vision</mat-chip>
+                                }
+                              </mat-chip-set>
+                            }
+                          </div>
+                        </div>
+                        <div class="model-actions">
+                          <button mat-button color="primary" (click)="selectModel(model.id)">
+                            <mat-icon>check</mat-icon>
+                            Select
+                          </button>
+                          <button mat-button color="warn" (click)="uninstallModel(model)">
+                            <mat-icon>delete</mat-icon>
+                            Uninstall
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </mat-tab>
+                
+                <mat-tab label="Available Models">
+                  <div class="models-list">
+                    @for (model of availableModelsList(); track model.id) {
+                      @if (!model.isInstalled) {
+                        <div class="model-card">
+                          <div class="model-info">
+                            <h4>{{ model.name }}</h4>
+                            <p>{{ model.description }}</p>
+                            <div class="model-meta">
+                              @if (model.size) {
+                                <span class="size">{{ formatModelSize(model.size) }}</span>
+                              }
+                              @if (model.capabilities) {
+                                <mat-chip-set>
+                                  @if (model.capabilities.supportsChat) {
+                                    <mat-chip>Chat</mat-chip>
+                                  }
+                                  @if (model.capabilities.supportsTools) {
+                                    <mat-chip>Tools</mat-chip>
+                                  }
+                                  @if (model.capabilities.supportsVision) {
+                                    <mat-chip>Vision</mat-chip>
+                                  }
+                                </mat-chip-set>
+                              }
+                            </div>
+                          </div>
+                          <div class="model-actions">
+                            <button mat-raised-button color="primary" (click)="installModel(model)">
+                              <mat-icon>download</mat-icon>
+                              Install
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    }
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+          </app-panel>
+        }
       } @else {
         <div class="no-selection">
           <mat-icon>touch_app</mat-icon>

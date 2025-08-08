@@ -20,6 +20,7 @@
     <ProjectReference Include="..\CodeAgent.Providers\CodeAgent.Providers.OpenAI\CodeAgent.Providers.OpenAI.csproj" />
     <ProjectReference Include="..\CodeAgent.Providers\CodeAgent.Providers.Claude\CodeAgent.Providers.Claude.csproj" />
     <ProjectReference Include="..\CodeAgent.Providers\CodeAgent.Providers.Ollama\CodeAgent.Providers.Ollama.csproj" />
+    <ProjectReference Include="..\CodeAgent.Providers\CodeAgent.Providers.Docker\CodeAgent.Providers.Docker.csproj" />
     <ProjectReference Include="..\CodeAgent.MCP\CodeAgent.MCP.csproj" />
   </ItemGroup>
 

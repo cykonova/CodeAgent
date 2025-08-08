@@ -1,13 +1,28 @@
 <div class="general-config">
   <form [formGroup]="form" class="config-form">
     <app-panel title="Project Settings" icon="folder">
-      <app-form-field
-        label="Project Directory"
-        placeholder="/path/to/project"
-        formControlName="projectDirectory"
-        suffixIcon="folder"
-        hint="Primary working directory for CodeAgent">
-      </app-form-field>
+      <div class="directory-input-group">
+        <app-form-field
+          label="Project Directory"
+          placeholder="/path/to/project"
+          formControlName="projectDirectory"
+          suffixIcon="folder"
+          hint="Primary working directory for CodeAgent">
+        </app-form-field>
+        <input #folderPicker
+               type="file"
+               webkitdirectory
+               directory
+               multiple
+               style="display: none"
+               (change)="onFolderSelected($event, 'project')">
+        <button mat-icon-button 
+                color="primary" 
+                (click)="folderPicker.click()"
+                matTooltip="Browse for folder">
+          <mat-icon>folder_open</mat-icon>
+        </button>
+      </div>
       
       <div class="directory-section">
         <h4>Additional Permitted Directories</h4>
@@ -17,6 +32,19 @@
             <input matInput [(ngModel)]="newPermittedDir" [ngModelOptions]="{standalone: true}" 
                    placeholder="/path/to/additional/directory">
           </mat-form-field>
+          <input #additionalFolderPicker
+                 type="file"
+                 webkitdirectory
+                 directory
+                 multiple
+                 style="display: none"
+                 (change)="onFolderSelected($event, 'additional')">
+          <button mat-icon-button 
+                  color="accent" 
+                  (click)="additionalFolderPicker.click()"
+                  matTooltip="Browse for folder">
+            <mat-icon>folder_open</mat-icon>
+          </button>
           <button mat-icon-button color="primary" (click)="addPermittedDirectory()">
             <mat-icon>add_circle</mat-icon>
           </button>

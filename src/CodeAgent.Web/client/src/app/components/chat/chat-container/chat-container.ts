@@ -192,12 +192,14 @@ export class ChatContainer implements OnInit, OnDestroy {
         
         const assistantMessage: Message = {
           id: response.id || crypto.randomUUID(),
-          content: '', // Don't show raw content when we have tool calls
+          content: response.content || '', // Preserve original content for history reload
           role: 'assistant',
           timestamp: new Date(),
           toolCalls: toolCalls.length > 0 ? toolCalls : response.toolCalls,
           metadata: {
-            usage: response.usage
+            usage: response.usage,
+            provider: this.selectedProvider,
+            model: this.selectedModel
           }
         };
         
