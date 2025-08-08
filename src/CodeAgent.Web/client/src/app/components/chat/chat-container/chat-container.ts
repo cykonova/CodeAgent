@@ -9,6 +9,10 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { Subscription } from 'rxjs';
 import { ChatHeaderComponent, HeaderAction, Provider } from '../chat-header/chat-header';
@@ -42,6 +46,9 @@ interface ChatRequest {
     MatChipsModule,
     MatBadgeModule,
     MatTooltipModule,
+    MatCardModule,
+    MatSelectModule,
+    MatFormFieldModule,
     ChatHeaderComponent,
     MessagesListComponent,
     ChatInputComponent,
@@ -101,6 +108,7 @@ export class ChatContainer implements OnInit, OnDestroy {
   // Sidecar state
   showSidecar = signal(false);
   sidecarView = signal<'permissions' | 'context' | 'history' | 'tools'>('permissions');
+  showSettings = signal(false);
   
   // Configuration
   useStreaming = true;
@@ -505,6 +513,10 @@ export class ChatContainer implements OnInit, OnDestroy {
   
   closeSidecar(): void {
     this.showSidecar.set(false);
+  }
+  
+  toggleSettings(): void {
+    this.showSettings.update(value => !value);
   }
   
   getSidecarTitle(): string {

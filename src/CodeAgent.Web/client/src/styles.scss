@@ -1,22 +1,38 @@
 // Angular Material theming
 @use '@angular/material' as mat;
-@use './styles/themes/light-theme' as light;
-@use './styles/themes/dark-theme' as dark;
-@use './styles/themes/variables';
 
 // Include Material core styles
 @include mat.core();
 
-// Default to light theme
-html {
-  @include light.apply-light-theme();
-  color-scheme: light;
-}
+// Define the theme
+$app-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+$app-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
+$app-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
-// Dark theme class
-html.dark-theme {
-  @include dark.apply-dark-theme();
-  color-scheme: dark;
+$app-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $app-primary,
+    accent: $app-accent,
+    warn: $app-warn,
+  ),
+  typography: mat.m2-define-typography-config(),
+  density: 0,
+));
+
+// Include theme styles for core and each component used
+@include mat.all-component-themes($app-theme);
+
+// Dark theme
+$app-dark-theme: mat.m2-define-dark-theme((
+  color: (
+    primary: $app-primary,
+    accent: $app-accent,
+    warn: $app-warn,
+  )
+));
+
+.dark-theme {
+  @include mat.all-component-colors($app-dark-theme);
 }
 
 // Global styles
@@ -28,60 +44,23 @@ html, body {
   height: 100%;
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: var(--app-background);
-  color: var(--app-text-primary);
 }
 
-// Typography
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-  font-weight: 500;
-}
-
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.75rem; }
-h4 { font-size: 1.5rem; }
-h5 { font-size: 1.25rem; }
-h6 { font-size: 1rem; }
-
-p {
-  margin: 0 0 var(--spacing-md);
-  line-height: 1.6;
-}
-
-a {
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-  
-  &:hover {
-    text-decoration: underline;
+// Use Material Typography
+.mat-typography {
+  h1, h2, h3, h4, h5, h6, p {
+    margin: 0;
   }
 }
 
-// Utility classes
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--spacing-md);
+// Minimal utility classes
+.full-height {
+  height: 100%;
 }
 
-.text-center { text-align: center; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
-
-.mt-sm { margin-top: var(--spacing-sm); }
-.mt-md { margin-top: var(--spacing-md); }
-.mt-lg { margin-top: var(--spacing-lg); }
-
-.mb-sm { margin-bottom: var(--spacing-sm); }
-.mb-md { margin-bottom: var(--spacing-md); }
-.mb-lg { margin-bottom: var(--spacing-lg); }
-
-.p-sm { padding: var(--spacing-sm); }
-.p-md { padding: var(--spacing-md); }
-.p-lg { padding: var(--spacing-lg); }
+.flex-spacer {
+  flex: 1 1 auto;
+}
 
 // Scrollbar styling
 ::-webkit-scrollbar {
@@ -90,182 +69,30 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--app-surface);
+  background: #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--app-divider);
+  background: #888;
   border-radius: 4px;
   
   &:hover {
-    background: var(--app-text-secondary);
+    background: #555;
   }
 }
 
-// Material overrides
-.mat-mdc-card {
-  background-color: var(--app-card-background) !important;
-  transition: background-color var(--transition-normal);
-}
-
-.mat-toolbar {
-  background-color: var(--app-toolbar-background) !important;
-  color: var(--app-toolbar-text) !important;
-}
-
-.mat-drawer {
-  background-color: var(--app-drawer-background) !important;
-}
-
-// Custom toggle switch styling
-.mat-mdc-slide-toggle {
-  .mdc-switch {
-    .mdc-switch__track {
-      border: 1px solid var(--app-divider);
-      background-color: var(--app-surface);
-      opacity: 1;
-      
-      &::after {
-        background-color: var(--app-surface);
-        opacity: 1;
-      }
-    }
-    
-    .mdc-switch__handle-track {
-      .mdc-switch__handle {
-        border: 1px solid var(--app-divider);
-        background-color: var(--app-background);
-        
-        &::after {
-          background-color: var(--app-text-secondary);
-        }
-      }
-    }
-    
-    &.mdc-switch--selected {
-      .mdc-switch__track {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-        opacity: 0.8;
-        
-        &::after {
-          background-color: var(--primary-color);
-          opacity: 0.8;
-        }
-      }
-      
-      .mdc-switch__handle {
-        border-color: var(--primary-color);
-        background-color: white;
-        
-        &::after {
-          background-color: var(--primary-color);
-        }
-      }
-    }
-    
-    &:hover:not(.mdc-switch--disabled) {
-      .mdc-switch__track {
-        border-color: var(--app-text-secondary);
-      }
-      
-      .mdc-switch__handle {
-        border-color: var(--app-text-secondary);
-      }
-    }
+.dark-theme {
+  ::-webkit-scrollbar-track {
+    background: #2c2c2c;
   }
   
-  &:hover {
-    cursor: pointer;
+  ::-webkit-scrollbar-thumb {
+    background: #555;
+    
+    &:hover {
+      background: #888;
+    }
   }
 }
 
-// Loading spinner
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--app-divider);
-  border-top-color: var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-// Snackbar custom styles
-.success-snackbar {
-  --mdc-snackbar-container-color: #4caf50;
-  --mdc-snackbar-supporting-text-color: white;
-}
-
-.error-snackbar {
-  --mdc-snackbar-container-color: #f44336;
-  --mdc-snackbar-supporting-text-color: white;
-}
-
-.warning-snackbar {
-  --mdc-snackbar-container-color: #ff9800;
-  --mdc-snackbar-supporting-text-color: white;
-}
-
-.info-snackbar {
-  --mdc-snackbar-container-color: #2196f3;
-  --mdc-snackbar-supporting-text-color: white;
-}
-
-// Loading states
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-
-  .dark-theme & {
-    background: rgba(0, 0, 0, 0.8);
-  }
-}
-
-// Error states
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-  text-align: center;
-  min-height: 200px;
-
-  .error-icon {
-    font-size: 48px;
-    color: #f44336;
-    margin-bottom: 16px;
-  }
-
-  .error-message {
-    font-size: 16px;
-    margin-bottom: 16px;
-    color: rgba(0, 0, 0, 0.6);
-  }
-
-  .dark-theme & .error-message {
-    color: rgba(255, 255, 255, 0.6);
-  }
-}
-
-// Animation utilities
-.fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}

@@ -39,6 +39,7 @@ export class MainLayout {
   private themeService = inject(ThemeService);
   
   isDark = computed(() => this.themeService.currentTheme() === 'dark');
+  showRightPanel = false;
   
   navItems: NavItem[] = [
     { path: '/chat', icon: 'chat', label: 'Chat', tooltip: 'AI Chat Assistant' },
@@ -49,5 +50,9 @@ export class MainLayout {
   
   toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+  
+  toggleRightPanel(): void {
+    this.showRightPanel = !this.showRightPanel;
   }
 }

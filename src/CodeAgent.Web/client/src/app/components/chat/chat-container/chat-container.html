@@ -1,58 +1,85 @@
-<div class="chat-layout">
-  <div class="chat-container" [class.with-sidecar]="showSidecar()">
-    <app-chat-header
-      [title]="'Chat'"
-      [showPermissionsBadge]="hasActivePermissions()"
-      [permissionsCount]="activePermissionsCount()"
-      [actions]="headerActions"
-      [availableProviders]="availableProviders()"
-      [selectedProvider]="selectedProvider"
-      [availableModels]="availableModels()"
-      [selectedModel]="selectedModel"
-      (actionClick)="onHeaderAction($event)"
-      (clearSession)="clearSession()"
-      (providerChange)="onProviderChange($event)"
-      (modelChange)="onModelChange($event)">
-    </app-chat-header>
-    
-    <app-messages-list
-      [messages]="messages()"
-      [isLoading]="isLoading()"
-      [showWelcome]="true">
-    </app-messages-list>
-    
+<mat-card class="chat-container">
+  <mat-card-header>
+    <mat-card-title>Chat Assistant</mat-card-title>
+    <div class="header-actions">
+      <button mat-button (click)="toggleSettings()">
+        <mat-icon>settings</mat-icon>
+        Settings
+      </button>
+      <button mat-button (click)="clearSession()">
+        <mat-icon>clear</mat-icon>
+        Clear
+      </button>
+    </div>
+  </mat-card-header>
+  
+  <mat-card-content class="chat-content">
+    <div class="messages-area">
+      <app-messages-list
+        [messages]="messages()"
+        [isLoading]="isLoading()"
+        [showWelcome]="true">
+      </app-messages-list>
+    </div>
+  </mat-card-content>
+  
+  <mat-card-actions class="chat-actions">
     <app-chat-input
       [disabled]="isLoading()"
       (messageSent)="sendMessage($event)">
     </app-chat-input>
-  </div>
-  
-  <!-- Sidecar Panel -->
-  <div class="chat-sidecar" [@slideIn]="showSidecar()" *ngIf="showSidecar()">
-    <app-panel 
-      [title]="getSidecarTitle()"
-      [showCloseButton]="true"
-      (close)="closeSidecar()">
+  </mat-card-actions>
+</mat-card>
+
+<!-- Settings Panel (Right Sidebar) -->
+<div class="settings-panel" *ngIf="showSettings()">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Chat Settings</mat-card-title>
+      <button mat-icon-button (click)="toggleSettings()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Provider</mat-label>
+        <mat-select [(value)]="selectedProvider" (selectionChange)="onProviderChange($event.value)">
+          @for (provider of availableProviders(); track provider) {
+            <mat-option [value]="provider">{{ provider }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
       
-      @switch (sidecarView()) {
-        @case ('permissions') {
-          <app-session-permissions-panel
-            [permissions]="sessionPermissions()"
-            [paths]="sessionPaths()"
-            (permissionsChanged)="onPermissionsChanged($event)"
-            (pathsChanged)="onPathsChanged($event)">
-          </app-session-permissions-panel>
-        }
-        @case ('context') {
-          <app-context-files-panel></app-context-files-panel>
-        }
-        @case ('history') {
-          <app-chat-history-panel></app-chat-history-panel>
-        }
-        @case ('tools') {
-          <app-tools-panel></app-tools-panel>
-        }
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Model</mat-label>
+        <mat-select [(value)]="selectedModel" (selectionChange)="onModelChange($event.value)">
+          @for (model of availableModels(); track model) {
+            <mat-option [value]="model">{{ model }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      
+      <mat-divider></mat-divider>
+      
+      <h3 class="section-title">Session Options</h3>
+      
+      @if (hasActivePermissions()) {
+        <mat-chip-listbox>
+          <mat-chip-option>{{ activePermissionsCount() }} Permissions</mat-chip-option>
+        </mat-chip-listbox>
       }
-    </app-panel>
-  </div>
+      
+      <div class="settings-actions">
+        @for (action of headerActions; track action.id) {
+          <button mat-stroked-button 
+                  [class.active]="sidecarView() === action.id"
+                  (click)="onHeaderAction(action.id)">
+            <mat-icon>{{ action.icon }}</mat-icon>
+            {{ action.tooltip }}
+          </button>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

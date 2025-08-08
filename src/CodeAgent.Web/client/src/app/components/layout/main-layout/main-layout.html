@@ -1,35 +1,52 @@
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #drawer class="sidenav" mode="side" opened>
-    <div class="sidenav-header">
-      <mat-icon class="logo-icon">assistant</mat-icon>
-      <span class="logo-text">CodeAgent</span>
-    </div>
+<mat-sidenav-container class="admin-container" autosize>
+  <!-- Left Sidebar -->
+  <mat-sidenav class="left-sidebar" mode="side" opened>
+    <mat-toolbar class="sidebar-header">
+      <mat-icon>dashboard</mat-icon>
+      <span>CodeAgent Admin</span>
+    </mat-toolbar>
     
-    <mat-nav-list class="nav-list">
+    <mat-nav-list>
       @for (item of navItems; track item.path) {
         <a mat-list-item 
            [routerLink]="item.path"
-           routerLinkActive="active-link"
-           class="nav-item">
+           routerLinkActive="active"
+           #rla="routerLinkActive"
+           [activated]="rla.isActive">
           <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
           <span matListItemTitle>{{ item.label }}</span>
         </a>
       }
     </mat-nav-list>
     
-    <div class="sidenav-footer">
-      <button mat-button 
-              class="theme-toggle-btn"
-              (click)="toggleTheme()">
+    <div class="sidebar-footer">
+      <mat-divider></mat-divider>
+      <button mat-button (click)="toggleTheme()" class="theme-toggle">
         <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
-        <span>{{ isDark() ? 'Light Mode' : 'Dark Mode' }}</span>
+        <span>{{ isDark() ? 'Light' : 'Dark' }} Theme</span>
       </button>
     </div>
   </mat-sidenav>
   
-  <mat-sidenav-content class="content-area">
-    <main class="main-content">
+  <!-- Main Content Area -->
+  <mat-sidenav-content class="main-content">
+    <div class="content-wrapper" [class.with-right-panel]="showRightPanel">
       <router-outlet></router-outlet>
-    </main>
+    </div>
   </mat-sidenav-content>
+  
+  <!-- Right Panel (for configuration) -->
+  <mat-sidenav class="right-panel" mode="side" position="end" [(opened)]="showRightPanel">
+    <mat-toolbar>
+      <span>Configuration</span>
+      <span class="flex-spacer"></span>
+      <button mat-icon-button (click)="showRightPanel = false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-toolbar>
+    
+    <div class="panel-content">
+      <ng-content select="[rightPanel]"></ng-content>
+    </div>
+  </mat-sidenav>
 </mat-sidenav-container>
