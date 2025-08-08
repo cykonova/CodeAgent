@@ -22,8 +22,8 @@ services:
       - ./src:/app/src
       # Persist node_modules to avoid reinstalling
       - node_modules:/app/src/CodeAgent.Web/client/node_modules
-      # Persist NuGet packages
-      - nuget_packages:/root/.nuget/packages
+      # Use host NuGet packages instead of container volume
+      - ~/.nuget/packages:/root/.nuget/packages
       # Data and logs
       - codeagent-data:/app/data
       - codeagent-logs:/app/logs
