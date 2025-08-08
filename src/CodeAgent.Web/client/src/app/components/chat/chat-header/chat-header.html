@@ -20,7 +20,7 @@
         <mat-label>Provider</mat-label>
         <mat-select [value]="selectedProvider" (selectionChange)="onProviderChange($event)">
           @for (provider of availableProviders; track provider.id) {
-            <mat-option [value]="provider.id" [disabled]="!provider.enabled">
+            <mat-option [value]="provider.id">
               <div class="provider-option">
                 <mat-icon>{{ getProviderIcon(provider.type) }}</mat-icon>
                 <span>{{ provider.name }}</span>
