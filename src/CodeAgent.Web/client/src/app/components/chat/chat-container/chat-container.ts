@@ -20,6 +20,7 @@ import { ContextFilesPanel } from '../context-files-panel/context-files-panel';
 import { ChatHistoryPanel } from '../chat-history-panel/chat-history-panel';
 import { ToolsPanel } from '../tools-panel/tools-panel';
 import { ChatService, Message } from '../../../services/chat.service';
+import { ToolParserService } from '../../../services/tool-parser.service';
 import { SessionPermissionsDialog, SessionPermission } from '../session-permissions-dialog/session-permissions-dialog';
 
 interface ChatRequest {
@@ -70,6 +71,7 @@ export class ChatContainer implements OnInit, OnDestroy {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   
   private chatService = inject(ChatService);
+  private toolParser = inject(ToolParserService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private streamSubscription?: Subscription;
@@ -185,12 +187,15 @@ export class ChatContainer implements OnInit, OnDestroy {
     
     this.chatService.sendMessage(request).subscribe({
       next: (response) => {
+        // Extract tool calls from the response
+        const toolCalls = this.toolParser.extractToolCalls(response);
+        
         const assistantMessage: Message = {
           id: response.id || crypto.randomUUID(),
-          content: response.content,
+          content: '', // Don't show raw content when we have tool calls
           role: 'assistant',
           timestamp: new Date(),
-          toolCalls: response.toolCalls,
+          toolCalls: toolCalls.length > 0 ? toolCalls : response.toolCalls,
           metadata: {
             usage: response.usage
           }
@@ -217,7 +222,8 @@ export class ChatContainer implements OnInit, OnDestroy {
       id: streamMessageId,
       content: '',
       role: 'assistant',
-      timestamp: new Date()
+      timestamp: new Date(),
+      toolCalls: []
     };
     
     this.chatService.addMessage(streamMessage);
@@ -228,24 +234,57 @@ export class ChatContainer implements OnInit, OnDestroy {
       next: (chunk) => {
         accumulatedContent += chunk;
         
-        // Update the message in the array
+        // Parse the accumulated content for tool calls
+        const parsed = this.toolParser.handleStreamChunk(streamMessageId, accumulatedContent);
+        
+        // Update the message with parsed tool calls
         this.messages.update(msgs => 
-          msgs.map(msg => 
-            msg.id === streamMessageId 
-              ? { ...msg, content: accumulatedContent }
-              : msg
-          )
+          msgs.map(msg => {
+            if (msg.id === streamMessageId) {
+              // If we have tool calls, use them; otherwise show raw content
+              if (parsed.toolCalls.length > 0) {
+                return { 
+                  ...msg, 
+                  toolCalls: parsed.toolCalls,
+                  content: '' // Clear content when we have tool calls
+                };
+              } else {
+                // Still parsing, show accumulated content
+                return { 
+                  ...msg, 
+                  content: accumulatedContent,
+                  toolCalls: []
+                };
+              }
+            }
+            return msg;
+          })
         );
         
         this.scrollToBottom();
       },
       error: (error) => {
         this.isStreaming.set(false);
+        this.toolParser.clearStreamBuffer(streamMessageId);
         this.handleError(error);
       },
       complete: () => {
         this.isStreaming.set(false);
         this.currentStreamMessage.set('');
+        
+        // Final parse to ensure all tool calls are extracted
+        const finalParsed = this.toolParser.parseMessage(accumulatedContent);
+        if (finalParsed.toolCalls.length > 0) {
+          this.messages.update(msgs => 
+            msgs.map(msg => 
+              msg.id === streamMessageId 
+                ? { ...msg, toolCalls: finalParsed.toolCalls, content: '' }
+                : msg
+            )
+          );
+        }
+        
+        this.toolParser.clearStreamBuffer(streamMessageId);
       }
     });
   }

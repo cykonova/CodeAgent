@@ -4,20 +4,25 @@
   <div class="message-bubble">
     <mat-icon class="message-avatar">{{ getIcon() }}</mat-icon>
     <div class="message-content">
-      <!-- Show tool calls if present -->
+      <!-- Render tool calls using the new tool renderer system -->
       @if (message.toolCalls && message.toolCalls.length > 0) {
         <div class="tool-calls-section">
           @for (toolCall of message.toolCalls; track $index) {
-            <app-tool-call [toolCall]="toolCall"></app-tool-call>
+            <app-tool-renderer [toolCall]="toolCall"></app-tool-renderer>
           }
         </div>
       }
-      
-      <!-- Show regular message content if present and not just tool calls -->
-      @if (message.content) {
-        @if (!message.toolCalls || message.toolCalls.length === 0) {
-          <div class="text-content">{{ message.content }}</div>
-        }
+      <!-- For messages without tool calls, parse and render as tool calls -->
+      @else if (message.content && message.role === 'assistant') {
+        <div class="tool-calls-section">
+          @for (toolCall of getParsedToolCalls(); track $index) {
+            <app-tool-renderer [toolCall]="toolCall"></app-tool-renderer>
+          }
+        </div>
+      }
+      <!-- User messages show as plain text -->
+      @else if (message.content && message.role === 'user') {
+        <div class="text-content">{{ message.content }}</div>
       }
     </div>
     @if (message.timestamp) {
