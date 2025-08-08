@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, ViewContainerRef, ComponentRef, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ToolCall } from '../tool-renderer.interface';
+import { ToolCall } from '../../../../services/chat.service';
 
 // Import all tool renderers
 import { RespondToUserComponent } from '../respond-to-user/respond-to-user';

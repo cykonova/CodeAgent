@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { ToolRendererComponent } from '../tool-renderers/tool-renderer/tool-renderer';
 import { ToolParserService } from '../../../services/tool-parser.service';
-import { ToolCall } from '../tool-renderers/tool-renderer.interface';
+import { ToolCall } from '../../../services/chat.service';
 
 export interface Message {
   id: string;

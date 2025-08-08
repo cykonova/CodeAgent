@@ -2,7 +2,8 @@ import { Component, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { ToolCall, ToolRenderer } from '../tool-renderer.interface';
+import { ToolCall } from '../../../../services/chat.service';
+import { ToolRenderer } from '../tool-renderer.interface';
 
 @Component({
   selector: 'app-execute-command',

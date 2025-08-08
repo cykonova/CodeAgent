@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { ToolCall } from '../components/chat/tool-renderers/tool-renderer.interface';
+import { ToolCall } from './chat.service';
 
 export interface ParsedToolMessage {
   toolCalls: ToolCall[];

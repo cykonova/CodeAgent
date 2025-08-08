@@ -1,6 +1,7 @@
 import { Component, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ToolCall, ToolRenderer } from '../tool-renderer.interface';
+import { ToolCall } from '../../../../services/chat.service';
+import { ToolRenderer } from '../tool-renderer.interface';
 
 @Component({
   selector: 'app-respond-to-user',

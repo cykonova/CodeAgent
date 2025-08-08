@@ -15,10 +15,13 @@ export interface Message {
 }
 
 export interface ToolCall {
-  id: string;
+  id?: string;
   name: string;
-  parameters: any;
+  parameters?: any;
+  arguments?: any;
   result?: any;
+  isStreaming?: boolean;
+  streamContent?: string;
 }
 
 export interface ChatRequest {
