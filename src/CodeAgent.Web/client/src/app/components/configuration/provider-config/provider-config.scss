@@ -16,21 +16,6 @@
     }
   }
   
-  .provider-status {
-    margin-left: auto;
-    
-    .status-icon {
-      font-size: 18px;
-      
-      &.enabled {
-        color: var(--mat-success);
-      }
-      
-      &.disabled {
-        color: var(--mat-warn);
-      }
-    }
-  }
   
   .provider-form {
     display: flex;

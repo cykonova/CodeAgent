@@ -17,14 +17,14 @@
             [subtitle]="provider.type"
             [icon]="getProviderIcon(provider.type)"
             [selected]="selectedProvider()?.id === provider.id"
+            [actions]="[{ 
+              id: 'status', 
+              icon: provider.enabled ? 'check_circle' : 'cancel', 
+              color: provider.enabled ? 'primary' : 'warn',
+              label: provider.enabled ? 'Enabled' : 'Disabled'
+            }]"
+            [showActions]="true"
             (click)="selectProvider(provider)">
-            <div class="provider-status">
-              @if (provider.enabled) {
-                <mat-icon class="status-icon enabled">check_circle</mat-icon>
-              } @else {
-                <mat-icon class="status-icon disabled">cancel</mat-icon>
-              }
-            </div>
           </app-list-item>
         }
       </mat-nav-list>

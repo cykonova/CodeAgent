@@ -13,6 +13,36 @@
       }
     </div>
   </div>
+  
+  <div class="header-center">
+    <div class="provider-selection">
+      <mat-form-field appearance="outline" class="provider-field">
+        <mat-label>Provider</mat-label>
+        <mat-select [value]="selectedProvider" (selectionChange)="onProviderChange($event)">
+          @for (provider of availableProviders; track provider.id) {
+            <mat-option [value]="provider.id" [disabled]="!provider.enabled">
+              <div class="provider-option">
+                <mat-icon>{{ getProviderIcon(provider.type) }}</mat-icon>
+                <span>{{ provider.name }}</span>
+                @if (!provider.enabled) {
+                  <mat-icon class="disabled-icon">cancel</mat-icon>
+                }
+              </div>
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="model-field">
+        <mat-label>Model</mat-label>
+        <mat-select [value]="selectedModel" (selectionChange)="onModelChange($event)" [disabled]="!selectedProvider">
+          @for (model of availableModels; track model) {
+            <mat-option [value]="model">{{ model }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
   <div class="header-actions">
     @for (action of actions; track action.id) {
       <button mat-icon-button 

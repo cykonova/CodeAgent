@@ -5,8 +5,14 @@
       [showPermissionsBadge]="hasActivePermissions()"
       [permissionsCount]="activePermissionsCount()"
       [actions]="headerActions"
+      [availableProviders]="availableProviders()"
+      [selectedProvider]="selectedProvider"
+      [availableModels]="availableModels()"
+      [selectedModel]="selectedModel"
       (actionClick)="onHeaderAction($event)"
-      (clearSession)="clearSession()">
+      (clearSession)="clearSession()"
+      (providerChange)="onProviderChange($event)"
+      (modelChange)="onModelChange($event)">
     </app-chat-header>
     
     <app-messages-list

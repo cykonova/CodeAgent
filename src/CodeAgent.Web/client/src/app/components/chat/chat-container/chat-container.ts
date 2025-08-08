@@ -11,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { Subscription } from 'rxjs';
-import { ChatHeaderComponent, HeaderAction } from '../chat-header/chat-header';
+import { ChatHeaderComponent, HeaderAction, Provider } from '../chat-header/chat-header';
 import { MessagesListComponent } from '../messages-list/messages-list';
 import { ChatInputComponent } from '../chat-input/chat-input';
 import { PanelComponent } from '../../shared/panels/panel/panel';
@@ -106,6 +106,8 @@ export class ChatContainer implements OnInit, OnDestroy {
   useStreaming = true;
   selectedProvider = 'openai';
   selectedModel = 'gpt-4';
+  availableProviders = signal<Provider[]>([]);
+  availableModels = signal<string[]>([]);
   
   ngOnInit(): void {
     // Load messages from service
@@ -132,6 +134,27 @@ export class ChatContainer implements OnInit, OnDestroy {
   }
   
   private loadConfiguration(): void {
+    // Load providers
+    this.chatService.getProviders().subscribe({
+      next: (providers) => {
+        this.availableProviders.set(providers);
+        // Set default provider if none selected
+        if (!this.selectedProvider && providers.length > 0) {
+          const enabledProvider = providers.find(p => p.enabled);
+          if (enabledProvider) {
+            this.selectedProvider = enabledProvider.id;
+            this.loadModelsForProvider(enabledProvider.id);
+          }
+        } else if (this.selectedProvider) {
+          this.loadModelsForProvider(this.selectedProvider);
+        }
+      },
+      error: (error) => {
+        console.error('Failed to load providers:', error);
+      }
+    });
+    
+    // Load configuration
     this.chatService.getConfiguration().subscribe({
       next: (config) => {
         if (config.defaultProvider) {
@@ -145,6 +168,27 @@ export class ChatContainer implements OnInit, OnDestroy {
         console.error('Failed to load configuration:', error);
       }
     });
+  }
+  
+  private loadModelsForProvider(providerId: string): void {
+    // Set default models based on provider type
+    const provider = this.availableProviders().find(p => p.id === providerId);
+    if (!provider) return;
+    
+    const defaultModels: Record<string, string[]> = {
+      openai: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+      claude: ['claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', 'claude-3-opus-20240229'],
+      ollama: ['llama3.2', 'qwen2.5', 'gemma2'],
+      lmstudio: ['local-model']
+    };
+    
+    const models = defaultModels[provider.type] || ['default-model'];
+    this.availableModels.set(models);
+    
+    // Set default model if none selected
+    if (!this.selectedModel && models.length > 0) {
+      this.selectedModel = models[0];
+    }
   }
   
   onHeaderAction(actionId: string): void {
@@ -462,5 +506,35 @@ export class ChatContainer implements OnInit, OnDestroy {
   onPathsChanged(paths: { permitted: string[], blocked: string[] }): void {
     this.sessionPaths.set(paths);
     this.updateBackendPermissions();
+  }
+  
+  // Provider and model selection handlers
+  onProviderChange(providerId: string): void {
+    this.selectedProvider = providerId;
+    this.loadModelsForProvider(providerId);
+    
+    // Update configuration
+    this.chatService.updateConfiguration({
+      defaultProvider: providerId,
+      defaultModel: this.selectedModel
+    }).subscribe({
+      error: (error) => {
+        console.error('Failed to update provider configuration:', error);
+      }
+    });
+  }
+  
+  onModelChange(modelId: string): void {
+    this.selectedModel = modelId;
+    
+    // Update configuration
+    this.chatService.updateConfiguration({
+      defaultProvider: this.selectedProvider,
+      defaultModel: modelId
+    }).subscribe({
+      error: (error) => {
+        console.error('Failed to update model configuration:', error);
+      }
+    });
   }
 }
