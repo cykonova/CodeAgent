@@ -158,6 +158,8 @@
   cursor: pointer;
   border-bottom: 1px solid var(--app-divider);
   transition: background-color var(--transition-fast);
+  display: flex;
+  align-items: center;
   
   &:hover {
     background-color: var(--app-hover);
@@ -167,9 +169,17 @@
     border-bottom: none;
   }
   
+  ::ng-deep .mat-mdc-list-item-unscoped-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
   .session-avatar {
-    align-self: flex-start;
-    margin-top: 4px;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
     mat-icon {
       font-size: 20px;
@@ -187,7 +197,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    margin-bottom: var(--spacing-xs);
+    justify-content: center;
     
     .session-title {
       font-size: 14px;
@@ -213,6 +223,11 @@
   }
   
   .session-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    
     .session-preview {
       font-size: 13px;
       color: var(--app-text-secondary);
@@ -245,6 +260,8 @@
     gap: 4px;
     opacity: 0;
     transition: opacity var(--transition-fast);
+    align-self: center;
+    justify-content: center;
     
     button {
       width: 32px;
