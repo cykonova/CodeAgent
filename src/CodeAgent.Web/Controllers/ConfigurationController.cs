@@ -34,9 +34,45 @@ public class ConfigurationController : ControllerBase
     [HttpGet]
     public IActionResult GetConfiguration()
     {
+        // Get configured default, but validate it's actually available
+        var configuredDefault = _configurationService.GetValue("DefaultProvider");
+        
+        // Check which providers are actually configured
+        var openAIEnabled = !string.IsNullOrEmpty(_configurationService.GetValue("OpenAI:ApiKey"));
+        var claudeEnabled = !string.IsNullOrEmpty(_configurationService.GetValue("Claude:ApiKey"));
+        var ollamaEnabled = !string.IsNullOrEmpty(_configurationService.GetValue("Ollama:BaseUrl")) || 
+                           _configurationService.GetValue("Ollama:BaseUrl") == "http://localhost:11434";
+        
+        // If no default is configured or the configured default isn't enabled, pick the first enabled provider
+        var defaultProvider = configuredDefault;
+        if (string.IsNullOrEmpty(defaultProvider) || 
+            (defaultProvider == "openai" && !openAIEnabled) ||
+            (defaultProvider == "claude" && !claudeEnabled) ||
+            (defaultProvider == "ollama" && !ollamaEnabled))
+        {
+            // Pick first available provider
+            if (ollamaEnabled)
+                defaultProvider = "ollama";
+            else if (openAIEnabled)
+                defaultProvider = "openai";
+            else if (claudeEnabled)
+                defaultProvider = "claude";
+            else
+                defaultProvider = "ollama"; // Default to ollama even if not configured
+        }
+        var defaultModel = defaultProvider switch
+        {
+            "openai" => _configurationService.GetValue("OpenAI:Model") ?? "gpt-4",
+            "claude" => _configurationService.GetValue("Claude:Model") ?? "claude-3-5-sonnet-20241022",
+            "ollama" => _configurationService.GetValue("Ollama:Model") ?? "llama3.2",
+            "lmstudio" => _configurationService.GetValue("LMStudio:Model") ?? "local-model",
+            _ => "gpt-4"
+        };
+
         var config = new
         {
-            DefaultProvider = _configurationService.GetValue("DefaultProvider") ?? "openai",
+            defaultProvider = defaultProvider,
+            defaultModel = defaultModel,
             Providers = new
             {
                 OpenAI = new
@@ -46,13 +82,13 @@ public class ConfigurationController : ControllerBase
                 },
                 Claude = new
                 {
-                    Model = _configurationService.GetValue("Claude:Model") ?? "claude-3-sonnet-20240229",
+                    Model = _configurationService.GetValue("Claude:Model") ?? "claude-3-5-sonnet-20241022",
                     ApiKeySet = !string.IsNullOrEmpty(_configurationService.GetValue("Claude:ApiKey"))
                 },
                 Ollama = new
                 {
                     BaseUrl = _configurationService.GetValue("Ollama:BaseUrl") ?? "http://localhost:11434",
-                    Model = _configurationService.GetValue("Ollama:Model") ?? "llama2"
+                    Model = _configurationService.GetValue("Ollama:Model") ?? "llama3.2"
                 }
             },
             SystemPrompt = _configurationService.GetValue("SystemPrompt")
@@ -146,11 +182,38 @@ public class ConfigurationController : ControllerBase
     [HttpGet("providers")]
     public IActionResult GetAvailableProviders()
     {
+        // Check if providers are enabled by checking if they have required configuration
+        var openAIEnabled = !string.IsNullOrEmpty(_configurationService.GetValue("OpenAI:ApiKey"));
+        var claudeEnabled = !string.IsNullOrEmpty(_configurationService.GetValue("Claude:ApiKey"));
+        var ollamaEnabled = !string.IsNullOrEmpty(_configurationService.GetValue("Ollama:BaseUrl")) || 
+                           _configurationService.GetValue("Ollama:BaseUrl") == "http://localhost:11434";
+
         var providers = new[]
         {
-            new { Id = "openai", Name = "OpenAI", RequiresApiKey = true },
-            new { Id = "claude", Name = "Claude", RequiresApiKey = true },
-            new { Id = "ollama", Name = "Ollama", RequiresApiKey = false }
+            new { 
+                id = "openai", 
+                name = "OpenAI", 
+                type = "openai",
+                enabled = openAIEnabled 
+            },
+            new { 
+                id = "claude", 
+                name = "Claude", 
+                type = "claude",
+                enabled = claudeEnabled 
+            },
+            new { 
+                id = "ollama", 
+                name = "Ollama", 
+                type = "ollama",
+                enabled = ollamaEnabled 
+            },
+            new { 
+                id = "lmstudio", 
+                name = "LM Studio", 
+                type = "lmstudio",
+                enabled = false  // Not yet implemented
+            }
         };
         
         return Ok(providers);

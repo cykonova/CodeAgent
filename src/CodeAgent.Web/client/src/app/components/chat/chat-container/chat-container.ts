@@ -104,8 +104,8 @@ export class ChatContainer implements OnInit, OnDestroy {
   
   // Configuration
   useStreaming = true;
-  selectedProvider = '';
-  selectedModel = '';
+  selectedProvider: string = '';
+  selectedModel: string = '';
   availableProviders = signal<Provider[]>([]);
   availableModels = signal<string[]>([]);
   
@@ -134,27 +134,7 @@ export class ChatContainer implements OnInit, OnDestroy {
   }
   
   private loadConfiguration(): void {
-    // Load providers
-    this.chatService.getProviders().subscribe({
-      next: (providers) => {
-        this.availableProviders.set(providers);
-        // Set default provider if none selected
-        if (!this.selectedProvider && providers.length > 0) {
-          const enabledProvider = providers.find(p => p.enabled);
-          if (enabledProvider) {
-            this.selectedProvider = enabledProvider.id;
-            this.loadModelsForProvider(enabledProvider.id);
-          }
-        } else if (this.selectedProvider) {
-          this.loadModelsForProvider(this.selectedProvider);
-        }
-      },
-      error: (error) => {
-        console.error('Failed to load providers:', error);
-      }
-    });
-    
-    // Load configuration
+    // Load configuration first to get the default provider
     this.chatService.getConfiguration().subscribe({
       next: (config) => {
         if (config.defaultProvider) {
@@ -163,9 +143,50 @@ export class ChatContainer implements OnInit, OnDestroy {
         if (config.defaultModel) {
           this.selectedModel = config.defaultModel;
         }
+        
+        // After loading config, load providers to populate dropdowns
+        this.chatService.getProviders().subscribe({
+          next: (providers) => {
+            this.availableProviders.set(providers);
+            
+            // If we have a selected provider, load its models
+            if (this.selectedProvider) {
+              this.loadModelsForProvider(this.selectedProvider);
+            } else if (providers.length > 0) {
+              // No provider selected from config, pick first enabled one
+              const enabledProvider = providers.find(p => p.enabled);
+              if (enabledProvider) {
+                this.selectedProvider = enabledProvider.id;
+                this.loadModelsForProvider(enabledProvider.id);
+              } else {
+                // No enabled providers, just pick the first one
+                this.selectedProvider = providers[0].id;
+                this.loadModelsForProvider(providers[0].id);
+              }
+            }
+          },
+          error: (error) => {
+            console.error('Failed to load providers:', error);
+          }
+        });
       },
       error: (error) => {
         console.error('Failed to load configuration:', error);
+        
+        // Even if config fails, try to load providers
+        this.chatService.getProviders().subscribe({
+          next: (providers) => {
+            this.availableProviders.set(providers);
+            if (providers.length > 0) {
+              const enabledProvider = providers.find(p => p.enabled) || providers[0];
+              this.selectedProvider = enabledProvider.id;
+              this.loadModelsForProvider(enabledProvider.id);
+            }
+          },
+          error: (err) => {
+            console.error('Failed to load providers:', err);
+          }
+        });
       }
     });
   }

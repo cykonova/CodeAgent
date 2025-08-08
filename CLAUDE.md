@@ -14,12 +14,23 @@ The solution uses a layered architecture:
 - **CodeAgent.Infrastructure**: External service implementations (file system, Git, database)
 - **CodeAgent.Providers**: LLM provider implementations (OpenAI, Claude, Ollama, LMStudio)
 - **CodeAgent.MCP**: Model Context Protocol client implementation
-- **CodeAgent.CLI**: Console application entry point using Spectre.Console
+- **CodeAgent.Web**: ASP.NET Core Web API backend with Angular 18 frontend
+- **CodeAgent.CLI**: Console application entry point using Spectre.Console (legacy)
+
+### Web Application Architecture
+The web application consists of:
+- **Backend**: ASP.NET Core 8 Web API with SignalR for real-time communication
+- **Frontend**: Angular 18 with Material Design components
+- **Communication**: REST API endpoints + SignalR hubs for streaming responses
+- **Key Controllers**: 
+  - `ChatController`: Handles chat messages and streaming
+  - `ConfigurationController`: Manages provider settings and configuration
+  - `FilesController`: File system operations
+  - `ModelsController`: LLM model management
 
 ## Development Commands
 
-Once the project is implemented, use these commands:
-
+### Local Development (Native)
 ```bash
 # Build the solution
 dotnet build
@@ -30,9 +41,32 @@ dotnet test
 # Run tests with coverage
 dotnet test --collect:"XPlat Code Coverage"
 
-# Run the application
-dotnet run --project src/CodeAgent.CLI
+# Run the web application locally
+dotnet run --project src/CodeAgent.Web
 
+# Angular development server (if running separately)
+cd src/CodeAgent.Web/client
+npm install
+npm run start
+```
+
+### Docker Development
+```bash
+# Development mode (with hot reload)
+docker-compose -f docker-compose.dev.yml up --build
+
+# Production mode
+docker-compose -f docker-compose.yml up --build -d
+
+# Stop containers
+docker-compose down
+
+# View logs
+docker-compose logs -f
+```
+
+### Legacy CLI Publishing (Original Design)
+```bash
 # Publish for production (platform-specific)
 dotnet publish src/CodeAgent.CLI -c Release -r win-x64 --self-contained
 dotnet publish src/CodeAgent.CLI -c Release -r linux-x64 --self-contained
@@ -90,19 +124,29 @@ When implementing new LLM providers:
 
 ## Project Status
 
-**Current Phase**: Planning/Documentation
-- Requirements documented in docs/coding-agent-requirements.md
-- Architecture specified in docs/codeagent-architecture.md
-- No source code implemented yet
+**Current Phase**: Full Implementation Complete
+- Web-based application with Angular 18 frontend and .NET 8 Web API backend
+- Docker containerization for both development and production deployments
+- Multiple LLM provider integrations (OpenAI, Claude, Ollama, LM Studio)
+- SignalR for real-time communication
+- Provider management and configuration system
+- Chat interface with tool calling and streaming support
+- File browser and configuration panels
 
-**Next Implementation Steps**:
-1. Create solution and project structure
-2. Implement domain models and interfaces
-3. Build CLI with Spectre.Console
-4. Add first LLM provider (start with OpenAI or Claude)
-5. Implement file system operations with safety features
-6. Add Git integration
-7. Create comprehensive test suite
+**Implemented Components**:
+1. ✅ Solution and project structure (Clean Architecture)
+2. ✅ Domain models and interfaces
+3. ✅ Web interface with Angular Material Design
+4. ✅ All major LLM providers (OpenAI, Claude, Ollama, LM Studio)
+5. ✅ File system operations and Git integration
+6. ✅ Comprehensive configuration management
+7. ✅ Docker deployment infrastructure
+
+**Recent Fixes Applied**:
+- Fixed backend/frontend data contract mismatch in ConfigurationController
+- Resolved provider UI issues (provider/model selection dropdowns)
+- Updated Angular components for proper Material Design integration
+- Fixed vertical alignment in provider configuration lists
 
 ## Important Patterns
 
@@ -131,3 +175,4 @@ Use strongly-typed configuration with IOptions<T> pattern.
 ## Project Management Notes
 
 - This is your project, I'm just the project planner. Commit and push as you see fit.
+- Rebuild the docker container after tasks are complete so I may review your progress
