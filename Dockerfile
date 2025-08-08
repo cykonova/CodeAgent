@@ -46,7 +46,7 @@ WORKDIR /app
 COPY --from=backend-builder /app/publish .
 
 # Copy built Angular app to wwwroot
-COPY --from=frontend-builder /app/browser ./wwwroot/browser
+COPY --from=frontend-builder /app/wwwroot ./wwwroot
 
 # Create directories for CodeAgent
 RUN mkdir -p /workspace && \
@@ -56,6 +56,7 @@ RUN mkdir -p /workspace && \
 # Environment variables
 ENV ASPNETCORE_URLS=http://+:5001 \
     ASPNETCORE_ENVIRONMENT=Development \
+    DOTNET_RUNNING_IN_CONTAINER=true \
     CodeAgent__ProjectDirectory=/workspace \
     CodeAgent__DataDirectory=/app/data \
     CodeAgent__LogDirectory=/app/logs

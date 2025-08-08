@@ -27,7 +27,7 @@ import { SecurityConfigComponent } from '../security-config/security-config';
 interface Provider {
   id: string;
   name: string;
-  type: 'openai' | 'claude' | 'ollama' | 'lmstudio';
+  type: 'openai' | 'claude' | 'ollama' | 'lmstudio' | 'docker' | 'docker-mcp';
   apiKey?: string;
   baseUrl?: string;
   model?: string;
@@ -147,7 +147,9 @@ export class ConfigPanel implements OnInit {
     openai: ['gpt-4-turbo-preview', 'gpt-4', 'gpt-3.5-turbo'],
     claude: ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307'],
     ollama: ['llama2', 'codellama', 'mistral', 'mixtral'],
-    lmstudio: ['custom']
+    lmstudio: ['custom'],
+    docker: ['llama2', 'codellama', 'mistral', 'mixtral'],
+    'docker-mcp': ['docker-mcp']
   };
   
   // Provider form for editing
@@ -215,7 +217,7 @@ export class ConfigPanel implements OnInit {
         apiKeyControl?.setValidators([Validators.required]);
         baseUrlControl?.clearValidators();
         baseUrlControl?.setValue(defaults.baseUrl || '');
-      } else if (type === 'ollama' || type === 'lmstudio') {
+      } else if (type === 'ollama' || type === 'lmstudio' || type === 'docker' || type === 'docker-mcp') {
         apiKeyControl?.clearValidators();
         baseUrlControl?.setValidators([Validators.required]);
         baseUrlControl?.setValue(defaults.baseUrl || '');
@@ -269,6 +271,18 @@ export class ConfigPanel implements OnInit {
           baseUrl: 'http://localhost:1234/v1',
           model: 'local-model',
           name: 'LM Studio Local'
+        };
+      case 'docker':
+        return {
+          baseUrl: 'http://localhost:2375',
+          model: 'llama2',
+          name: 'Docker LLM'
+        };
+      case 'docker-mcp':
+        return {
+          baseUrl: 'http://localhost:2376',
+          model: 'docker-mcp',
+          name: 'Docker MCP'
         };
       default:
         return {
@@ -674,6 +688,8 @@ export class ConfigPanel implements OnInit {
       case 'claude': return 'psychology';
       case 'ollama': return 'computer';
       case 'lmstudio': return 'desktop_windows';
+      case 'docker': return 'developer_board';
+      case 'docker-mcp': return 'hub';
       default: return 'extension';
     }
   }

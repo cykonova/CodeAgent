@@ -20,13 +20,25 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Kestrel to listen only on localhost
+// Configure Kestrel based on environment
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5001);
+    // In Docker or when ASPNETCORE_URLS is set, listen on all interfaces
+    var urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+    var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    
+    if (isDocker || !string.IsNullOrEmpty(urls))
+    {
+        options.ListenAnyIP(5001);
+    }
+    else
+    {
+        options.ListenLocalhost(5001);
+    }
 });
 
 // Set up configuration paths
@@ -65,15 +77,31 @@ builder.Services.AddSpaStaticFiles(configuration =>
     configuration.RootPath = "wwwroot/browser";
 });
 
-// Add CORS for localhost only (including Angular dev server)
+// Add CORS for localhost and Docker environments
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("LocalhostOnly", policy =>
     {
-        policy.WithOrigins("http://localhost:5001", "http://localhost:4200")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.WithOrigins(
+                "http://localhost:5001", 
+                "http://localhost:4200",
+                "http://localhost:8080",  // Docker with nginx
+                "http://127.0.0.1:5001",
+                "http://127.0.0.1:8080",
+                "http://host.docker.internal:5001" // Docker internal
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed(origin => 
+            {
+                // Allow any localhost or Docker internal origin
+                var uri = new Uri(origin);
+                return uri.Host == "localhost" || 
+                       uri.Host == "127.0.0.1" || 
+                       uri.Host.Contains("docker.internal") ||
+                       uri.Host == "codeagent"; // Docker service name
+            });
     });
 });
 
@@ -204,12 +232,25 @@ builder.Services.AddSingleton<ILLMProvider>(sp =>
 
 var app = builder.Build();
 
+// Configure forwarded headers for reverse proxy support
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | 
+                       Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Enable WebSockets
+app.UseWebSockets(new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromSeconds(120)
+});
 
 app.UseCors("LocalhostOnly");
 
