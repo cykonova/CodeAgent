@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import * as signalR from '@microsoft/signalr';
+import { environment } from '../../environments/environment';
 
 export interface Message {
   id: string;
@@ -46,7 +47,7 @@ export interface ChatResponse {
   providedIn: 'root'
 })
 export class ChatService implements OnDestroy {
-  private apiUrl = 'http://localhost:5001/api';
+  private apiUrl = `${environment.apiUrl}/api`;
   private messages = signal<Message[]>([]);
   private hubConnection?: signalR.HubConnection;
   private connectionState = signal<'disconnected' | 'connecting' | 'connected'>('disconnected');
@@ -71,7 +72,7 @@ export class ChatService implements OnDestroy {
       this.connectionState.set('connecting');
       
       this.hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl('http://localhost:5001/hub/agent')
+        .withUrl(`${environment.apiUrl}/hub/agent`)
         .withAutomaticReconnect()
         .build();
 
