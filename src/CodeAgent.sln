@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Agents", "CodeAge
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Agents.Tests", "CodeAgent.Agents.Tests\CodeAgent.Agents.Tests.csproj", "{E1E4B396-04F5-487E-B08C-D9676FA8C325}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Sandbox", "CodeAgent.Sandbox\CodeAgent.Sandbox.csproj", "{ECEF9978-F507-4EB0-B272-28EEEABE5C4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{E1E4B396-04F5-487E-B08C-D9676FA8C325}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1E4B396-04F5-487E-B08C-D9676FA8C325}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1E4B396-04F5-487E-B08C-D9676FA8C325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECEF9978-F507-4EB0-B272-28EEEABE5C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECEF9978-F507-4EB0-B272-28EEEABE5C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECEF9978-F507-4EB0-B272-28EEEABE5C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECEF9978-F507-4EB0-B272-28EEEABE5C4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

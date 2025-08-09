@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Main gateway service
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000;https://+:5001
+      - ConnectionStrings__Default=Host=postgres;Database=codeagent;Username=codeagent;Password=codeagent123
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./src:/app/src
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - codeagent-network
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=codeagent
+      - POSTGRES_USER=codeagent
+      - POSTGRES_PASSWORD=codeagent123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - codeagent-network
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - codeagent-network
+
+  # Sandbox builder (builds the sandbox image)
+  sandbox-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.sandbox
+    image: codeagent/sandbox:latest
+    command: echo "Sandbox image built successfully"
+
+volumes:
+  postgres-data:
+
+networks:
+  codeagent-network:
+    driver: bridge
