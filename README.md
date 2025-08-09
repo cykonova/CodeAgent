@@ -132,3 +132,8 @@ changes prior to actually committing.
 After starting the rewrite for this project, on a Saturday morning.  I get
 the ever so annoying `Approaching Opus usage limit · /model to use best available model`
 warning at around 2p (3hrs in).  We're on Phase 5, half way through the project.
+
+I push through starting phase 6.  Now claude begins randomly stopping mid phase.
+Phase 6 is the web portal, I fear I should have broken that up into smaller phases.
+I prompt it with `continue`, claude then states it's complete and updates the project status.
+The web project only has the default angular scaffolding.

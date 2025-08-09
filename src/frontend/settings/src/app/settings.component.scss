@@ -1,0 +1,164 @@
+.settings-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  mat-card-header {
+    margin-bottom: 24px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 24px;
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+    }
+  }
+}
+
+.tab-content {
+  padding: 24px;
+}
+
+.section-header {
+  margin-bottom: 24px;
+
+  h3 {
+    margin: 0 0 8px 0;
+    color: var(--mat-app-on-surface);
+  }
+
+  p {
+    margin: 0;
+    color: var(--mat-app-on-surface-variant);
+  }
+}
+
+.form-card {
+  margin-bottom: 24px;
+  padding: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  mat-form-field {
+    flex: 1;
+  }
+
+  .toggle-field {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.form-section {
+  margin-bottom: 24px;
+
+  h4 {
+    margin: 0 0 16px 0;
+    color: var(--mat-app-on-surface);
+  }
+}
+
+.security-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  mat-slide-toggle {
+    display: block;
+  }
+}
+
+.providers-list,
+.agents-list {
+  margin-top: 24px;
+
+  h4 {
+    margin: 0 0 16px 0;
+    color: var(--mat-app-on-surface);
+  }
+
+  .provider-item,
+  .agent-item {
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background-color: var(--mat-app-surface-variant);
+
+    &:hover {
+      background-color: var(--mat-app-surface);
+    }
+
+    mat-chip-set {
+      display: inline-flex;
+      margin-left: 8px;
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: var(--mat-app-on-surface-variant);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin-top: 16px;
+    font-size: 16px;
+  }
+}
+
+mat-divider {
+  margin: 24px 0;
+}
+
+mat-expansion-panel {
+  margin: 16px 0;
+  background-color: var(--mat-app-surface-variant);
+}
+
+:host ::ng-deep {
+  .mat-mdc-tab-body-wrapper {
+    flex: 1;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    margin-top: 4px;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--mat-app-surface);
+  }
+
+  .mat-expansion-panel-body {
+    padding-top: 16px !important;
+  }
+}

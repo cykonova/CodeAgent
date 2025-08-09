@@ -1,0 +1,171 @@
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 16px;
+  gap: 16px;
+  background-color: var(--mat-app-background-color);
+}
+
+.chat-header {
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .session-info {
+      h2 {
+        margin: 0 0 8px 0;
+        color: var(--mat-app-on-surface);
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+  }
+}
+
+.chat-settings {
+  .settings-row {
+    display: flex;
+    gap: 16px;
+
+    .setting-field {
+      flex: 1;
+      max-width: 300px;
+    }
+  }
+}
+
+.chat-messages {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--mat-app-on-surface-variant);
+
+      mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        opacity: 0.5;
+      }
+
+      p {
+        margin-top: 16px;
+        font-size: 18px;
+      }
+    }
+
+    .message {
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      animation: fadeIn 0.3s ease-in;
+
+      &.message-user {
+        background-color: var(--mat-app-primary-container);
+        margin-left: 20%;
+      }
+
+      &.message-assistant {
+        background-color: var(--mat-app-secondary-container);
+        margin-right: 20%;
+      }
+
+      &.message-system {
+        background-color: var(--mat-app-tertiary-container);
+        text-align: center;
+      }
+
+      .message-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 12px;
+        opacity: 0.8;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+
+        .message-role {
+          text-transform: capitalize;
+          font-weight: 500;
+        }
+
+        .message-time {
+          margin-left: auto;
+        }
+      }
+
+      .message-content {
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    }
+
+    .loading-indicator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      color: var(--mat-app-on-surface-variant);
+    }
+  }
+}
+
+.chat-input {
+  .input-container {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+
+    .message-field {
+      flex: 1;
+    }
+
+    .send-button {
+      margin-bottom: 22px;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+:host ::ng-deep {
+  .mat-mdc-form-field-subscript-wrapper {
+    margin-top: 4px;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--mat-app-surface);
+  }
+}

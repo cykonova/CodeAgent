@@ -1,0 +1,69 @@
+{
+  "app": {
+    "title": "Code Agent",
+    "navigation": {
+      "dashboard": "Panel",
+      "projects": "Proyectos",
+      "chat": "Chat",
+      "settings": "Configuración"
+    },
+    "toolbar": {
+      "toggleNav": "Alternar navegación",
+      "toggleTheme": "Cambiar tema",
+      "userMenu": "Menú de usuario",
+      "profile": "Perfil",
+      "logout": "Cerrar sesión"
+    }
+  },
+  "dashboard": {
+    "title": "Panel",
+    "welcome": "Bienvenido a Code Agent",
+    "metrics": {
+      "activeAgents": "Agentes Activos",
+      "runningProjects": "Proyectos en Ejecución",
+      "completedTasks": "Tareas Completadas",
+      "systemStatus": "Estado del Sistema"
+    }
+  },
+  "projects": {
+    "title": "Proyectos",
+    "newProject": "Nuevo Proyecto",
+    "projectList": "Lista de Proyectos",
+    "noProjects": "No se encontraron proyectos",
+    "actions": {
+      "create": "Crear",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "open": "Abrir"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "placeholder": "Escribe tu mensaje...",
+    "send": "Enviar",
+    "clearHistory": "Limpiar Historial",
+    "selectAgent": "Seleccionar Agente"
+  },
+  "settings": {
+    "title": "Configuración",
+    "providers": "Proveedores",
+    "agents": "Agentes",
+    "security": "Seguridad",
+    "preferences": "Preferencias",
+    "language": "Idioma",
+    "theme": "Tema"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "warning": "Advertencia",
+    "info": "Información",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar"
+  }
+}

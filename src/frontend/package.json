@@ -2,13 +2,25 @@
   "name": "@src/frontend/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start": "nx serve shell",
+    "start:all": "nx run-many --target=serve --projects=shell,dashboard,projects,chat,settings --parallel",
+    "build": "nx build shell",
+    "build:all": "nx run-many --target=build --projects=shell,dashboard,projects,chat,settings --parallel",
+    "test": "nx test",
+    "lint": "nx lint",
+    "format": "nx format:write"
+  },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^20.1.6",
+    "@angular/cdk": "^20.1.5",
     "@angular/common": "~20.1.0",
     "@angular/compiler": "~20.1.0",
     "@angular/core": "~20.1.0",
     "@angular/forms": "~20.1.0",
+    "@angular/localize": "^20.1.6",
+    "@angular/material": "^20.1.5",
     "@angular/platform-browser": "~20.1.0",
     "@angular/platform-browser-dynamic": "~20.1.0",
     "@angular/router": "~20.1.0",
@@ -16,6 +28,8 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
+    "@angular-architects/module-federation": "^20.0.0",
+    "@angular-architects/module-federation-tools": "^20.0.0",
     "@angular-devkit/core": "~20.1.0",
     "@angular-devkit/schematics": "~20.1.0",
     "@angular/build": "~20.1.0",

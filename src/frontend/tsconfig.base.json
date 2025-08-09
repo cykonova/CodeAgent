@@ -14,7 +14,12 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@src/data-access": ["data-access/src/index.ts"],
+      "@src/i18n": ["i18n/src/index.ts"],
+      "@src/ui-components": ["ui-components/src/index.ts"],
+      "@src/websocket": ["websocket/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

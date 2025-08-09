@@ -1,0 +1,143 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>{{ title }}</h1>
+    <button mat-icon-button (click)="refreshMetrics()" matTooltip="Refresh">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="!isLoading" class="dashboard-content">
+    <!-- System Status Alert -->
+    <mat-card *ngIf="systemStatus !== 'online'" class="status-alert" [class.warning]="systemStatus === 'warning'">
+      <mat-card-content>
+        <mat-icon>{{ systemStatus === 'offline' ? 'error' : 'warning' }}</mat-icon>
+        <span *ngIf="systemStatus === 'offline'">System is offline. Please check provider connections.</span>
+        <span *ngIf="systemStatus === 'warning'">No active providers found. Configure at least one provider.</span>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Metrics Grid -->
+    <div class="metrics-grid">
+      <app-stat-card
+        label="Active Agents"
+        [value]="activeAgents"
+        icon="smart_toy"
+        iconColor="#3f51b5"
+        [change]="12"
+        description="Currently running agents">
+      </app-stat-card>
+
+      <app-stat-card
+        label="Running Projects"
+        [value]="runningProjects"
+        icon="folder_open"
+        iconColor="#009688"
+        [change]="-5"
+        description="Active project workspaces">
+      </app-stat-card>
+
+      <app-stat-card
+        label="Completed Tasks"
+        [value]="completedTasks"
+        icon="task_alt"
+        iconColor="#4caf50"
+        [change]="25"
+        description="Tasks completed today">
+      </app-stat-card>
+
+      <app-stat-card
+        label="Total Executions"
+        [value]="totalExecutions"
+        icon="play_circle"
+        iconColor="#ff9800"
+        [change]="8"
+        description="Agent executions this week">
+      </app-stat-card>
+    </div>
+
+    <!-- Charts and Activity -->
+    <div class="dashboard-grid">
+      <mat-card class="activity-card">
+        <mat-card-header>
+          <mat-card-title>Recent Activity</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="activity-list">
+            <div *ngIf="recentActivity.length === 0" class="no-activity">
+              <mat-icon>history</mat-icon>
+              <p>No recent activity</p>
+            </div>
+            <div *ngFor="let activity of recentActivity" class="activity-item">
+              <mat-icon>{{ activity.icon || 'info' }}</mat-icon>
+              <div class="activity-details">
+                <span class="activity-title">{{ activity.title }}</span>
+                <span class="activity-time">{{ activity.timestamp | date:'short' }}</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="quick-actions-card">
+        <mat-card-header>
+          <mat-card-title>Quick Actions</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="quick-actions">
+            <button mat-raised-button color="primary">
+              <mat-icon>add</mat-icon>
+              New Agent
+            </button>
+            <button mat-raised-button>
+              <mat-icon>create_new_folder</mat-icon>
+              Create Project
+            </button>
+            <button mat-raised-button>
+              <mat-icon>play_arrow</mat-icon>
+              Run Workflow
+            </button>
+            <button mat-raised-button>
+              <mat-icon>settings</mat-icon>
+              Configure Provider
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- System Health -->
+    <mat-card class="health-card">
+      <mat-card-header>
+        <mat-card-title>System Health</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="health-grid">
+          <div class="health-item">
+            <span class="health-label">API Gateway</span>
+            <mat-icon class="health-status online">check_circle</mat-icon>
+          </div>
+          <div class="health-item">
+            <span class="health-label">WebSocket</span>
+            <mat-icon class="health-status" [class.online]="systemStatus === 'online'">
+              {{ systemStatus === 'online' ? 'check_circle' : 'error' }}
+            </mat-icon>
+          </div>
+          <div class="health-item">
+            <span class="health-label">Docker Sandbox</span>
+            <mat-icon class="health-status online">check_circle</mat-icon>
+          </div>
+          <div class="health-item">
+            <span class="health-label">Provider Services</span>
+            <mat-icon class="health-status" [class.online]="systemStatus === 'online'" [class.warning]="systemStatus === 'warning'">
+              {{ systemStatus === 'online' ? 'check_circle' : systemStatus === 'warning' ? 'warning' : 'error' }}
+            </mat-icon>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
