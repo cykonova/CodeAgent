@@ -16,6 +16,7 @@ The frontend uses Nx.dev with Module Federation for scalable micro-frontend arch
 - **Data Access**: API and state management
 - **WebSocket**: Real-time communication
 - **Theme**: Material theming system
+- **i18n**: Translation service and locales
 - **Utils**: Shared utilities
 
 ## Angular Material Standards
@@ -43,11 +44,20 @@ The frontend uses Nx.dev with Module Federation for scalable micro-frontend arch
 - Support light/dark modes
 - Custom components follow theme system
 
+### Internationalization
+- All text externalized to locale files
+- Angular i18n for template translations
+- ICU message format for pluralization
+- Locale-aware date/time/number formatting
+- RTL support via Material Direction API
+- Dynamic locale switching without reload
+
 ### Component Guidelines
 - All components standalone
 - Built in library projects
 - Fully typed interfaces
 - Unit tested with 80% coverage
+- i18n compliant with no hardcoded text
 
 ## Module Federation Config
 

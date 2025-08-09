@@ -61,6 +61,33 @@ graph TB
 | Cards | mat-card | libs/ui/cards |
 | Buttons | mat-button | libs/ui/buttons |
 
+## Internationalization (i18n)
+
+### Localization Requirements
+
+| Requirement | Implementation |
+|------------|---------------|
+| All text | Use Angular i18n pipe |
+| Date/Time | locale-aware formatting |
+| Numbers | locale-specific formats |
+| Currency | locale currency display |
+| RTL Support | Material RTL theming |
+| Pluralization | ICU message format |
+
+### Translation Structure
+```
+libs/i18n/
+├── locales/
+│   ├── en-US.json    # English (US)
+│   ├── es-ES.json    # Spanish
+│   ├── fr-FR.json    # French
+│   ├── de-DE.json    # German
+│   ├── ja-JP.json    # Japanese
+│   └── ar-SA.json    # Arabic (RTL)
+└── services/
+    └── translation.service.ts
+```
+
 ## Component Guidelines
 
 ### File Structure
@@ -75,12 +102,21 @@ graph TB
 - Support light/dark modes
 - Custom components follow theme
 
+### Localization Rules
+- No hardcoded strings in templates
+- All text through i18n pipe
+- Date formatting via DatePipe with locale
+- Number formatting via DecimalPipe with locale
+- Validation messages localized
+- Aria labels localized for accessibility
+
 ### Reusable Components
 All components built as standalone, reusable units in library projects:
 - Form controls in `libs/ui/forms`
 - Data displays in `libs/ui/data`
 - Layout components in `libs/ui/layout`
 - Custom directives in `libs/ui/directives`
+- Translation service in `libs/i18n`
 
 ## Implementation Steps
 
@@ -144,6 +180,9 @@ libs/
 | State | NgRx or Akita |
 | Testing | 80% coverage minimum |
 | Accessibility | WCAG 2.1 AA compliant |
+| i18n | All text localized |
+| RTL | Full RTL support |
+| Locales | Minimum 6 languages |
 
 ## Success Criteria
 - [ ] Nx workspace configured
@@ -152,3 +191,6 @@ libs/
 - [ ] Theme system implemented
 - [ ] Libraries properly structured
 - [ ] Remote apps loading correctly
+- [ ] i18n fully implemented
+- [ ] RTL support verified
+- [ ] All strings externalized
