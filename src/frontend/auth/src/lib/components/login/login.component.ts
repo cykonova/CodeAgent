@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
-import { finalize } from 'rxjs/operators';
+import { finalize, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
     
     // Check if already authenticated
-    this.authService.isAuthenticated$.subscribe(isAuthenticated => {
+    this.authService.isAuthenticated$.pipe(take(1)).subscribe(isAuthenticated => {
       if (isAuthenticated) {
         this.router.navigate([this.returnUrl]);
       }
@@ -85,7 +85,8 @@ export class LoginComponent implements OnInit {
           
           const redirectUrl = sessionStorage.getItem('redirectUrl') || this.returnUrl;
           sessionStorage.removeItem('redirectUrl');
-          this.router.navigate([redirectUrl]);
+          // Force navigation to the redirect URL
+          this.router.navigateByUrl(redirectUrl);
         },
         error: (error) => {
           const message = error.error?.message || 'Invalid email or password';

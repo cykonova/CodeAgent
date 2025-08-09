@@ -11,7 +11,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
-import { finalize } from 'rxjs/operators';
+import { finalize, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-register',
@@ -47,7 +47,7 @@ export class RegisterComponent implements OnInit {
     this.initializeForm();
     
     // Check if already authenticated
-    this.authService.isAuthenticated$.subscribe(isAuthenticated => {
+    this.authService.isAuthenticated$.pipe(take(1)).subscribe(isAuthenticated => {
       if (isAuthenticated) {
         this.router.navigate(['/dashboard']);
       }
@@ -97,7 +97,8 @@ export class RegisterComponent implements OnInit {
             verticalPosition: 'top',
             panelClass: ['success-snackbar']
           });
-          this.router.navigate(['/dashboard']);
+          // Force navigation to dashboard
+          this.router.navigateByUrl('/dashboard');
         },
         error: (error) => {
           const errorMessage = error.error?.message || 'Registration failed. Please try again.';
