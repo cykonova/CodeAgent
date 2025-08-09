@@ -1,0 +1,269 @@
+// Chat Remote - Agent Selection Page
+// Choose or configure agents for chat
+
+screen(id="agent-selection", device=desktop) {
+    header {
+        text(fontSize*=1.8) { Select Agent for Chat }
+        text(style=muted) { Choose an existing agent or create a new one }
+    }
+    
+    // Filter options
+    toolbar(style=transparent) {
+        field(placeholder="Search agents...", prefix="icon:search")
+        field(type=dropdown, options="All Types,Data Processing,Code Analysis,Testing,Documentation", value="All Types")
+        field(type=dropdown, options="All Providers,Anthropic,OpenAI,Ollama,Custom", value="All Providers")
+        field(type=dropdown, options="All Status,Online,Busy,Offline", value="All Status")
+    }
+    
+    // Available agents grid
+    panel {
+        text(fontSize*=1.3) { Available Agents }
+        
+        layout(type=grid, cols=3) {
+            card {
+                row {
+                    icon(iconName="robot", style=success, size=large)
+                    layout(type=column, align=left) {
+                        text(fontSize*=1.2) { General Assistant }
+                        text(style=muted) { Multi-purpose helper }
+                    }
+                }
+                
+                layout(type=column, align=left) {
+                    row {
+                        text(style=muted) { Provider: }
+                        text { Anthropic Claude }
+                    }
+                    row {
+                        text(style=muted) { Status: }
+                        row {
+                            icon(iconName="circle", style=success, size=small)
+                            text { Online }
+                        }
+                    }
+                    row {
+                        text(style=muted) { Sessions: }
+                        text { 0 active }
+                    }
+                    row {
+                        text(style=muted) { Capabilities: }
+                    }
+                    text { General Q&A, Analysis, Writing }
+                }
+                
+                toolbar(style=transparent) {
+                    button(style=primary, label="Start Chat", icon="comments")
+                    button(style=secondary, label="Info", icon="info")
+                }
+            }
+            
+            card {
+                row {
+                    icon(iconName="robot", style=primary, size=large)
+                    layout(type=column, align=left) {
+                        text(fontSize*=1.2) { Code Expert }
+                        text(style=muted) { Programming specialist }
+                    }
+                }
+                
+                layout(type=column, align=left) {
+                    row {
+                        text(style=muted) { Provider: }
+                        text { OpenAI GPT-4 }
+                    }
+                    row {
+                        text(style=muted) { Status: }
+                        row {
+                            icon(iconName="circle", style=success, size=small)
+                            text { Online }
+                        }
+                    }
+                    row {
+                        text(style=muted) { Sessions: }
+                        text { 2 active }
+                    }
+                    row {
+                        text(style=muted) { Capabilities: }
+                    }
+                    text { Code review, debugging, refactoring }
+                }
+                
+                toolbar(style=transparent) {
+                    button(style=primary, label="Start Chat", icon="comments")
+                    button(style=secondary, label="Info", icon="info")
+                }
+            }
+            
+            card {
+                row {
+                    icon(iconName="robot", style=warning, size=large)
+                    layout(type=column, align=left) {
+                        text(fontSize*=1.2) { Data Analyst }
+                        text(style=muted) { Data processing expert }
+                    }
+                }
+                
+                layout(type=column, align=left) {
+                    row {
+                        text(style=muted) { Provider: }
+                        text { Anthropic Claude }
+                    }
+                    row {
+                        text(style=muted) { Status: }
+                        row {
+                            icon(iconName="circle", style=warning, size=small)
+                            text { Busy }
+                        }
+                    }
+                    row {
+                        text(style=muted) { Sessions: }
+                        text { 5 active }
+                    }
+                    row {
+                        text(style=muted) { Capabilities: }
+                    }
+                    text { SQL, data analysis, visualization }
+                }
+                
+                toolbar(style=transparent) {
+                    button(style=warning, label="Join Queue", icon="clock")
+                    button(style=secondary, label="Info", icon="info")
+                }
+            }
+            
+            card {
+                row {
+                    icon(iconName="robot", style=secondary, size=large)
+                    layout(type=column, align=left) {
+                        text(fontSize*=1.2) { Test Automation }
+                        text(style=muted) { Testing specialist }
+                    }
+                }
+                
+                layout(type=column, align=left) {
+                    row {
+                        text(style=muted) { Provider: }
+                        text { Ollama Llama 3 }
+                    }
+                    row {
+                        text(style=muted) { Status: }
+                        row {
+                            icon(iconName="circle", style=secondary, size=small)
+                            text { Offline }
+                        }
+                    }
+                    row {
+                        text(style=muted) { Sessions: }
+                        text { 0 active }
+                    }
+                    row {
+                        text(style=muted) { Capabilities: }
+                    }
+                    text { Unit tests, integration tests, E2E }
+                }
+                
+                toolbar(style=transparent) {
+                    button(style=secondary, label="Unavailable")
+                    button(style=secondary, label="Info", icon="info")
+                }
+            }
+            
+            card {
+                row {
+                    icon(iconName="robot", style=primary, size=large)
+                    layout(type=column, align=left) {
+                        text(fontSize*=1.2) { Doc Writer }
+                        text(style=muted) { Documentation expert }
+                    }
+                }
+                
+                layout(type=column, align=left) {
+                    row {
+                        text(style=muted) { Provider: }
+                        text { OpenAI GPT-4 }
+                    }
+                    row {
+                        text(style=muted) { Status: }
+                        row {
+                            icon(iconName="circle", style=success, size=small)
+                            text { Online }
+                        }
+                    }
+                    row {
+                        text(style=muted) { Sessions: }
+                        text { 1 active }
+                    }
+                    row {
+                        text(style=muted) { Capabilities: }
+                    }
+                    text { API docs, user guides, README }
+                }
+                
+                toolbar(style=transparent) {
+                    button(style=primary, label="Start Chat", icon="comments")
+                    button(style=secondary, label="Info", icon="info")
+                }
+            }
+            
+            // Create custom agent card
+            card {
+                layout(type=column, align=center) {
+                    icon(iconName="plus-circle", style=primary, size=large)
+                    text(fontSize*=1.2) { Create Custom Agent }
+                    text(style=muted) { Configure a new agent }
+                    
+                    button(style=primary, label="Create Agent", transitionTo="agent-create")
+                }
+            }
+        }
+    }
+    
+    // Recent sessions
+    panel {
+        text(fontSize*=1.3) { Recent Chat Sessions }
+        
+        table(style="striped hover") {
+            row(type=header) {
+                cell { text { Agent } }
+                cell { text { Topic } }
+                cell { text { Duration } }
+                cell { text { Messages } }
+                cell { text { Date } }
+                cell { text { Actions } }
+            }
+            row {
+                cell { text { Code Expert } }
+                cell { text { React component optimization } }
+                cell { text { 45 min } }
+                cell { text { 28 } }
+                cell { text { 2 hours ago } }
+                cell {
+                    button(style=primary, label="Resume", icon="play")
+                    button(style=secondary, label="View", icon="eye")
+                }
+            }
+            row {
+                cell { text { General Assistant } }
+                cell { text { API design discussion } }
+                cell { text { 1h 20m } }
+                cell { text { 42 } }
+                cell { text { Yesterday } }
+                cell {
+                    button(style=primary, label="Resume", icon="play")
+                    button(style=secondary, label="View", icon="eye")
+                }
+            }
+            row {
+                cell { text { Data Analyst } }
+                cell { text { Sales data analysis } }
+                cell { text { 2h 15m } }
+                cell { text { 67 } }
+                cell { text { 2 days ago } }
+                cell {
+                    button(style=primary, label="Resume", icon="play")
+                    button(style=secondary, label="View", icon="eye")
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,269 @@
+// Chat Remote - Main Chat Interface
+// Interactive chat with agents
+
+screen(id="chat-interface", initial=true, device=desktop) {
+    layout(type=row) {
+        // Agent selector sidebar
+        sidebar(width=300) {
+            panel {
+                text(fontSize*=1.2) { Active Agents }
+                field(placeholder="Search agents...", prefix="icon:search")
+            }
+            
+            // Agent list
+            layout(type=column, align=left) {
+                card {
+                    row {
+                        icon(iconName="robot", style=success)
+                        layout(type=column, align=left) {
+                            text { Data Processor }
+                            text(style=muted) { E-Commerce Project }
+                        }
+                    }
+                    row {
+                        icon(iconName="circle", style=success, size=small)
+                        text(style=muted) { Online - Ready }
+                    }
+                }
+                
+                card {
+                    row {
+                        icon(iconName="robot", style=primary)
+                        layout(type=column, align=left) {
+                            text { Code Reviewer }
+                            text(style=muted) { Code Quality Project }
+                        }
+                    }
+                    row {
+                        icon(iconName="circle", style=warning, size=small)
+                        text(style=muted) { Busy - Processing }
+                    }
+                }
+                
+                card {
+                    row {
+                        icon(iconName="robot", style=primary)
+                        layout(type=column, align=left) {
+                            text { Test Runner }
+                            text(style=muted) { Testing Suite }
+                        }
+                    }
+                    row {
+                        icon(iconName="circle", style=success, size=small)
+                        text(style=muted) { Online - Ready }
+                    }
+                }
+                
+                card {
+                    row {
+                        icon(iconName="robot", style=secondary)
+                        layout(type=column, align=left) {
+                            text { Doc Generator }
+                            text(style=muted) { Documentation Project }
+                        }
+                    }
+                    row {
+                        icon(iconName="circle", style=secondary, size=small)
+                        text(style=muted) { Offline }
+                    }
+                }
+            }
+            
+            button(style=primary, label="Launch New Agent", icon="plus")
+        }
+        
+        // Chat area
+        layout(type=column) {
+            // Chat header
+            panel {
+                row {
+                    icon(iconName="robot", style=primary, size=large)
+                    layout(type=column, align=left) {
+                        text(fontSize*=1.2) { Data Processor }
+                        row {
+                            icon(iconName="circle", style=success, size=small)
+                            text(style=muted) { Online - Ready }
+                            text(style=muted) { • }
+                            text(style=muted) { Claude 3 Opus }
+                        }
+                    }
+                    expander
+                    button(icon="info-circle", label="")
+                    button(icon="cog", label="")
+                    button(icon="times", label="")
+                }
+            }
+            
+            // Messages area
+            content {
+                // Chat messages
+                layout(type=column, align=left) {
+                    // Agent message
+                    row {
+                        icon(iconName="robot", style=primary)
+                        card {
+                            text { Hello! I'm the Data Processor agent. How can I help you today? }
+                            text(style=muted) { 10:30 AM }
+                        }
+                    }
+                    
+                    // User message
+                    row {
+                        expander
+                        card {
+                            text { Can you process the latest batch of product data? }
+                            text(style=muted) { 10:32 AM }
+                        }
+                        icon(iconName="user", style=secondary)
+                    }
+                    
+                    // Agent message with action
+                    row {
+                        icon(iconName="robot", style=primary)
+                        card {
+                            text { Sure! I'll process the latest batch of product data for you. Let me check the queue... }
+                            
+                            panel {
+                                row {
+                                    icon(iconName="spinner", style=primary)
+                                    text { Processing 1,234 items... }
+                                }
+                            }
+                            
+                            text(style=muted) { 10:33 AM }
+                        }
+                    }
+                    
+                    // Agent message with results
+                    row {
+                        icon(iconName="robot", style=primary)
+                        card {
+                            text { Processing complete! Here's a summary: }
+                            
+                            table(style="bordered") {
+                                row {
+                                    cell { text { Total Items } }
+                                    cell { text { 1,234 } }
+                                }
+                                row {
+                                    cell { text { Successful } }
+                                    cell { text(style=success) { 1,198 } }
+                                }
+                                row {
+                                    cell { text { Failed } }
+                                    cell { text(style=danger) { 36 } }
+                                }
+                                row {
+                                    cell { text { Duration } }
+                                    cell { text { 2m 34s } }
+                                }
+                            }
+                            
+                            text { Would you like me to generate a detailed report? }
+                            text(style=muted) { 10:35 AM }
+                        }
+                    }
+                    
+                    // User message
+                    row {
+                        expander
+                        card {
+                            text { Yes, please generate a detailed report and export it as CSV }
+                            text(style=muted) { 10:36 AM }
+                        }
+                        icon(iconName="user", style=secondary)
+                    }
+                    
+                    // Agent typing indicator
+                    row {
+                        icon(iconName="robot", style=primary)
+                        card {
+                            row {
+                                icon(iconName="ellipsis-h", style=primary)
+                                text(style=muted) { Agent is typing... }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Input area
+            panel {
+                layout(type=row) {
+                    field(placeholder="Type your message here... (Shift+Enter for new line)", prefix="icon:comment")
+                    button(icon="paperclip", label="")
+                    button(style=primary, icon="paper-plane", label="Send")
+                }
+                
+                toolbar(style=transparent) {
+                    button(icon="bold", label="")
+                    button(icon="italic", label="")
+                    button(icon="code", label="")
+                    button(icon="link", label="")
+                    expander
+                    text(style=muted) { Markdown supported }
+                }
+            }
+        }
+        
+        // Information sidebar (collapsible)
+        sidebar(width=280) {
+            panel {
+                text(fontSize*=1.2) { Agent Information }
+                
+                layout(type=column, align=left) {
+                    row {
+                        text(style=muted) { Type: }
+                        text { Data Processing }
+                    }
+                    row {
+                        text(style=muted) { Provider: }
+                        text { Anthropic }
+                    }
+                    row {
+                        text(style=muted) { Model: }
+                        text { Claude 3 Opus }
+                    }
+                    row {
+                        text(style=muted) { Context: }
+                        text { 8,192 tokens }
+                    }
+                    row {
+                        text(style=muted) { Session: }
+                        text { 45 minutes }
+                    }
+                }
+            }
+            
+            panel {
+                text(fontSize*=1.2) { Quick Actions }
+                
+                layout(type=column) {
+                    button(style=secondary, label="Clear Context", icon="eraser")
+                    button(style=secondary, label="Export Chat", icon="download")
+                    button(style=secondary, label="Share Session", icon="share")
+                    button(style=warning, label="Reset Agent", icon="sync")
+                }
+            }
+            
+            panel {
+                text(fontSize*=1.2) { Recent Files }
+                
+                layout(type=column, align=left) {
+                    row {
+                        icon(iconName="file-csv", style=success)
+                        link(label="products_2024.csv")
+                    }
+                    row {
+                        icon(iconName="file-alt", style=primary)
+                        link(label="report_12_20.json")
+                    }
+                    row {
+                        icon(iconName="file-code", style=warning)
+                        link(label="config.yaml")
+                    }
+                }
+            }
+        }
+    }
+}

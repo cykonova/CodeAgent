@@ -1,0 +1,91 @@
+// Code Agent Portal - Main Shell Layout
+// This is the main container application that hosts all remote modules
+
+screen(id="shell", initial=true, device=desktop) {
+    // Main application toolbar
+    toolbar(style=primary, position=sticky) {
+        button(icon="menu", label="")  // Menu toggle
+        text { Code Agent Portal }
+        expander
+        
+        // Theme switcher
+        button(icon="sun", label="", transitionTo="theme:light")
+        button(icon="moon", label="", transitionTo="theme:dark")
+        
+        // User menu
+        dropdown(label="User", icon="user") {
+            menuitem(label="Profile", icon="user-circle")
+            menuitem(label="Settings", icon="cog", transitionTo="settings")
+            menuitem(type=divider)
+            menuitem(label="Sign Out", icon="sign-out-alt")
+        }
+    }
+    
+    layout(type=row) {
+        // Side navigation
+        sidebar(width=250) {
+            nav {
+                row {
+                    icon(iconName="dashboard", style=primary)
+                    link(label="Dashboard", transitionTo="dashboard")
+                }
+                row {
+                    icon(iconName="folder", style=primary)
+                    link(label="Projects", transitionTo="projects")
+                }
+                row {
+                    icon(iconName="comments", style=primary)
+                    link(label="Chat", transitionTo="chat")
+                }
+                row {
+                    icon(iconName="cog", style=primary)
+                    link(label="Settings", transitionTo="settings")
+                }
+            }
+            
+            expander
+            
+            // System status
+            panel {
+                text(style=muted) { System Status }
+                row {
+                    icon(iconName="circle", style=success, size=small)
+                    text { All systems operational }
+                }
+            }
+        }
+        
+        // Main content area - this is where remote modules load
+        content {
+            // Loading placeholder
+            panel {
+                text(fontSize*=1.5) { Select a module from the sidebar }
+                text(style=muted) { Remote modules will load here dynamically }
+            }
+        }
+    }
+}
+
+// Light theme definition
+theme(name=light, initial=true) {
+    --primary-color: #3f51b5;
+    --button-bg: #3f51b5;
+    --button-hover-bg: #303f9f;
+    --card-bg: #ffffff;
+    --header-bg: #3f51b5;
+    --nav-bg: #f5f5f5;
+    --text-primary: #212121;
+    --text-secondary: #757575;
+}
+
+// Dark theme definition
+theme(name=dark) {
+    --primary-color: #7986cb;
+    --button-bg: #5c6bc0;
+    --button-hover-bg: #3f51b5;
+    --card-bg: #424242;
+    --header-bg: #212121;
+    --nav-bg: #303030;
+    --text-primary: #ffffff;
+    --text-secondary: #bdbdbd;
+}

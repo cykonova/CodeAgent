@@ -1,0 +1,241 @@
+// Settings Remote - User Profile Settings
+// User account and profile management
+
+screen(id="profile-settings", device=desktop) {
+    header {
+        breadcrumb {
+            link(transitionTo="general-settings", label="Settings")
+            text { Profile }
+        }
+    }
+    
+    layout(type=grid, cols=3) {
+        // Profile sidebar
+        panel {
+            layout(type=column, align=center) {
+                // Avatar placeholder
+                icon(iconName="user-circle", size=large, style=primary)
+                
+                button(style=secondary, label="Change Avatar", icon="camera")
+                
+                text(fontSize*=1.3) { John Doe }
+                text(style=muted) { john.doe@example.com }
+                
+                row {
+                    icon(iconName="circle", style=success, size=small)
+                    text { Active }
+                }
+                
+                text(style=muted) { Member since Dec 2023 }
+            }
+            
+            panel {
+                text(fontSize*=1.1) { Account Statistics }
+                
+                layout(type=column, align=left) {
+                    row {
+                        text(style=muted) { Projects: }
+                        text { 12 }
+                    }
+                    row {
+                        text(style=muted) { Agents: }
+                        text { 38 }
+                    }
+                    row {
+                        text(style=muted) { API Calls: }
+                        text { 45,234 }
+                    }
+                    row {
+                        text(style=muted) { Storage: }
+                        text { 2.4 GB / 10 GB }
+                    }
+                }
+            }
+        }
+        
+        // Main profile form
+        layout(type=column) {
+            panel {
+                text(fontSize*=1.3) { Personal Information }
+                
+                layout(type=grid, cols=2) {
+                    field(label="First Name", value="John")
+                    field(label="Last Name", value="Doe")
+                    field(label="Email", type=email, value="john.doe@example.com")
+                    field(label="Phone", type=tel, value="+1 (555) 123-4567")
+                    field(label="Department", value="Engineering")
+                    field(label="Role", type=dropdown, options="Admin,Developer,Analyst,Viewer", value="Developer")
+                }
+                
+                field(label="Bio", placeholder="Tell us about yourself...")
+                
+                toolbar(style=transparent) {
+                    expander
+                    button(style=primary, label="Update Profile", icon="save")
+                }
+            }
+            
+            panel {
+                text(fontSize*=1.3) { Preferences }
+                
+                layout(type=grid, cols=2) {
+                    field(label="Default Project View", type=dropdown, options="List,Grid,Kanban", value="List")
+                    field(label="Default Agent Provider", type=dropdown, options="Anthropic,OpenAI,Ollama,Auto", value="Auto")
+                    field(label="Code Editor Theme", type=dropdown, options="VS Code Dark,Monokai,Solarized,GitHub", value="VS Code Dark")
+                    field(label="Terminal Font Size", type=number, value="14")
+                }
+                
+                field(label="Show welcome message", type=toggle, checked=true)
+                field(label="Enable keyboard shortcuts", type=toggle, checked=true)
+                field(label="Auto-save drafts", type=toggle, checked=true)
+                field(label="Show tips and tutorials", type=toggle, checked=false)
+                
+                toolbar(style=transparent) {
+                    expander
+                    button(style=primary, label="Save Preferences", icon="save")
+                }
+            }
+            
+            panel {
+                text(fontSize*=1.3) { API Keys }
+                text(style=muted) { Manage your personal API keys }
+                
+                table(style="striped") {
+                    row(type=header) {
+                        cell { text { Name } }
+                        cell { text { Key } }
+                        cell { text { Created } }
+                        cell { text { Last Used } }
+                        cell { text { Actions } }
+                    }
+                    row {
+                        cell { text { Production Key } }
+                        cell { text { sk-...xxxxx } }
+                        cell { text { Dec 1, 2024 } }
+                        cell { text { 2 hours ago } }
+                        cell {
+                            button(icon="eye", label="")
+                            button(icon="copy", label="")
+                            button(icon="trash", label="", style=danger)
+                        }
+                    }
+                    row {
+                        cell { text { Development Key } }
+                        cell { text { sk-...yyyyy } }
+                        cell { text { Nov 15, 2024 } }
+                        cell { text { Yesterday } }
+                        cell {
+                            button(icon="eye", label="")
+                            button(icon="copy", label="")
+                            button(icon="trash", label="", style=danger)
+                        }
+                    }
+                }
+                
+                button(style=primary, label="Generate New Key", icon="key")
+            }
+            
+            panel {
+                text(fontSize*=1.3) { Security }
+                
+                layout(type=grid, cols=2) {
+                    panel {
+                        text(fontSize*=1.1) { Password }
+                        field(label="Current Password", type=password)
+                        field(label="New Password", type=password)
+                        field(label="Confirm Password", type=password)
+                        button(style=primary, label="Change Password")
+                    }
+                    
+                    panel {
+                        text(fontSize*=1.1) { Two-Factor Authentication }
+                        row {
+                            icon(iconName="shield-alt", style=warning)
+                            text { 2FA is currently disabled }
+                        }
+                        text(style=muted) { Add an extra layer of security to your account }
+                        button(style=primary, label="Enable 2FA", icon="mobile-alt")
+                    }
+                }
+            }
+            
+            panel {
+                text(fontSize*=1.3) { Sessions }
+                text(style=muted) { Active sessions on your account }
+                
+                table(style="bordered") {
+                    row(type=header) {
+                        cell { text { Device } }
+                        cell { text { Location } }
+                        cell { text { IP Address } }
+                        cell { text { Last Active } }
+                        cell { text { Actions } }
+                    }
+                    row {
+                        cell { 
+                            row {
+                                icon(iconName="laptop")
+                                text { MacBook Pro (Current) }
+                            }
+                        }
+                        cell { text { San Francisco, CA } }
+                        cell { text { 192.168.1.42 } }
+                        cell { text { Now } }
+                        cell { text(style=muted) { Current } }
+                    }
+                    row {
+                        cell { 
+                            row {
+                                icon(iconName="mobile")
+                                text { iPhone 14 }
+                            }
+                        }
+                        cell { text { San Francisco, CA } }
+                        cell { text { 192.168.1.89 } }
+                        cell { text { 1 hour ago } }
+                        cell { button(style=danger, label="Revoke", icon="times") }
+                    }
+                    row {
+                        cell { 
+                            row {
+                                icon(iconName="desktop")
+                                text { Windows Desktop }
+                            }
+                        }
+                        cell { text { New York, NY } }
+                        cell { text { 74.125.224.72 } }
+                        cell { text { 3 days ago } }
+                        cell { button(style=danger, label="Revoke", icon="times") }
+                    }
+                }
+                
+                button(style=warning, label="Revoke All Other Sessions", icon="sign-out-alt")
+            }
+            
+            panel {
+                text(fontSize*=1.3) { Danger Zone }
+                text(style=warning) { These actions are permanent and cannot be undone }
+                
+                card {
+                    row {
+                        layout(type=column, align=left) {
+                            text { Export Account Data }
+                            text(style=muted) { Download all your data in JSON format }
+                        }
+                        button(style=secondary, label="Export", icon="download")
+                    }
+                }
+                
+                card {
+                    row {
+                        layout(type=column, align=left) {
+                            text(style=danger) { Delete Account }
+                            text(style=muted) { Permanently delete your account and all associated data }
+                        }
+                        button(style=danger, label="Delete Account", icon="trash")
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,29 +1,71 @@
-# Phase 6: Web Portal
+# Phase 6: Web Portal (Overview)
 
-## Overview
-Build the web-based user interface using Nx.dev monorepo with Module Federation, Angular Material components, and strict architectural standards.
+## Summary
+Phase 6 implements the web-based user interface using Nx.dev monorepo with Module Federation, Angular Material components, comprehensive internationalization, and advanced theming. Due to the complexity and scope, this phase has been divided into four sub-phases.
 
-## Nx Monorepo Architecture
+## UI Mockups
+Complete MockML mockups for all portal interfaces are available in `docs/mockups/`:
+- **Shell**: Main container layout with navigation
+- **Dashboard**: System metrics and monitoring interfaces  
+- **Projects**: Project management and configuration screens
+- **Chat**: Agent interaction and chat interfaces
+- **Settings**: Configuration and profile management pages
+
+## Sub-Phases
+
+### [Phase 6a: Foundation & Shell Setup](06a-foundation-shell.md)
+- Nx workspace initialization with Angular preset
+- Module Federation configuration for micro-frontends
+- Shell application with navigation and routing
+- Angular Material integration and base theme setup
+- Development tooling (ESLint, Prettier) configuration
+
+### [Phase 6b: Core Libraries & Services](06b-core-libraries.md)
+- Reusable UI component libraries (forms, tables, cards, navigation, dialogs)
+- Data access layer with API services
+- WebSocket service for real-time communication
+- State management service
+- Utility functions and validators
+
+### [Phase 6c: Remote Applications](06c-remote-applications.md)
+- Dashboard remote for metrics and status monitoring
+- Projects remote for project management interface
+- Chat remote for agent interactions
+- Settings remote for configuration management
+- Module Federation remote configuration
+
+### [Phase 6d: Internationalization & Theming](06d-i18n-theming.md)
+- Angular i18n setup with 8+ languages
+- RTL support for Arabic and Hebrew
+- Dynamic theme switching (light/dark/custom)
+- Locale-aware formatting utilities
+- Translation management system
+
+## Architecture Overview
+
 ```mermaid
 graph TB
     subgraph "Shell Application"
         SHELL[Portal Shell]
         ROUTER[Router]
-        THEME[Material Theme]
+        THEME[Theme System]
+        I18N[i18n Engine]
     end
     
     subgraph "Remote Applications"
-        DASH[Dashboard Remote]
-        PROJ[Projects Remote]
-        CHAT[Chat Remote]
-        SETTINGS[Settings Remote]
+        DASH[Dashboard]
+        PROJ[Projects]
+        CHAT[Chat]
+        SETTINGS[Settings]
     end
     
-    subgraph "Shared Libraries"
-        UI[UI Components Lib]
-        DATA[Data Access Lib]
-        UTIL[Utilities Lib]
-        WS[WebSocket Lib]
+    subgraph "Core Libraries"
+        UI[UI Components]
+        DATA[Data Access]
+        WS[WebSocket]
+        STATE[State Management]
+        TRANS[Translation]
+        UTILS[Utilities]
     end
     
     SHELL --> DASH
@@ -38,159 +80,124 @@ graph TB
     
     UI --> DATA
     DATA --> WS
+    UI --> TRANS
+    UI --> STATE
 ```
 
-## Module Federation Structure
+## Key Technologies
 
-| Application | Purpose | Route |
-|------------|---------|-------|
-| Shell | Main container, routing, theme | / |
-| Dashboard | Metrics, status, overview | /dashboard |
-| Projects | Project management | /projects |
-| Chat | Agent interaction | /chat |
-| Settings | Configuration | /settings |
+| Technology | Purpose |
+|------------|---------|
+| Nx.dev | Monorepo management and tooling |
+| Module Federation | Micro-frontend architecture |
+| Angular 17+ | Frontend framework |
+| Angular Material | UI component library |
+| Angular i18n | Internationalization |
+| WebSocket | Real-time communication |
+| RxJS | Reactive programming |
+| SCSS | Styling with theming support |
 
-## Angular Material Standards
+## Implementation Order
 
-| UI Element | Material Component | Library Location |
-|------------|-------------------|------------------|
-| Forms | mat-form-field | libs/ui/forms |
-| Tables | mat-table | libs/ui/tables |
-| Navigation | mat-sidenav | libs/ui/navigation |
-| Dialogs | mat-dialog | libs/ui/dialogs |
-| Cards | mat-card | libs/ui/cards |
-| Buttons | mat-button | libs/ui/buttons |
-
-## Internationalization (i18n)
-
-### Localization Requirements
-
-| Requirement | Implementation |
-|------------|---------------|
-| All text | Use Angular i18n pipe |
-| Date/Time | locale-aware formatting |
-| Numbers | locale-specific formats |
-| Currency | locale currency display |
-| RTL Support | Material RTL theming |
-| Pluralization | ICU message format |
-
-### Translation Structure
-```
-libs/i18n/
-├── locales/
-│   ├── en-US.json    # English (US)
-│   ├── es-ES.json    # Spanish
-│   ├── fr-FR.json    # French
-│   ├── de-DE.json    # German
-│   ├── ja-JP.json    # Japanese
-│   └── ar-SA.json    # Arabic (RTL)
-└── services/
-    └── translation.service.ts
-```
-
-## Component Guidelines
-
-### File Structure
-- No file exceeds 100 lines
-- Logical separation of concerns
-- One component per file
-- Shared components in libs
-
-### Theming
-- Use Angular Material theming system
-- No hardcoded colors
-- Support light/dark modes
-- Custom components follow theme
-
-### Localization Rules
-- No hardcoded strings in templates
-- All text through i18n pipe
-- Date formatting via DatePipe with locale
-- Number formatting via DecimalPipe with locale
-- Validation messages localized
-- Aria labels localized for accessibility
-
-### Reusable Components
-All components built as standalone, reusable units in library projects:
-- Form controls in `libs/ui/forms`
-- Data displays in `libs/ui/data`
-- Layout components in `libs/ui/layout`
-- Custom directives in `libs/ui/directives`
-- Translation service in `libs/i18n`
-
-## Implementation Steps
-
-1. **Nx Workspace Setup**
-   - Initialize Nx monorepo
-   - Configure Module Federation
-   - Setup Angular Material
-   - Configure theming system
-
-2. **Shell Application**
-   - Main container setup
-   - Router configuration
-   - Remote loading
-   - Theme provider
-
-3. **Remote Applications**
-   - Dashboard remote
-   - Projects remote
-   - Chat remote
-   - Settings remote
-
-4. **Shared Libraries**
-   - UI component library
-   - Data access library
-   - WebSocket service
-   - Utility functions
-
-5. **Material Integration**
-   - Theme configuration
-   - Component setup
-   - Custom components
-   - Responsive design
+1. **Phase 6a** - Foundation & Shell Setup (Required first)
+2. **Phase 6b** - Core Libraries & Services (Required second)
+3. **Phase 6c** - Remote Applications (Can run parallel with 6d)
+4. **Phase 6d** - Internationalization & Theming (Can run parallel with 6c)
 
 ## Project Structure
-```
-apps/
-├── shell/                 # Main container app
-├── dashboard/            # Dashboard micro-frontend
-├── projects/             # Projects micro-frontend
-├── chat/                 # Chat micro-frontend
-└── settings/             # Settings micro-frontend
 
-libs/
-├── ui/
-│   ├── forms/           # Form components
-│   ├── tables/          # Table components
-│   ├── cards/           # Card components
-│   └── theme/           # Theme configuration
-├── data-access/         # API services
-├── websocket/           # WebSocket service
-└── utils/               # Shared utilities
+```
+src/frontend/
+├── apps/
+│   ├── shell/              # Main container application
+│   ├── dashboard/          # Dashboard micro-frontend
+│   ├── projects/           # Projects micro-frontend
+│   ├── chat/              # Chat micro-frontend
+│   └── settings/          # Settings micro-frontend
+├── libs/
+│   ├── ui/
+│   │   ├── forms/         # Form components
+│   │   ├── tables/        # Table components
+│   │   ├── cards/         # Card components
+│   │   ├── navigation/    # Navigation components
+│   │   ├── dialogs/       # Dialog components
+│   │   └── theme/         # Theme configuration
+│   ├── data-access/       # API services
+│   ├── websocket/         # WebSocket service
+│   ├── state/             # State management
+│   ├── i18n/              # Translation services
+│   └── utils/             # Shared utilities
+├── angular.json
+├── nx.json
+├── tsconfig.json
+└── package.json
 ```
 
 ## Development Standards
 
 | Standard | Requirement |
 |----------|------------|
-| File Size | Max 100 lines per file |
-| Components | Standalone and reusable |
-| Styling | Material theming only |
-| State | NgRx or Akita |
-| Testing | 80% coverage minimum |
+| Component Size | Maximum 100 lines per file |
+| Component Type | Standalone, OnPush change detection |
+| Styling | Material theming only, no hardcoded colors |
+| State Management | Centralized via AppStateService |
+| Testing Coverage | Minimum 80% |
 | Accessibility | WCAG 2.1 AA compliant |
-| i18n | All text localized |
-| RTL | Full RTL support |
-| Locales | Minimum 6 languages |
+| Internationalization | All text externalized |
+| RTL Support | Full support for Arabic/Hebrew |
+| Supported Languages | 8+ languages minimum |
+
+## Dependencies
+
+### Core Dependencies
+```json
+{
+  "@angular/core": "^17.0.0",
+  "@angular/material": "^17.0.0",
+  "@angular/cdk": "^17.0.0",
+  "@angular/localize": "^17.0.0",
+  "@nx/angular": "^17.0.0",
+  "@nx/workspace": "^17.0.0",
+  "rxjs": "^7.8.0"
+}
+```
 
 ## Success Criteria
-- [ ] Nx workspace configured
-- [ ] Module Federation working
-- [ ] All Material components integrated
-- [ ] Theme system implemented
-- [ ] Libraries properly structured
-- [ ] Remote apps loading correctly
-- [ ] i18n fully implemented
-- [ ] RTL support verified
+
+### Foundation (6a)
+- [ ] Nx workspace initialized with Angular
+- [ ] Module Federation configured
+- [ ] Shell application with navigation
+- [ ] Angular Material integrated
+- [ ] Theme system operational
+
+### Libraries (6b)
+- [ ] All UI component libraries created
+- [ ] Data access service functional
+- [ ] WebSocket connection established
+- [ ] State management implemented
+- [ ] Utility functions available
+
+### Applications (6c)
+- [ ] Dashboard displays real-time metrics
+- [ ] Projects management interface complete
+- [ ] Chat interface with agent selection
+- [ ] Settings with provider configuration
+- [ ] All remotes loading via Module Federation
+
+### i18n & Theming (6d)
+- [ ] 8+ languages configured
+- [ ] RTL layout working
+- [ ] Theme switching functional
+- [ ] Locale-aware formatting
 - [ ] All strings externalized
+
+## Notes for Implementation
+
+1. **Start with Phase 6a** - The foundation must be in place before other work can begin
+2. **Phase 6b is critical** - Core libraries are used by all remote applications
+3. **Phases 6c and 6d can be parallel** - Different team members can work on these simultaneously
+4. **Test Module Federation early** - Ensure remote loading works before building complex features
+5. **Maintain consistency** - Use the shared libraries for all UI components
+6. **Follow Angular best practices** - Standalone components, OnPush change detection, reactive forms
+7. **Prioritize accessibility** - Test with screen readers and keyboard navigation

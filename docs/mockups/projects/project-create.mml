@@ -1,0 +1,135 @@
+// Projects Remote - Create New Project Page
+// Form for creating a new project
+
+screen(id="project-create", device=desktop) {
+    header {
+        breadcrumb {
+            link(transitionTo="projects-list", label="Projects")
+            text { Create New Project }
+        }
+    }
+    
+    panel {
+        text(fontSize*=1.5) { Create New Project }
+        text(style=muted) { Set up a new project with agents and workflows }
+    }
+    
+    // Project creation form
+    layout(type=grid, cols=2) {
+        // Basic Information
+        panel {
+            text(fontSize*=1.2) { Basic Information }
+            
+            field(label="Project Name", placeholder="Enter project name")
+            field(label="Description", placeholder="Describe what this project does")
+            field(label="Project Type", type=dropdown, options="Data Collection,Code Analysis,Testing,Documentation,Custom", value="Data Collection")
+            field(label="Tags", placeholder="Enter tags separated by commas")
+        }
+        
+        // Configuration
+        panel {
+            text(fontSize*=1.2) { Configuration }
+            
+            field(label="Execution Mode", type=dropdown, options="Manual,Scheduled,Event-driven,Continuous", value="Manual")
+            field(label="Schedule", type=dropdown, options="Hourly,Every 6 hours,Daily,Weekly,Custom", value="Daily")
+            field(label="Priority", type=dropdown, options="Low,Normal,High,Critical", value="Normal")
+            field(label="Max Runtime (minutes)", type=number, value="60")
+        }
+    }
+    
+    // Agent Selection
+    panel {
+        text(fontSize*=1.2) { Select Agents }
+        text(style=muted) { Choose agents to include in this project }
+        
+        layout(type=grid, cols=3) {
+            card {
+                field(type=checkbox, label="Data Collector")
+                text(style=muted) { Gathers data from various sources }
+            }
+            card {
+                field(type=checkbox, label="Data Processor")
+                text(style=muted) { Processes and transforms data }
+            }
+            card {
+                field(type=checkbox, label="Code Analyzer")
+                text(style=muted) { Analyzes code quality and patterns }
+            }
+            card {
+                field(type=checkbox, label="Test Runner")
+                text(style=muted) { Executes automated tests }
+            }
+            card {
+                field(type=checkbox, label="Report Generator")
+                text(style=muted) { Creates reports and summaries }
+            }
+            card {
+                field(type=checkbox, label="Custom Agent")
+                text(style=muted) { Configure a custom agent }
+            }
+        }
+    }
+    
+    // Workflow Builder
+    panel {
+        text(fontSize*=1.2) { Workflow Configuration }
+        text(style=muted) { Define the execution workflow for agents }
+        
+        card {
+            text { Workflow Steps: }
+            
+            layout(type=column, align=left) {
+                row {
+                    text { 1. }
+                    field(type=dropdown, options="Data Collector,Data Processor,Code Analyzer", value="Data Collector")
+                    text { → }
+                }
+                row {
+                    text { 2. }
+                    field(type=dropdown, options="Data Processor,Code Analyzer,Test Runner", value="Data Processor")
+                    text { → }
+                }
+                row {
+                    text { 3. }
+                    field(type=dropdown, options="Report Generator,Custom Agent,None", value="Report Generator")
+                }
+            }
+            
+            button(style=secondary, label="Add Step", icon="plus")
+        }
+    }
+    
+    // Advanced Settings
+    panel {
+        text(fontSize*=1.2) { Advanced Settings }
+        
+        layout(type=grid, cols=2) {
+            field(label="Enable notifications", type=toggle, checked=true)
+            field(label="Auto-retry on failure", type=toggle, checked=true)
+            field(label="Enable logging", type=toggle, checked=true)
+            field(label="Sandbox execution", type=toggle, checked=false)
+            field(label="Data persistence", type=toggle, checked=true)
+            field(label="Version control", type=toggle, checked=false)
+        }
+    }
+    
+    // Resource Limits
+    panel {
+        text(fontSize*=1.2) { Resource Limits }
+        
+        layout(type=grid, cols=2) {
+            field(label="Max CPU Usage (%)", type=number, value="80")
+            field(label="Max Memory (MB)", type=number, value="2048")
+            field(label="Max API Calls/Hour", type=number, value="1000")
+            field(label="Max Storage (GB)", type=number, value="10")
+        }
+    }
+    
+    // Action buttons
+    toolbar(style=transparent) {
+        expander
+        button(style=secondary, label="Cancel", transitionTo="projects-list")
+        button(style=secondary, label="Save as Template")
+        button(style=primary, label="Create Project", icon="check")
+    }
+}

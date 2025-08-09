@@ -1,0 +1,155 @@
+// Dashboard Remote - System Overview Page
+// Displays real-time metrics and system status
+
+screen(id="dashboard", initial=true, device=desktop) {
+    header {
+        text(fontSize*=1.8) { System Overview }
+        text(style=muted) { Real-time metrics and status monitoring }
+    }
+    
+    // Metrics cards grid
+    layout(type=grid, cols=4) {
+        // Active Agents card
+        card {
+            row {
+                icon(iconName="robot", style=primary, size=large)
+                layout(type=column, align=left) {
+                    text(style=muted) { Active Agents }
+                    text(fontSize*=2) { 5 }
+                }
+            }
+            text(style=muted) { 2 running, 3 idle }
+        }
+        
+        // API Calls card
+        card {
+            row {
+                icon(iconName="exchange-alt", style=success, size=large)
+                layout(type=column, align=left) {
+                    text(style=muted) { API Calls (24h) }
+                    text(fontSize*=2) { 12,458 }
+                }
+            }
+            text(style=muted) { ↑ 15% from yesterday }
+        }
+        
+        // Response Time card
+        card {
+            row {
+                icon(iconName="tachometer-alt", style=warning, size=large)
+                layout(type=column, align=left) {
+                    text(style=muted) { Avg Response }
+                    text(fontSize*=2) { 145ms }
+                }
+            }
+            text(style=muted) { ↓ 10ms improvement }
+        }
+        
+        // Error Rate card
+        card {
+            row {
+                icon(iconName="exclamation-triangle", style=danger, size=large)
+                layout(type=column, align=left) {
+                    text(style=muted) { Error Rate }
+                    text(fontSize*=2) { 0.2% }
+                }
+            }
+            text(style=muted) { Within acceptable range }
+        }
+    }
+    
+    // Provider Status Section
+    panel {
+        text(fontSize*=1.3) { Provider Status }
+        
+        table(style="striped bordered") {
+            row(type=header) {
+                cell { text { Provider } }
+                cell { text { Status } }
+                cell { text { Model } }
+                cell { text { Requests } }
+                cell { text { Avg Latency } }
+                cell { text { Actions } }
+            }
+            row {
+                cell { 
+                    row {
+                        icon(iconName="circle", style=success, size=small)
+                        text { Anthropic }
+                    }
+                }
+                cell { text { Active } }
+                cell { text { Claude 3 } }
+                cell { text { 5,234 } }
+                cell { text { 120ms } }
+                cell { button(style=primary, label="Configure") }
+            }
+            row {
+                cell { 
+                    row {
+                        icon(iconName="circle", style=success, size=small)
+                        text { OpenAI }
+                    }
+                }
+                cell { text { Active } }
+                cell { text { GPT-4 } }
+                cell { text { 4,112 } }
+                cell { text { 185ms } }
+                cell { button(style=primary, label="Configure") }
+            }
+            row {
+                cell { 
+                    row {
+                        icon(iconName="circle", style=warning, size=small)
+                        text { Ollama }
+                    }
+                }
+                cell { text { Idle } }
+                cell { text { Llama 3 } }
+                cell { text { 3,112 } }
+                cell { text { 95ms } }
+                cell { button(style=primary, label="Configure") }
+            }
+        }
+    }
+    
+    // Activity Timeline
+    panel {
+        text(fontSize*=1.3) { Recent Activity }
+        
+        layout(type=column, align=left) {
+            row {
+                icon(iconName="check-circle", style=success)
+                text { Agent "DataProcessor" completed task successfully }
+                text(style=muted) { 2 minutes ago }
+            }
+            row {
+                icon(iconName="info-circle", style=primary)
+                text { New project "WebScraper" created }
+                text(style=muted) { 15 minutes ago }
+            }
+            row {
+                icon(iconName="sync", style=warning)
+                text { Provider "Ollama" switched to idle mode }
+                text(style=muted) { 1 hour ago }
+            }
+            row {
+                icon(iconName="play-circle", style=success)
+                text { Agent "CodeReviewer" started }
+                text(style=muted) { 2 hours ago }
+            }
+            row {
+                icon(iconName="exclamation-circle", style=danger)
+                text { Error in "TestRunner" agent - recovered automatically }
+                text(style=muted) { 3 hours ago }
+            }
+        }
+    }
+    
+    // Quick Actions
+    toolbar(style=transparent) {
+        button(style=primary, label="View Detailed Metrics", icon="chart-line")
+        button(style=secondary, label="Export Report", icon="download")
+        button(style=secondary, label="Refresh", icon="sync")
+    }
+}
