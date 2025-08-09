@@ -1,0 +1,107 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <ng-container *ngFor="let field of fields">
+    
+    <!-- Text, Email, Password, Number inputs -->
+    <mat-form-field *ngIf="['text', 'email', 'password', 'number'].includes(field.type)" 
+                    appearance="outline" 
+                    class="full-width">
+      <mat-label>{{ field.label }}</mat-label>
+      <input matInput 
+             [type]="field.type" 
+             [formControlName]="field.key"
+             [placeholder]="field.placeholder || ''"
+             [min]="field.min"
+             [max]="field.max">
+      <mat-icon *ngIf="field.icon" matPrefix>{{ field.icon }}</mat-icon>
+      <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+      <mat-error>{{ getErrorMessage(field) }}</mat-error>
+    </mat-form-field>
+    
+    <!-- Textarea -->
+    <mat-form-field *ngIf="field.type === 'textarea'" 
+                    appearance="outline" 
+                    class="full-width">
+      <mat-label>{{ field.label }}</mat-label>
+      <textarea matInput 
+                [formControlName]="field.key"
+                [placeholder]="field.placeholder || ''"
+                [rows]="field.rows || 4"></textarea>
+      <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+      <mat-error>{{ getErrorMessage(field) }}</mat-error>
+    </mat-form-field>
+    
+    <!-- Select dropdown -->
+    <mat-form-field *ngIf="field.type === 'select'" 
+                    appearance="outline" 
+                    class="full-width">
+      <mat-label>{{ field.label }}</mat-label>
+      <mat-select [formControlName]="field.key">
+        <mat-option *ngFor="let option of field.options" [value]="option.value">
+          {{ option.label }}
+        </mat-option>
+      </mat-select>
+      <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+      <mat-error>{{ getErrorMessage(field) }}</mat-error>
+    </mat-form-field>
+    
+    <!-- Checkbox -->
+    <div *ngIf="field.type === 'checkbox'" class="form-field">
+      <mat-checkbox [formControlName]="field.key" color="primary">
+        {{ field.label }}
+      </mat-checkbox>
+      <mat-hint *ngIf="field.hint" class="checkbox-hint">{{ field.hint }}</mat-hint>
+    </div>
+    
+    <!-- Radio buttons -->
+    <div *ngIf="field.type === 'radio'" class="form-field">
+      <label class="radio-label">{{ field.label }}</label>
+      <mat-radio-group [formControlName]="field.key">
+        <mat-radio-button *ngFor="let option of field.options" 
+                          [value]="option.value" 
+                          color="primary">
+          {{ option.label }}
+        </mat-radio-button>
+      </mat-radio-group>
+      <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+    </div>
+    
+    <!-- Date picker -->
+    <mat-form-field *ngIf="field.type === 'date'" 
+                    appearance="outline" 
+                    class="full-width">
+      <mat-label>{{ field.label }}</mat-label>
+      <input matInput 
+             [matDatepicker]="picker" 
+             [formControlName]="field.key"
+             [placeholder]="field.placeholder || ''">
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+      <mat-error>{{ getErrorMessage(field) }}</mat-error>
+    </mat-form-field>
+    
+    <!-- Slide toggle -->
+    <div *ngIf="field.type === 'toggle'" class="form-field">
+      <mat-slide-toggle [formControlName]="field.key" color="primary">
+        {{ field.label }}
+      </mat-slide-toggle>
+      <mat-hint *ngIf="field.hint" class="toggle-hint">{{ field.hint }}</mat-hint>
+    </div>
+    
+  </ng-container>
+  
+  <div class="form-actions">
+    <button mat-raised-button 
+            color="primary" 
+            type="submit"
+            [disabled]="form.invalid">
+      {{ submitLabel }}
+    </button>
+    <button mat-button 
+            type="button"
+            *ngIf="showCancel"
+            (click)="onCancel()">
+      {{ cancelLabel }}
+    </button>
+  </div>
+</form>
