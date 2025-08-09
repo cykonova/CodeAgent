@@ -1,60 +1,47 @@
 # Sandbox Architecture
 
-## Container Specification
-```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:8.0
+## Purpose
+Provides isolated environments where coding agents execute development tasks and present results to users.
 
-# Development tools
-RUN apt-get update && apt-get install -y \
-    git nodejs npm python3 python3-pip \
-    build-essential curl wget
+## Container Components
 
-# MCP executor
-COPY agent-executor /usr/local/bin/
-RUN chmod +x /usr/local/bin/agent-executor
+| Component | Purpose |
+|-----------|---------|
+| Coding Agent CLI | Executes commands in non-interactive mode |
+| Workspace | Persistent directory for project files |
+| Dev Server | Hosts web applications for preview |
+| Artifact Manager | Handles output presentation |
 
-# Working directory
-WORKDIR /workspace
+## Agent Execution Model
+- Agent runs in non-interactive CLI mode
+- Commands executed via sandbox manager
+- Output streamed back to user interface
+- Artifacts exposed through configured channels
 
-# MCP configuration
-ENV MCP_MODE=sandbox
-ENV MCP_PORT=8500
+## Artifact Presentation
 
-ENTRYPOINT ["agent-executor"]
-```
+| Type | Method | User Access |
+|------|--------|------------|
+| Web App | Port forward | Browser preview |
+| API | Endpoint exposure | Interactive testing |
+| Files | Volume sync | Direct download |
+| Logs | Stream | Real-time view |
+| Reports | Static hosting | Read-only access |
 
-## Security Profiles
-```yaml
-security_levels:
-  full_isolation:
-    network: none
-    capabilities: []
-    readonly_root: true
-    
-  development:
-    network: bridge
-    capabilities: [CHOWN, SETUID, SETGID]
-    readonly_root: false
-    
-  production:
-    network: custom
-    capabilities: [ALL]
-    readonly_root: false
-```
+## Resource Management
 
-## Resource Limits
-```csharp
-public class ResourceLimits
-{
-    public long Memory { get; set; } = 4_294_967_296; // 4GB
-    public int CpuShares { get; set; } = 1024;
-    public int CpuQuota { get; set; } = 100000;
-    public long DiskQuota { get; set; } = 10_737_418_240; // 10GB
-}
-```
+| Resource | Default | Configurable |
+|----------|---------|--------------|
+| Memory | 4GB | Yes |
+| CPU | 2 cores | Yes |
+| Disk | 10GB | Yes |
+| Network | Restricted | Yes |
+| Processes | Limited | Yes |
 
-## Lifecycle Management
-- Pre-warmed container pool
-- Automatic cleanup
-- Health monitoring
-- Resource tracking
+## Lifecycle Stages
+1. Container creation with workspace
+2. Agent CLI installation
+3. Task execution
+4. Artifact generation
+5. Result presentation
+6. Cleanup or persistence

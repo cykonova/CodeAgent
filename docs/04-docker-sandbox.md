@@ -1,106 +1,112 @@
 # Phase 4: Docker Sandbox
 
 ## Overview
-Implement isolated Docker containers for secure code execution with MCP protocol support.
+Provide isolated Docker containers where coding agents execute tasks. Each sandbox includes a full development environment with the ability to build applications and present artifacts to users.
 
 ## Sandbox Architecture
 ```mermaid
 graph TB
+    subgraph "User Interface"
+        UI[Web/CLI]
+        PREVIEW[Artifact Preview]
+    end
+    
+    subgraph "Sandbox Container"
+        AGENT[Coding Agent CLI]
+        WORKSPACE[Workspace]
+        SERVER[Dev Server]
+        BUILD[Build Output]
+    end
+    
     subgraph "Host System"
-        SM[Sandbox Manager]
-        DOCKER[Docker API]
+        VOLUMES[Volume Mounts]
+        PORTS[Port Mapping]
     end
     
-    subgraph "Project Sandboxes"
-        S1[Project A Container]
-        S2[Project B Container]
-        S3[Project C Container]
-    end
-    
-    subgraph "Container Components"
-        EXEC[MCP Executor]
-        FS[File System]
-        TOOLS[Dev Tools]
-    end
-    
-    SM --> DOCKER
-    DOCKER --> S1
-    DOCKER --> S2
-    DOCKER --> S3
-    
-    S1 --> EXEC
-    EXEC --> FS
-    EXEC --> TOOLS
+    UI --> AGENT
+    AGENT --> WORKSPACE
+    WORKSPACE --> BUILD
+    BUILD --> SERVER
+    SERVER --> PORTS
+    PORTS --> PREVIEW
+    VOLUMES -.->|Sync| WORKSPACE
 ```
 
-## Security Levels
+## Sandbox Capabilities
 
-### Full Isolation
-- No network access
-- Read-only filesystem
-- Minimal capabilities
+### Agent Access
+The coding agent running in the sandbox has access to:
+- **Workspace**: Full read/write to `/workspace` directory
+- **Tools**: Language runtimes, build tools, package managers
+- **Execution**: Ability to run builds, tests, and development servers
+- **Output**: Can generate artifacts and expose them via ports
 
-### Development
-- Local network access
-- Read-write filesystem
-- Standard capabilities
+### Artifact Presentation
 
-### Build
-- Package manager access
-- Build tools enabled
-- Extended capabilities
+| Artifact Type | Presentation Method |
+|--------------|-------------------|
+| Web Application | Port forwarding to browser preview |
+| API Service | Exposed endpoint with documentation |
+| Static Files | Direct file access via volumes |
+| Build Output | Downloaded as archive |
+| Logs/Reports | Streamed to UI |
 
-### Production
-- Full network access
-- Custom configuration
-- All capabilities
+### Security Boundaries
+
+| Component | Access Level |
+|-----------|-------------|
+| Workspace | Full access |
+| System Files | Read-only |
+| Network | Configurable (default: package managers only) |
+| Host System | No access |
+| Other Containers | Isolated |
 
 ## Implementation Steps
 
-1. **Sandbox Manager**
-   - Container creation
-   - Lifecycle management
-   - Resource limits
+1. **Container Environment**
+   - Base image with development tools
+   - Coding agent CLI installation
+   - Workspace volume setup
 
-2. **MCP Agent Executor**
-   - Tool registration
-   - Command execution
-   - File operations
+2. **Agent Integration**
+   - Non-interactive agent mode
+   - Command execution interface
+   - Output capture and streaming
 
-3. **Docker Integration**
-   - Docker API client
-   - Volume management
-   - Network configuration
+3. **Artifact Handling**
+   - Port mapping for web apps
+   - File synchronization
+   - Build output management
 
 4. **Security Configuration**
-   - Capability dropping
-   - Seccomp profiles
-   - AppArmor/SELinux
+   - Network restrictions
+   - Resource limits
+   - Process isolation
 
-5. **Container Templates**
-   - Base sandbox image
-   - Language-specific images
-   - Tool installations
+5. **User Experience**
+   - Live preview capability
+   - File browser access
+   - Log streaming
 
 ## Key Files
 - `Sandbox/SandboxManager.cs`
-- `Sandbox/MCPExecutor.cs`
-- `Sandbox/DockerClient.cs`
+- `Sandbox/AgentRunner.cs`
+- `Sandbox/ArtifactServer.cs`
 - `Dockerfile.sandbox`
 
-## Container Specification
-```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:8.0
-WORKDIR /workspace
-RUN apt-get update && apt-get install -y git nodejs npm python3
-COPY agent-executor /usr/local/bin/
-ENV MCP_MODE=sandbox
-ENTRYPOINT ["agent-executor"]
-```
+## Container Contents
+
+The sandbox container includes:
+- Development runtimes (Node.js, Python, .NET, etc.)
+- Build tools (npm, pip, dotnet, make)
+- The coding agent CLI in non-interactive mode
+- Port exposure for artifact preview
+- Volume mount for workspace persistence
 
 ## Success Criteria
-- [ ] Containers created/destroyed
-- [ ] MCP executor operational
-- [ ] File operations working
-- [ ] Security levels enforced
+- [ ] Agent can execute in sandbox
+- [ ] Workspace files accessible
+- [ ] Web apps previewable
+- [ ] Artifacts downloadable
+- [ ] Security boundaries enforced
 - [ ] Resource limits applied
