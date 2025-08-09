@@ -3,6 +3,8 @@
 ## Project Overview
 The Code Agent System is a comprehensive development assistant platform that integrates multiple LLM providers through a unified interface, accessible via web portal, CLI, and IDE integrations.
 
+**Key Design Principle:** Zero-configuration by default. Users can start immediately with just a provider configured. Advanced features (custom agents, workflows) are optional.
+
 ## Implementation Phases
 
 ### Phase 1: Core Infrastructure

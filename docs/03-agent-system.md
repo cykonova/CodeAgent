@@ -1,7 +1,13 @@
 # Phase 3: Agent System
 
 ## Overview
-Build the multi-agent coordination system with specialized agents for different development tasks. Agents are dynamically assigned to available providers during setup.
+Build the multi-agent coordination system with specialized agents for different development tasks. The system works transparently with automatic defaults - users can start immediately without any agent configuration.
+
+## Default Behavior (Zero Configuration)
+When a user starts without configuring agents:
+- All agent roles use the same provider/model the user has configured
+- The system adjusts temperature and parameters per task type automatically
+- Workflow proceeds seamlessly without user intervention
 
 ## Agent Setup Phase
 ```mermaid
@@ -71,22 +77,39 @@ graph TD
 
 ## Dynamic Agent Assignment
 
-### Single Provider Mode
+### Zero-Configuration Mode
 ```csharp
-// When only one provider is available, all agents use it
 public class AgentAssigner
 {
-    public Dictionary<AgentType, ILLMProvider> AssignAgents(List<ILLMProvider> providers)
+    public Dictionary<AgentType, ILLMProvider> AssignAgents(
+        List<ILLMProvider> providers, 
+        WorkflowConfig userConfig = null)
     {
-        if (providers.Count == 1)
+        // If user hasn't configured agents, use simple defaults
+        if (userConfig?.AgentAssignments == null)
         {
-            // All agents use the single available provider
-            return Enum.GetValues<AgentType>()
-                .ToDictionary(type => type, _ => providers[0]);
+            var defaultProvider = providers.FirstOrDefault() 
+                ?? throw new NoProvidersException();
+                
+            // All agents use same provider with task-specific parameters
+            return CreateDefaultAssignments(defaultProvider);
         }
         
-        // Multi-provider logic
-        return OptimizeAssignments(providers);
+        // User has custom configuration
+        return ApplyUserConfiguration(userConfig, providers);
+    }
+    
+    private Dictionary<AgentType, AgentConfig> CreateDefaultAssignments(
+        ILLMProvider provider)
+    {
+        return new Dictionary<AgentType, AgentConfig>
+        {
+            [AgentType.Planning] = new AgentConfig(provider, temperature: 0.7),
+            [AgentType.Coding] = new AgentConfig(provider, temperature: 0.3),
+            [AgentType.Review] = new AgentConfig(provider, temperature: 0.2),
+            [AgentType.Testing] = new AgentConfig(provider, temperature: 0.1),
+            [AgentType.Documentation] = new AgentConfig(provider, temperature: 0.5)
+        };
     }
 }
 ```

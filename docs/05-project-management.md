@@ -1,7 +1,7 @@
 # Phase 5: Project Management
 
 ## Overview
-Implement project configuration system with workflow templates and cost tracking.
+Implement project configuration system with optional workflow templates and cost tracking. Projects work out-of-the-box with zero configuration required.
 
 ## Project Structure
 ```mermaid
@@ -34,21 +34,52 @@ graph TD
 
 ## Configuration Management
 
-### System Defaults
-- Base workflow template
-- Default agent assignments
-- Global cost limits
+### Zero Configuration (Default)
+```csharp
+public class ProjectService
+{
+    public async Task<Project> CreateProject(string name, string sourcePath)
+    {
+        // User can create a project with just a name and path
+        return new Project
+        {
+            Name = name,
+            SourcePath = sourcePath,
+            // Everything else uses intelligent defaults
+            Workflow = GetDefaultWorkflow(),
+            AgentConfig = null, // Will use automatic assignment
+            CostLimit = GetDefaultCostLimit()
+        };
+    }
+    
+    private Workflow GetDefaultWorkflow()
+    {
+        // Simple, effective default workflow
+        return new Workflow
+        {
+            Stages = new[] { "plan", "implement", "review" },
+            AutoProceed = true
+        };
+    }
+}
+```
 
-### Project Configuration
-- Custom workflows
-- Provider overrides
+### System Defaults (Fallback)
+- Base workflow template (if not specified)
+- Automatic agent assignments
+- Reasonable cost limits
+
+### Optional Project Configuration
+- Custom workflows (advanced users)
+- Provider overrides (power users)
 - Project-specific limits
 
-### Workflow Templates
+### Optional Workflow Templates
 - Standard development
 - Fast iteration
 - Quality focused
 - Budget optimized
+- Custom user templates
 
 ## Implementation Steps
 
@@ -83,17 +114,27 @@ graph TD
 - `Projects/WorkflowEngine.cs`
 - `Projects/CostTracker.cs`
 
-## Project Configuration
+## Project Configuration Examples
+
+### Minimal Configuration (Most Users)
+```yaml
+# User only needs to specify project name
+project:
+  name: "My Project"
+  # Everything else is automatic
+```
+
+### Advanced Configuration (Power Users)
 ```yaml
 project:
   name: "My Project"
-  template: "standard"
-  workflow:
+  template: "standard"  # Optional
+  workflow:  # Optional custom workflow
     stages: [planning, coding, review, testing]
-  agents:
+  agents:  # Optional agent overrides
     planning: anthropic/claude-3-opus
     coding: openai/gpt-4-turbo
-  limits:
+  limits:  # Optional limits
     cost: 25.00
     timeout: 300
 ```

@@ -1,12 +1,22 @@
 # Project Architecture
 
 ## Project Structure
+
+### Minimal Project (Zero Configuration)
 ```
 projects/
 ├── {project-id}/
-│   ├── config.yaml
-│   ├── workflow.yaml
-│   ├── agents.yaml
+│   └── data/
+│       └── history.json
+```
+
+### Full Project (Advanced Users)
+```
+projects/
+├── {project-id}/
+│   ├── config.yaml      # Optional
+│   ├── workflow.yaml    # Optional
+│   ├── agents.yaml      # Optional
 │   ├── sandbox/
 │   │   └── Dockerfile
 │   └── data/

@@ -19,29 +19,33 @@ public class AgentSetupService
 {
     private readonly IProviderRegistry _providerRegistry;
     
-    public async Task<AgentConfiguration> SetupAgents()
+    public async Task<AgentConfiguration> SetupAgents(WorkflowConfig userConfig = null)
     {
         var providers = await _providerRegistry.GetAvailableProviders();
         
         if (!providers.Any())
             throw new NoProvidersException("No LLM providers configured");
-            
-        if (providers.Count == 1)
-            return CreateSingleProviderConfig(providers[0]);
-            
-        return OptimizeMultiProviderConfig(providers);
+        
+        // Zero-configuration mode - most common path
+        if (userConfig?.AgentAssignments == null)
+        {
+            return CreateAutomaticConfig(providers.First());
+        }
+        
+        // User has specified custom agent configuration
+        return ApplyUserConfig(userConfig, providers);
     }
     
-    private AgentConfiguration CreateSingleProviderConfig(ILLMProvider provider)
+    private AgentConfiguration CreateAutomaticConfig(ILLMProvider provider)
     {
-        // All agents use the same provider
+        // All agents use same provider with task-optimized parameters
         return new AgentConfiguration
         {
-            Planning = provider,
-            Coding = provider,
-            Review = provider,
-            Testing = provider,
-            Documentation = provider
+            Planning = new AgentSetup(provider, temperature: 0.7),
+            Coding = new AgentSetup(provider, temperature: 0.3),
+            Review = new AgentSetup(provider, temperature: 0.2),
+            Testing = new AgentSetup(provider, temperature: 0.1),
+            Documentation = new AgentSetup(provider, temperature: 0.5)
         };
     }
 }
