@@ -1,0 +1,69 @@
+{
+  "app": {
+    "title": "Agente de Código",
+    "navigation": {
+      "dashboard": "Painel",
+      "projects": "Projetos",
+      "chat": "Chat",
+      "settings": "Configurações"
+    },
+    "toolbar": {
+      "toggleNav": "Alternar navegação",
+      "toggleTheme": "Alternar tema",
+      "userMenu": "Menu do usuário",
+      "profile": "Perfil",
+      "logout": "Sair"
+    }
+  },
+  "dashboard": {
+    "title": "Painel",
+    "welcome": "Bem-vindo ao Agente de Código",
+    "metrics": {
+      "activeAgents": "Agentes Ativos",
+      "runningProjects": "Projetos em Execução",
+      "completedTasks": "Tarefas Concluídas",
+      "systemStatus": "Status do Sistema"
+    }
+  },
+  "projects": {
+    "title": "Projetos",
+    "newProject": "Novo Projeto",
+    "projectList": "Lista de Projetos",
+    "noProjects": "Nenhum projeto encontrado",
+    "actions": {
+      "create": "Criar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "open": "Abrir"
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "placeholder": "Digite sua mensagem...",
+    "send": "Enviar",
+    "clearHistory": "Limpar Histórico",
+    "selectAgent": "Selecionar Agente"
+  },
+  "settings": {
+    "title": "Configurações",
+    "providers": "Provedores",
+    "agents": "Agentes",
+    "security": "Segurança",
+    "preferences": "Preferências",
+    "language": "Idioma",
+    "theme": "Tema"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "warning": "Aviso",
+    "info": "Informação",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar"
+  }
+}

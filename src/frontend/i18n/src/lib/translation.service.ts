@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-export type SupportedLocale = 'en-US' | 'es-ES' | 'fr-FR' | 'de-DE' | 'ja-JP' | 'ar-SA';
+export type SupportedLocale = 'en-US' | 'es-ES' | 'fr-FR' | 'de-DE' | 'ja-JP' | 'zh-CN' | 'ar-SA' | 'he-IL' | 'pt-BR';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,10 @@ export class TranslationService {
   }
 
   private async loadTranslations(): Promise<void> {
-    const locales: SupportedLocale[] = ['en-US', 'es-ES'];
+    const locales: SupportedLocale[] = [
+      'en-US', 'es-ES', 'fr-FR', 'de-DE', 
+      'ja-JP', 'zh-CN', 'ar-SA', 'he-IL', 'pt-BR'
+    ];
     
     for (const locale of locales) {
       try {
@@ -34,7 +37,10 @@ export class TranslationService {
 
   private getDefaultLocale(): SupportedLocale {
     const browserLang = navigator.language;
-    const supportedLocales: SupportedLocale[] = ['en-US', 'es-ES', 'fr-FR', 'de-DE', 'ja-JP', 'ar-SA'];
+    const supportedLocales: SupportedLocale[] = [
+      'en-US', 'es-ES', 'fr-FR', 'de-DE', 
+      'ja-JP', 'zh-CN', 'ar-SA', 'he-IL', 'pt-BR'
+    ];
     
     const matchedLocale = supportedLocales.find(locale => 
       browserLang.startsWith(locale.split('-')[0])
@@ -49,10 +55,14 @@ export class TranslationService {
     this.translationsSubject.next(translations);
     
     // Set document direction for RTL languages
-    if (locale === 'ar-SA') {
+    if (locale === 'ar-SA' || locale === 'he-IL') {
       document.dir = 'rtl';
+      document.documentElement.lang = locale;
+      document.body.classList.add('rtl');
     } else {
       document.dir = 'ltr';
+      document.documentElement.lang = locale;
+      document.body.classList.remove('rtl');
     }
   }
 
