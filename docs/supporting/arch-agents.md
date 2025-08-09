@@ -14,42 +14,19 @@ public interface IAgent
 ```
 
 ## Agent Setup Service
-```csharp
-public class AgentSetupService
-{
-    private readonly IProviderRegistry _providerRegistry;
-    
-    public async Task<AgentConfiguration> SetupAgents(WorkflowConfig userConfig = null)
-    {
-        var providers = await _providerRegistry.GetAvailableProviders();
-        
-        if (!providers.Any())
-            throw new NoProvidersException("No LLM providers configured");
-        
-        // Zero-configuration mode - most common path
-        if (userConfig?.AgentAssignments == null)
-        {
-            return CreateAutomaticConfig(providers.First());
-        }
-        
-        // User has specified custom agent configuration
-        return ApplyUserConfig(userConfig, providers);
-    }
-    
-    private AgentConfiguration CreateAutomaticConfig(ILLMProvider provider)
-    {
-        // All agents use same provider with task-optimized parameters
-        return new AgentConfiguration
-        {
-            Planning = new AgentSetup(provider, temperature: 0.7),
-            Coding = new AgentSetup(provider, temperature: 0.3),
-            Review = new AgentSetup(provider, temperature: 0.2),
-            Testing = new AgentSetup(provider, temperature: 0.1),
-            Documentation = new AgentSetup(provider, temperature: 0.5)
-        };
-    }
-}
-```
+
+The setup service handles automatic agent configuration based on available providers:
+
+| Condition | Action |
+|-----------|--------|
+| No providers | Error - requires at least one provider |
+| Single provider | All agents use that provider |
+| Multiple providers, no config | Optimize by capability |
+| User configuration provided | Apply user preferences |
+
+## Automatic Parameter Tuning
+
+Each agent type receives optimized parameters for its specific task, even when using the same underlying model.
 
 ## Agent Types
 | Agent | Responsibility | Temperature | Max Tokens | Capability Required |

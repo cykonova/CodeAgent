@@ -34,52 +34,31 @@ graph TD
 
 ## Configuration Management
 
-### Zero Configuration (Default)
-```csharp
-public class ProjectService
-{
-    public async Task<Project> CreateProject(string name, string sourcePath)
-    {
-        // User can create a project with just a name and path
-        return new Project
-        {
-            Name = name,
-            SourcePath = sourcePath,
-            // Everything else uses intelligent defaults
-            Workflow = GetDefaultWorkflow(),
-            AgentConfig = null, // Will use automatic assignment
-            CostLimit = GetDefaultCostLimit()
-        };
-    }
-    
-    private Workflow GetDefaultWorkflow()
-    {
-        // Simple, effective default workflow
-        return new Workflow
-        {
-            Stages = new[] { "plan", "implement", "review" },
-            AutoProceed = true
-        };
-    }
-}
-```
+### Configuration Levels
 
-### System Defaults (Fallback)
-- Base workflow template (if not specified)
-- Automatic agent assignments
-- Reasonable cost limits
+| Level | Required | Description |
+|-------|----------|-------------|
+| Minimal | Yes | Project name only |
+| Basic | No | Add provider selection |
+| Advanced | No | Custom workflows and agents |
+| Expert | No | Full template customization |
 
-### Optional Project Configuration
-- Custom workflows (advanced users)
-- Provider overrides (power users)
-- Project-specific limits
+### Default Behaviors
 
-### Optional Workflow Templates
-- Standard development
-- Fast iteration
-- Quality focused
-- Budget optimized
-- Custom user templates
+When no configuration is provided:
+- **Workflow**: Simple 3-stage process (plan → implement → review)
+- **Agents**: All use same provider with optimized parameters
+- **Limits**: Reasonable defaults based on provider
+- **Sandbox**: Auto-configured based on project type
+
+### Optional Templates
+
+| Template | Focus | Best For |
+|----------|-------|----------|
+| Standard | Balanced approach | Most projects |
+| Fast | Speed over perfection | Prototypes |
+| Quality | Thorough review | Production code |
+| Budget | Cost optimization | Limited resources |
 
 ## Implementation Steps
 
@@ -114,30 +93,14 @@ public class ProjectService
 - `Projects/WorkflowEngine.cs`
 - `Projects/CostTracker.cs`
 
-## Project Configuration Examples
+## Configuration Examples
 
-### Minimal Configuration (Most Users)
-```yaml
-# User only needs to specify project name
-project:
-  name: "My Project"
-  # Everything else is automatic
-```
-
-### Advanced Configuration (Power Users)
-```yaml
-project:
-  name: "My Project"
-  template: "standard"  # Optional
-  workflow:  # Optional custom workflow
-    stages: [planning, coding, review, testing]
-  agents:  # Optional agent overrides
-    planning: anthropic/claude-3-opus
-    coding: openai/gpt-4-turbo
-  limits:  # Optional limits
-    cost: 25.00
-    timeout: 300
-```
+| User Type | Required Fields | Optional Fields |
+|-----------|----------------|-----------------|
+| New User | project name | (none) |
+| Regular User | project name, provider | template |
+| Power User | project name, provider | workflow, agents |
+| Enterprise | project name, provider | all customization |
 
 ## Success Criteria
 - [ ] Projects created/managed

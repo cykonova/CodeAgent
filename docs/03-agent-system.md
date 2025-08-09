@@ -77,67 +77,26 @@ graph TD
 
 ## Dynamic Agent Assignment
 
-### Zero-Configuration Mode
-```csharp
-public class AgentAssigner
-{
-    public Dictionary<AgentType, ILLMProvider> AssignAgents(
-        List<ILLMProvider> providers, 
-        WorkflowConfig userConfig = null)
-    {
-        // If user hasn't configured agents, use simple defaults
-        if (userConfig?.AgentAssignments == null)
-        {
-            var defaultProvider = providers.FirstOrDefault() 
-                ?? throw new NoProvidersException();
-                
-            // All agents use same provider with task-specific parameters
-            return CreateDefaultAssignments(defaultProvider);
-        }
-        
-        // User has custom configuration
-        return ApplyUserConfiguration(userConfig, providers);
-    }
-    
-    private Dictionary<AgentType, AgentConfig> CreateDefaultAssignments(
-        ILLMProvider provider)
-    {
-        return new Dictionary<AgentType, AgentConfig>
-        {
-            [AgentType.Planning] = new AgentConfig(provider, temperature: 0.7),
-            [AgentType.Coding] = new AgentConfig(provider, temperature: 0.3),
-            [AgentType.Review] = new AgentConfig(provider, temperature: 0.2),
-            [AgentType.Testing] = new AgentConfig(provider, temperature: 0.1),
-            [AgentType.Documentation] = new AgentConfig(provider, temperature: 0.5)
-        };
-    }
-}
-```
+### Assignment Scenarios
 
-### Assignment Strategy
-```yaml
-# Priority-based assignment when multiple providers available
-assignment_strategy:
-  planning:
-    priority: [anthropic, openai, gemini, local]
-    capability_required: high_reasoning
-    
-  coding:
-    priority: [openai, anthropic, local_code_models]
-    capability_required: code_generation
-    
-  review:
-    priority: [anthropic, openai, gemini]
-    capability_required: analysis
-    
-  testing:
-    priority: [gemini, openai, mistral, local]
-    capability_required: fast_iteration
-    
-  documentation:
-    priority: [mistral, cohere, local, any]
-    capability_required: text_generation
-```
+| Scenario | User Config | System Behavior |
+|----------|-------------|-----------------|
+| Zero Config | None provided | All agents use same provider with task-optimized parameters |
+| Single Provider | One provider configured | All agents use that provider automatically |
+| Multi Provider | Multiple providers, no agent config | System optimizes assignment by capability |
+| Custom Config | User specifies agents | System uses user preferences |
+
+### Default Parameter Optimization
+
+When using automatic assignment, the system adjusts parameters per task:
+
+| Agent Type | Temperature | Purpose |
+|------------|------------|---------|
+| Planning | 0.7 | Creative problem solving |
+| Coding | 0.3 | Precise implementation |
+| Review | 0.2 | Analytical evaluation |
+| Testing | 0.1 | Deterministic test generation |
+| Documentation | 0.5 | Balanced clarity and completeness |
 
 ## Implementation Steps
 

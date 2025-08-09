@@ -2,27 +2,12 @@
 
 ## Project Structure
 
-### Minimal Project (Zero Configuration)
-```
-projects/
-├── {project-id}/
-│   └── data/
-│       └── history.json
-```
-
-### Full Project (Advanced Users)
-```
-projects/
-├── {project-id}/
-│   ├── config.yaml      # Optional
-│   ├── workflow.yaml    # Optional
-│   ├── agents.yaml      # Optional
-│   ├── sandbox/
-│   │   └── Dockerfile
-│   └── data/
-│       ├── context.db
-│       └── history.json
-```
+| Configuration Level | Files Created |
+|--------------------|---------------|
+| Minimal | `data/history.json` only |
+| Basic | Adds `config.yaml` |
+| Advanced | Adds `workflow.yaml`, `agents.yaml` |
+| Full | Adds `sandbox/` directory |
 
 ## Configuration Hierarchy
 ```csharp
