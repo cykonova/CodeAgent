@@ -7,8 +7,9 @@ Provide isolated Docker containers where coding agents execute tasks. Each sandb
 ```mermaid
 graph TB
     subgraph "User Interface"
-        UI[Web/CLI]
+        UI[Web/CLI/IDE]
         PREVIEW[Artifact Preview]
+        APPROVE[Permission Dialog]
     end
     
     subgraph "Sandbox Container"
@@ -19,11 +20,15 @@ graph TB
     end
     
     subgraph "Host System"
+        PROXY[Permission Proxy]
         VOLUMES[Volume Mounts]
         PORTS[Port Mapping]
     end
     
     UI --> AGENT
+    AGENT -.->|Request| PROXY
+    PROXY -.->|Ask User| APPROVE
+    APPROVE -.->|Grant/Deny| PROXY
     AGENT --> WORKSPACE
     WORKSPACE --> BUILD
     BUILD --> SERVER
@@ -40,6 +45,15 @@ The coding agent running in the sandbox has access to:
 - **Tools**: Language runtimes, build tools, package managers
 - **Execution**: Ability to run builds, tests, and development servers
 - **Output**: Can generate artifacts and expose them via ports
+
+### Permission Requests
+Certain agent operations require user approval:
+- **Network Access**: External API calls, package downloads
+- **Port Exposure**: Opening ports for preview
+- **Resource Increase**: Memory/CPU limit changes
+- **File System**: Access outside workspace
+
+All permission requests are proxied through the user's interface (web UI, CLI, IDE) for explicit approval.
 
 ### Artifact Presentation
 
@@ -61,6 +75,16 @@ The coding agent running in the sandbox has access to:
 | Host System | No access |
 | Other Containers | Isolated |
 
+## Permission Flow
+
+When the sandbox agent needs elevated permissions:
+1. Agent requests permission via proxy
+2. Request forwarded to user interface
+3. User sees permission dialog with context
+4. User approves or denies request
+5. Decision sent back to agent
+6. Agent proceeds or handles denial
+
 ## Implementation Steps
 
 1. **Container Environment**
@@ -68,25 +92,25 @@ The coding agent running in the sandbox has access to:
    - Coding agent CLI installation
    - Workspace volume setup
 
-2. **Agent Integration**
-   - Non-interactive agent mode
-   - Command execution interface
-   - Output capture and streaming
+2. **Permission Proxy**
+   - Request interception
+   - User interface integration
+   - Permission caching
 
-3. **Artifact Handling**
+3. **Agent Integration**
+   - Non-interactive agent mode
+   - Permission-aware execution
+   - Graceful denial handling
+
+4. **Artifact Handling**
    - Port mapping for web apps
    - File synchronization
    - Build output management
 
-4. **Security Configuration**
-   - Network restrictions
-   - Resource limits
-   - Process isolation
-
 5. **User Experience**
+   - Clear permission dialogs
    - Live preview capability
-   - File browser access
-   - Log streaming
+   - Activity monitoring
 
 ## Key Files
 - `Sandbox/SandboxManager.cs`

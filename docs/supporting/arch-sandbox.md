@@ -15,6 +15,8 @@ Provides isolated environments where coding agents execute development tasks and
 ## Agent Execution Model
 - Agent runs in non-interactive CLI mode
 - Commands executed via sandbox manager
+- Permission requests proxied to user interface
+- User approves/denies elevated operations
 - Output streamed back to user interface
 - Artifacts exposed through configured channels
 
@@ -38,10 +40,22 @@ Provides isolated environments where coding agents execute development tasks and
 | Network | Restricted | Yes |
 | Processes | Limited | Yes |
 
+## Permission Management
+
+| Operation | Default | Requires Approval |
+|-----------|---------|------------------|
+| Workspace R/W | Allowed | No |
+| Package install | Allowed | No |
+| External network | Denied | Yes |
+| Port exposure | Denied | Yes |
+| Resource increase | Denied | Yes |
+| System access | Denied | Always denied |
+
 ## Lifecycle Stages
 1. Container creation with workspace
 2. Agent CLI installation
-3. Task execution
-4. Artifact generation
-5. Result presentation
-6. Cleanup or persistence
+3. Task execution with permission checks
+4. User approval for elevated operations
+5. Artifact generation
+6. Result presentation
+7. Cleanup or persistence
