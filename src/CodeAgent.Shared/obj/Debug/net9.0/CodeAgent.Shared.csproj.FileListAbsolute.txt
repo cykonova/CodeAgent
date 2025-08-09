@@ -1,0 +1,12 @@
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/bin/Debug/net9.0/CodeAgent.Shared.deps.json
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/bin/Debug/net9.0/CodeAgent.Shared.dll
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/bin/Debug/net9.0/CodeAgent.Shared.pdb
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/obj/Debug/net9.0/CodeAgent.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/obj/Debug/net9.0/CodeAgent.Shared.AssemblyInfoInputs.cache
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/obj/Debug/net9.0/CodeAgent.Shared.AssemblyInfo.cs
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/obj/Debug/net9.0/CodeAgent.Shared.csproj.CoreCompileInputs.cache
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/obj/Debug/net9.0/CodeAgent.Shared.sourcelink.json
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/obj/Debug/net9.0/CodeAgent.Shared.dll
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/obj/Debug/net9.0/refint/CodeAgent.Shared.dll
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/obj/Debug/net9.0/CodeAgent.Shared.pdb
+/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/obj/Debug/net9.0/ref/CodeAgent.Shared.dll

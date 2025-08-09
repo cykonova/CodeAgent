@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "5XQNwje/pYgoN4B0hnh6WtLtrZtmzCf57wzHPvNRgEA=",
+  "Source": "CodeAgent.Gateway",
+  "BasePath": "_content/CodeAgent.Gateway",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

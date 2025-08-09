@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Gateway", "CodeAgent.Gateway\CodeAgent.Gateway.csproj", "{D54FFF71-3200-43E3-92FF-CE38005ABE98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Core", "CodeAgent.Core\CodeAgent.Core.csproj", "{18B853C4-1453-4827-A4FF-EF4015E0E653}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Shared", "CodeAgent.Shared\CodeAgent.Shared.csproj", "{11CDB9E2-4732-4844-8821-C850B35C78AC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D54FFF71-3200-43E3-92FF-CE38005ABE98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D54FFF71-3200-43E3-92FF-CE38005ABE98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D54FFF71-3200-43E3-92FF-CE38005ABE98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D54FFF71-3200-43E3-92FF-CE38005ABE98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18B853C4-1453-4827-A4FF-EF4015E0E653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18B853C4-1453-4827-A4FF-EF4015E0E653}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18B853C4-1453-4827-A4FF-EF4015E0E653}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18B853C4-1453-4827-A4FF-EF4015E0E653}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11CDB9E2-4732-4844-8821-C850B35C78AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11CDB9E2-4732-4844-8821-C850B35C78AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11CDB9E2-4732-4844-8821-C850B35C78AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11CDB9E2-4732-4844-8821-C850B35C78AC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "CodeAgent.Shared/1.0.0": {
+        "runtime": {
+          "CodeAgent.Shared.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "CodeAgent.Shared/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
