@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="47c02a8e-c251-4c69-9558-ae1e7db68c8d" name="Changes" comment="Removing old code">
-      <change beforePath="$PROJECT_DIR$/docs/09-plugin-system.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/09-plugin-system.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/supporting/arch-plugins.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/supporting/arch-plugins.md" afterDir="false" />
-    </list>
+    <list default="true" id="47c02a8e-c251-4c69-9558-ae1e7db68c8d" name="Changes" comment="Removing old code" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -91,7 +88,7 @@
       <workItem from="1754748887561" duration="348000" />
       <workItem from="1754749246729" duration="40000" />
       <workItem from="1754749297622" duration="95000" />
-      <workItem from="1754749397827" duration="3034000" />
+      <workItem from="1754749397827" duration="3608000" />
     </task>
     <task id="LOCAL-00001" summary="Removing old code">
       <option name="closed" value="true" />

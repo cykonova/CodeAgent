@@ -1,123 +1,153 @@
 # Phase 7: CLI Tool
 
 ## Overview
-Develop the command-line interface for Code Agent with full feature parity to web portal.
+Develop the command-line interface using Spectre.Console for rich terminal output, with each command and subcommand as separate classes for maintainability.
 
 ## CLI Architecture
 ```mermaid
-graph LR
-    subgraph "CLI Components"
-        PARSER[Command Parser]
-        CONFIG[Config Manager]
-        CLIENT[API Client]
-        OUTPUT[Output Formatter]
+graph TB
+    subgraph "Spectre.Console"
+        ANSI[AnsiConsole]
+        TABLE[Table Rendering]
+        PROGRESS[Progress Display]
+        PROMPT[Interactive Prompts]
     end
     
-    subgraph "Commands"
-        PROJ[project]
-        PROV[provider]
-        AGENT[agent]
-        SAND[sandbox]
+    subgraph "Command Classes"
+        BASE[BaseCommand]
+        PROJ[ProjectCommand]
+        PROV[ProviderCommand]
+        CHAT[ChatCommand]
+        CONFIG[ConfigCommand]
     end
     
-    PARSER --> PROJ
-    PARSER --> PROV
-    PARSER --> AGENT
-    PARSER --> SAND
+    subgraph "Services"
+        API[API Client]
+        WS[WebSocket Client]
+        CONF[Config Manager]
+    end
     
-    PROJ --> CLIENT
-    PROV --> CLIENT
-    AGENT --> CLIENT
-    SAND --> CLIENT
+    BASE --> ANSI
+    PROJ --> BASE
+    PROV --> BASE
+    CHAT --> BASE
+    CONFIG --> BASE
     
-    CLIENT --> OUTPUT
+    PROJ --> API
+    CHAT --> WS
+    CONFIG --> CONF
 ```
 
-## Command Structure
+## Spectre.Console Features
 
-### Core Commands
-```bash
-codeagent [command] [subcommand] [options]
+| Feature | Usage in CLI |
+|---------|-------------|
+| AnsiConsole | Rich text formatting, colors, styles |
+| Tables | Formatted data display |
+| Trees | Hierarchical information |
+| Progress | Multi-task progress bars |
+| Prompts | Interactive user input |
+| Live Display | Real-time updates |
+| Markup | Styled text output |
+| Rules | Visual separators |
 
-# Project management
-codeagent project create <name>
-codeagent project list
-codeagent project config <id>
+## Command Class Structure
 
-# Provider management  
-codeagent provider add <type>
-codeagent provider test <name>
-codeagent provider list
+Each command is a separate class inheriting from BaseCommand:
 
-# Agent interaction
-codeagent chat
-codeagent /plan "Create REST API"
-codeagent /code "fibonacci function"
+| Command Class | Subcommands | Purpose |
+|--------------|-------------|---------|
+| ProjectCommand | create, list, config, delete | Project management |
+| ProviderCommand | add, list, test, remove | Provider configuration |
+| ChatCommand | (interactive mode) | Agent interaction |
+| ConfigCommand | get, set, list, reset | Configuration |
+| SandboxCommand | create, exec, logs, stop | Container control |
 
-# Sandbox control
-codeagent sandbox create <project>
-codeagent sandbox exec <project> -- <command>
-codeagent sandbox logs <project>
+### Command Organization
 ```
-
-### Configuration Commands
-```bash
-# Global config
-codeagent config set <key> <value>
-codeagent config get <key>
-codeagent config list
-
-# Project config
-codeagent project config set <key> <value>
+Commands/
+├── BaseCommand.cs          # Abstract base with AnsiConsole
+├── Project/
+│   ├── ProjectCommand.cs
+│   ├── CreateProjectCommand.cs
+│   ├── ListProjectsCommand.cs
+│   └── ConfigProjectCommand.cs
+├── Provider/
+│   ├── ProviderCommand.cs
+│   ├── AddProviderCommand.cs
+│   └── TestProviderCommand.cs
+└── Chat/
+    └── ChatCommand.cs
 ```
 
 ## Implementation Steps
 
-1. **CLI Framework**
-   - Command parser setup
-   - Argument validation
-   - Help system
+1. **Spectre.Console Setup**
+   - Install Spectre.Console package
+   - Configure AnsiConsole
+   - Setup markup themes
+   - Create base command class
 
-2. **Configuration Management**
-   - Config file handling
-   - Environment variables
-   - Defaults management
+2. **Command Classes**
+   - One class per command
+   - Inherit from BaseCommand
+   - Dependency injection support
+   - Async execution
 
-3. **API Client**
-   - HTTP client
-   - WebSocket client
-   - Authentication
+3. **Rich Output**
+   - Tables for lists
+   - Trees for hierarchies  
+   - Progress for long operations
+   - Live updates for streaming
 
-4. **Command Implementation**
-   - Project commands
-   - Provider commands
-   - Agent commands
-   - Sandbox commands
+4. **Interactive Features**
+   - Prompts for user input
+   - Selections for choices
+   - Confirmations for destructive ops
+   - Multi-select for batch operations
 
-5. **Output Formatting**
-   - Table formatter
-   - JSON output
-   - Progress indicators
+5. **Error Handling**
+   - Formatted error display
+   - Stack trace in debug mode
+   - User-friendly messages
+   - Suggestions for fixes
+
+## Output Examples
+
+### Table Display
+Projects are displayed in formatted tables with colors and borders using AnsiConsole.Table.
+
+### Progress Display  
+Long operations show live progress with multiple concurrent tasks using AnsiConsole.Progress.
+
+### Interactive Prompts
+User input collected through typed prompts with validation using AnsiConsole.Prompt.
+
+### Error Display
+Errors shown with formatted panels, colors, and suggestions using AnsiConsole.Panel.
 
 ## Key Files
-- `cli/Program.cs`
-- `cli/Commands/ProjectCommand.cs`
-- `cli/Services/ConfigManager.cs`
-- `cli/Services/ApiClient.cs`
-
-## Interactive Mode
-```bash
-codeagent interactive
-> /plan microservice
-Planning microservice architecture...
-> /code user controller
-Generating user controller...
-> exit
+```
+cli/
+├── Program.cs                    # Entry point, DI setup
+├── Commands/
+│   ├── BaseCommand.cs           # Abstract base
+│   ├── Project/*.cs             # Project commands
+│   ├── Provider/*.cs            # Provider commands
+│   └── Chat/*.cs                # Chat commands
+├── Services/
+│   ├── AnsiConsoleService.cs   # Console abstraction
+│   ├── ConfigManager.cs        # Configuration
+│   └── ApiClient.cs             # API communication
+└── Output/
+    ├── TableFormatter.cs        # Table rendering
+    └── ProgressReporter.cs      # Progress tracking
 ```
 
 ## Success Criteria
-- [ ] Commands parsing correctly
-- [ ] Config persisted
-- [ ] API communication working
-- [ ] Interactive mode functional
-- [ ] Output formatted properly
+- [ ] Spectre.Console integrated
+- [ ] Commands as separate classes
+- [ ] Rich formatted output
+- [ ] Interactive prompts working
+- [ ] Progress indicators functional
+- [ ] Error display formatted
