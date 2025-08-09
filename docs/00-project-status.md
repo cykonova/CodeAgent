@@ -10,7 +10,7 @@ The Code Agent System is a comprehensive development assistant platform that int
 ### Phase 1: Core Infrastructure
 **Status:** Not Started  
 **Docs:** [01-core-infrastructure.md](01-core-infrastructure.md)  
-**Supporting:** [arch-gateway.md](supporting/arch-gateway.md), [arch-messaging.md](supporting/arch-messaging.md)  
+**Supporting:** [arch-gateway.md](supporting/arch-gateway.md), [arch-messaging.md](supporting/arch-messaging.md), [arch-api.md](supporting/arch-api.md)  
 Tasks:
 - [ ] WebSocket Gateway implementation
 - [ ] Message routing system
@@ -55,7 +55,7 @@ Tasks:
 - [ ] Project service implementation
 - [ ] Configuration inheritance
 - [ ] Workflow templates
-- [ ] Cost tracking
+- [ ] Project state management
 
 ### Phase 6: Web Portal
 **Status:** Not Started  
@@ -100,7 +100,7 @@ Tasks:
 ### Phase 10: Testing & Deployment
 **Status:** Not Started  
 **Docs:** [10-testing-deployment.md](10-testing-deployment.md)  
-**Supporting:** [arch-deployment.md](supporting/arch-deployment.md)  
+**Supporting:** [arch-deployment.md](supporting/arch-deployment.md), [arch-operations.md](supporting/arch-operations.md)  
 Tasks:
 - [ ] Unit test suite
 - [ ] Integration tests
@@ -120,3 +120,24 @@ Tasks:
 - In Progress: 0
 - Not Started: 10
 - Overall Progress: 0%
+
+## Supporting Documentation Index
+
+### Architecture Documents
+- [arch-agents.md](supporting/arch-agents.md) - Agent types and orchestration details
+- [arch-api.md](supporting/arch-api.md) - API architecture, rate limiting, versioning
+- [arch-cli.md](supporting/arch-cli.md) - CLI architecture with Spectre.Console
+- [arch-deployment.md](supporting/arch-deployment.md) - Deployment strategies and configurations
+- [arch-frontend.md](supporting/arch-frontend.md) - Angular/Nx.dev frontend architecture
+- [arch-gateway.md](supporting/arch-gateway.md) - WebSocket gateway and event-driven messaging
+- [arch-ide.md](supporting/arch-ide.md) - IDE extension architecture
+- [arch-mcp.md](supporting/arch-mcp.md) - Model Context Protocol implementation
+- [arch-messaging.md](supporting/arch-messaging.md) - Event-driven messaging patterns
+- [arch-operations.md](supporting/arch-operations.md) - Operations, maintenance, and database management
+- [arch-plugins.md](supporting/arch-plugins.md) - Plugin system architecture
+- [arch-projects.md](supporting/arch-projects.md) - Project management architecture
+- [arch-providers.md](supporting/arch-providers.md) - LLM provider integration details
+- [arch-sandbox.md](supporting/arch-sandbox.md) - Docker sandbox architecture
+
+### Reference Documents
+- [conflicts-resolved.md](supporting/conflicts-resolved.md) - Documentation conflict resolutions and final decisions
