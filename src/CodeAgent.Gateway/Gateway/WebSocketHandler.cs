@@ -31,7 +31,7 @@ public class WebSocketHandler
         
         try
         {
-            await StartHeartbeatAsync(webSocket, cancellationToken);
+            _ = StartHeartbeatAsync(webSocket, cancellationToken);
             await ProcessMessagesAsync(session, webSocket, cancellationToken);
         }
         catch (WebSocketException ex)
@@ -76,7 +76,7 @@ public class WebSocketHandler
         }
     }
     
-    private async Task StartHeartbeatAsync(WebSocket webSocket, CancellationToken cancellationToken)
+    private Task StartHeartbeatAsync(WebSocket webSocket, CancellationToken cancellationToken)
     {
         _ = Task.Run(async () =>
         {
@@ -101,5 +101,7 @@ public class WebSocketHandler
                 }
             }
         }, cancellationToken);
+        
+        return Task.CompletedTask;
     }
 }
