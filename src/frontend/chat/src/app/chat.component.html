@@ -68,8 +68,11 @@
       </div>
 
       <div *ngIf="isLoading" class="loading-indicator">
-        <mat-spinner diameter="30"></mat-spinner>
-        <span>Processing...</span>
+        <lib-progress-indicator 
+          type="dots" 
+          size="medium"
+          label="Assistant is thinking...">
+        </lib-progress-indicator>
       </div>
     </div>
   </mat-card>

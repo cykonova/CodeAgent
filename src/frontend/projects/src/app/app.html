@@ -84,15 +84,13 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Loading Spinner -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner></mat-spinner>
-  </div>
-
   <!-- Projects Table -->
-  <mat-card *ngIf="!isLoading" class="projects-table-card">
+  <mat-card class="projects-table-card">
     <mat-card-content>
-      <div *ngIf="projects.length === 0" class="no-projects">
+      @if (isLoading) {
+        <lib-skeleton-loader type="table" [rows]="[1, 2, 3, 4, 5]" [columns]="[1, 2, 3, 4, 5, 6]"></lib-skeleton-loader>
+      } @else {
+        <div *ngIf="projects.length === 0" class="no-projects">
         <mat-icon>folder_off</mat-icon>
         <h3>No Projects Found</h3>
         <p>Create your first project to get started</p>
@@ -172,6 +170,7 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
+      }
     </mat-card-content>
   </mat-card>
 </div>

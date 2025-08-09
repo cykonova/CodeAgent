@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { ChatService, ChatMessage, ChatSession } from '../../../libs/data-access/src/lib/chat.service';
+import { ProgressIndicatorComponent, LoadingOverlayComponent } from '@src/ui-components';
 
 @Component({
   selector: 'app-chat',
@@ -28,7 +29,9 @@ import { ChatService, ChatMessage, ChatSession } from '../../../libs/data-access
     MatListModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatChipsModule
+    MatChipsModule,
+    ProgressIndicatorComponent,
+    LoadingOverlayComponent
   ],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss']
