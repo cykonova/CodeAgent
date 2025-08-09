@@ -92,13 +92,13 @@ docker-compose down
 - `src/CodeAgent.Projects/` - Project management services
 
 ### Frontend Organization (Nx Monorepo)
-- `apps/shell/` - Main container application
-- `apps/dashboard/` - Metrics remote module
-- `apps/projects/` - Project management remote
-- `apps/chat/` - Agent interaction remote
-- `libs/ui-components/` - Reusable Material components
-- `libs/data-access/` - API and state management
-- `libs/websocket/` - Real-time communication
+- `src/frontend/apps/shell/` - Main container application
+- `src/frontend/apps/dashboard/` - Metrics remote module
+- `src/frontend/apps/projects/` - Project management remote
+- `src/frontend/apps/chat/` - Agent interaction remote
+- `src/frontend/libs/ui-components/` - Reusable Material components
+- `src/frontend/libs/data-access/` - API and state management
+- `src/frontend/libs/websocket/` - Real-time communication
 
 ## Development Standards
 
