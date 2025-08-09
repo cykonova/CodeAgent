@@ -1,81 +1,58 @@
 # Frontend Architecture
 
-## Component Structure
-```
-web/src/
-├── components/
-│   ├── Chat/
-│   ├── Projects/
-│   ├── Providers/
-│   └── Common/
-├── services/
-│   ├── WebSocketService.ts
-│   ├── ApiService.ts
-│   └── AuthService.ts
-├── stores/
-│   ├── ProjectStore.ts
-│   └── ConfigStore.ts
-└── views/
-    ├── Dashboard.tsx
-    ├── Projects.tsx
-    └── Settings.tsx
-```
+## Nx Monorepo Structure
 
-## State Management
-```typescript
-interface AppState {
-  user: UserState;
-  projects: ProjectState;
-  providers: ProviderState;
-  chat: ChatState;
-  config: ConfigState;
-}
+The frontend uses Nx.dev with Module Federation for scalable micro-frontend architecture.
 
-// Using Zustand or Redux
-const useStore = create<AppState>((set) => ({
-  // State implementation
-}));
-```
+### Applications
+- **Shell**: Main container with routing and theme
+- **Dashboard**: Metrics and overview remote
+- **Projects**: Project management remote  
+- **Chat**: Agent interaction remote
+- **Settings**: Configuration remote
 
-## WebSocket Client
-```typescript
-class WebSocketClient {
-  private ws: WebSocket;
-  private reconnectTimer: number;
-  
-  connect(): void {
-    this.ws = new WebSocket('wss://localhost:8082');
-    this.setupHandlers();
-  }
-  
-  send(message: Message): void {
-    if (this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message));
-    }
-  }
-  
-  private setupHandlers(): void {
-    this.ws.onmessage = this.handleMessage;
-    this.ws.onerror = this.handleError;
-    this.ws.onclose = this.handleClose;
-  }
-}
-```
+### Libraries
+- **UI Components**: Reusable Material components
+- **Data Access**: API and state management
+- **WebSocket**: Real-time communication
+- **Theme**: Material theming system
+- **Utils**: Shared utilities
 
-## UI Components
-- Material-UI or Ant Design
-- Real-time updates via WebSocket
-- Markdown rendering
-- Code syntax highlighting
-- File tree viewer
+## Angular Material Standards
 
-## Routing
-```typescript
-const routes = [
-  { path: '/', component: Dashboard },
-  { path: '/projects', component: Projects },
-  { path: '/project/:id', component: ProjectDetail },
-  { path: '/providers', component: Providers },
-  { path: '/settings', component: Settings }
-];
-```
+| Component Type | Material Component | Usage |
+|---------------|-------------------|--------|
+| Forms | mat-form-field | All input fields |
+| Tables | mat-table | Data grids |
+| Navigation | mat-sidenav, mat-toolbar | App layout |
+| Dialogs | mat-dialog | Modal windows |
+| Lists | mat-list | Item displays |
+| Cards | mat-card | Content containers |
+
+## Development Standards
+
+### Code Organization
+- Maximum 100 lines per file
+- One component per file
+- Logical separation of concerns
+- Shared logic in libraries
+
+### Theming Rules
+- No hardcoded colors
+- Use Material theme variables
+- Support light/dark modes
+- Custom components follow theme system
+
+### Component Guidelines
+- All components standalone
+- Built in library projects
+- Fully typed interfaces
+- Unit tested with 80% coverage
+
+## Module Federation Config
+
+Each remote application is independently deployable and loaded at runtime by the shell application. Communication between remotes happens through:
+- Shared services in libraries
+- Event bus for cross-app messaging
+- Shared state management
+- Common WebSocket connection

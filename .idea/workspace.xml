@@ -5,14 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="47c02a8e-c251-4c69-9558-ae1e7db68c8d" name="Changes" comment="Removing old code">
-      <change afterPath="$PROJECT_DIR$/.idea/CodeAgent.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/code-agent-api-spec.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/code-agent-architecture-doc.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/code-agent-deployment-guide.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/docker-sandbox-architecture.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/provider-config-spec.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/09-plugin-system.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/09-plugin-system.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/supporting/arch-plugins.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/supporting/arch-plugins.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,7 +91,7 @@
       <workItem from="1754748887561" duration="348000" />
       <workItem from="1754749246729" duration="40000" />
       <workItem from="1754749297622" duration="95000" />
-      <workItem from="1754749397827" duration="762000" />
+      <workItem from="1754749397827" duration="3034000" />
     </task>
     <task id="LOCAL-00001" summary="Removing old code">
       <option name="closed" value="true" />

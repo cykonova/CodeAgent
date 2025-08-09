@@ -1,123 +1,154 @@
 # Phase 6: Web Portal
 
 ## Overview
-Build the web-based user interface for Code Agent with real-time WebSocket communication.
+Build the web-based user interface using Nx.dev monorepo with Module Federation, Angular Material components, and strict architectural standards.
 
-## UI Architecture
+## Nx Monorepo Architecture
 ```mermaid
 graph TB
-    subgraph "Frontend Components"
+    subgraph "Shell Application"
+        SHELL[Portal Shell]
         ROUTER[Router]
-        AUTH[Auth Manager]
-        WS[WebSocket Client]
+        THEME[Material Theme]
     end
     
-    subgraph "Main Views"
-        DASH[Dashboard]
-        PROJ[Projects]
-        PROV[Providers]
-        CHAT[Chat Interface]
+    subgraph "Remote Applications"
+        DASH[Dashboard Remote]
+        PROJ[Projects Remote]
+        CHAT[Chat Remote]
+        SETTINGS[Settings Remote]
     end
     
-    subgraph "Configuration"
-        AGENT[Agent Config]
-        WF[Workflow Builder]
-        SAND[Sandbox Settings]
+    subgraph "Shared Libraries"
+        UI[UI Components Lib]
+        DATA[Data Access Lib]
+        UTIL[Utilities Lib]
+        WS[WebSocket Lib]
     end
     
-    ROUTER --> DASH
-    ROUTER --> PROJ
-    ROUTER --> PROV
-    ROUTER --> CHAT
+    SHELL --> DASH
+    SHELL --> PROJ
+    SHELL --> CHAT
+    SHELL --> SETTINGS
     
-    PROJ --> AGENT
-    PROJ --> WF
-    PROJ --> SAND
+    DASH --> UI
+    PROJ --> UI
+    CHAT --> UI
+    SETTINGS --> UI
     
-    WS -.->|Real-time| CHAT
+    UI --> DATA
+    DATA --> WS
 ```
 
-## Component Structure
+## Module Federation Structure
 
-### Dashboard
-- Active sessions
-- Recent projects
-- Provider status
-- Cost metrics
+| Application | Purpose | Route |
+|------------|---------|-------|
+| Shell | Main container, routing, theme | / |
+| Dashboard | Metrics, status, overview | /dashboard |
+| Projects | Project management | /projects |
+| Chat | Agent interaction | /chat |
+| Settings | Configuration | /settings |
 
-### Project Management
-- Project list/grid
-- Configuration editor
-- Workflow designer
-- Sandbox controls
+## Angular Material Standards
 
-### Chat Interface
-- Command input
-- Response streaming
-- File viewer
-- Progress indicators
+| UI Element | Material Component | Library Location |
+|------------|-------------------|------------------|
+| Forms | mat-form-field | libs/ui/forms |
+| Tables | mat-table | libs/ui/tables |
+| Navigation | mat-sidenav | libs/ui/navigation |
+| Dialogs | mat-dialog | libs/ui/dialogs |
+| Cards | mat-card | libs/ui/cards |
+| Buttons | mat-button | libs/ui/buttons |
 
-### Provider Configuration
-- Provider list
-- Model selection
-- API key management
-- Connection testing
+## Component Guidelines
+
+### File Structure
+- No file exceeds 100 lines
+- Logical separation of concerns
+- One component per file
+- Shared components in libs
+
+### Theming
+- Use Angular Material theming system
+- No hardcoded colors
+- Support light/dark modes
+- Custom components follow theme
+
+### Reusable Components
+All components built as standalone, reusable units in library projects:
+- Form controls in `libs/ui/forms`
+- Data displays in `libs/ui/data`
+- Layout components in `libs/ui/layout`
+- Custom directives in `libs/ui/directives`
 
 ## Implementation Steps
 
-1. **Frontend Setup**
-   - React/Blazor initialization
-   - Routing configuration
-   - State management
+1. **Nx Workspace Setup**
+   - Initialize Nx monorepo
+   - Configure Module Federation
+   - Setup Angular Material
+   - Configure theming system
 
-2. **WebSocket Integration**
-   - Connection manager
-   - Message handling
-   - Reconnection logic
+2. **Shell Application**
+   - Main container setup
+   - Router configuration
+   - Remote loading
+   - Theme provider
 
-3. **Core Components**
-   - Layout system
-   - Navigation
-   - Authentication UI
+3. **Remote Applications**
+   - Dashboard remote
+   - Projects remote
+   - Chat remote
+   - Settings remote
 
-4. **Feature Views**
-   - Dashboard view
-   - Projects view
-   - Chat interface
-   - Settings view
+4. **Shared Libraries**
+   - UI component library
+   - Data access library
+   - WebSocket service
+   - Utility functions
 
-5. **Configuration UIs**
-   - Provider manager
-   - Workflow builder
-   - Agent configurator
+5. **Material Integration**
+   - Theme configuration
+   - Component setup
+   - Custom components
+   - Responsive design
 
-## Key Files
-- `web/src/App.tsx`
-- `web/src/services/WebSocketService.ts`
-- `web/src/views/Dashboard.tsx`
-- `web/src/views/Chat.tsx`
-- `web/src/components/WorkflowBuilder.tsx`
+## Project Structure
+```
+apps/
+├── shell/                 # Main container app
+├── dashboard/            # Dashboard micro-frontend
+├── projects/             # Projects micro-frontend
+├── chat/                 # Chat micro-frontend
+└── settings/             # Settings micro-frontend
 
-## UI Components
-```typescript
-interface ChatMessage {
-  id: string;
-  type: 'command' | 'response';
-  content: string;
-  timestamp: Date;
-}
-
-interface ProjectConfig {
-  id: string;
-  name: string;
-  workflow: WorkflowConfig;
-  agents: AgentAssignments;
-}
+libs/
+├── ui/
+│   ├── forms/           # Form components
+│   ├── tables/          # Table components
+│   ├── cards/           # Card components
+│   └── theme/           # Theme configuration
+├── data-access/         # API services
+├── websocket/           # WebSocket service
+└── utils/               # Shared utilities
 ```
 
+## Development Standards
+
+| Standard | Requirement |
+|----------|------------|
+| File Size | Max 100 lines per file |
+| Components | Standalone and reusable |
+| Styling | Material theming only |
+| State | NgRx or Akita |
+| Testing | 80% coverage minimum |
+| Accessibility | WCAG 2.1 AA compliant |
+
 ## Success Criteria
-- [ ] UI renders correctly
-- [ ] WebSocket connected
-- [ ] Messages streaming
-- [ ] Projects manageable
-- [ ] Configurations saveable
+- [ ] Nx workspace configured
+- [ ] Module Federation working
+- [ ] All Material components integrated
+- [ ] Theme system implemented
+- [ ] Libraries properly structured
+- [ ] Remote apps loading correctly
