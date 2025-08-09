@@ -1,0 +1,112 @@
+<div class="register-container">
+  <mat-card class="register-card">
+    <mat-card-header>
+      <mat-card-title>
+        <h1>Create Your Account</h1>
+      </mat-card-title>
+      <mat-card-subtitle>Join Code Agent today</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="name-fields">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>First Name</mat-label>
+            <input matInput 
+                   type="text" 
+                   formControlName="firstName" 
+                   placeholder="Enter your first name"
+                   autocomplete="given-name">
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error>{{ getFirstNameErrorMessage() }}</mat-error>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Last Name</mat-label>
+            <input matInput 
+                   type="text" 
+                   formControlName="lastName" 
+                   placeholder="Enter your last name"
+                   autocomplete="family-name">
+            <mat-error>{{ getLastNameErrorMessage() }}</mat-error>
+          </mat-form-field>
+        </div>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput 
+                 type="email" 
+                 formControlName="email" 
+                 placeholder="Enter your email"
+                 autocomplete="email">
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error>{{ getEmailErrorMessage() }}</mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput 
+                 [type]="hidePassword ? 'password' : 'text'" 
+                 formControlName="password"
+                 placeholder="Create a password"
+                 autocomplete="new-password">
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button 
+                  matSuffix 
+                  type="button"
+                  (click)="hidePassword = !hidePassword"
+                  [attr.aria-label]="'Hide password'"
+                  [attr.aria-pressed]="hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error>{{ getPasswordErrorMessage() }}</mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirm Password</mat-label>
+          <input matInput 
+                 [type]="hideConfirmPassword ? 'password' : 'text'" 
+                 formControlName="confirmPassword"
+                 placeholder="Confirm your password"
+                 autocomplete="new-password">
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <button mat-icon-button 
+                  matSuffix 
+                  type="button"
+                  (click)="hideConfirmPassword = !hideConfirmPassword"
+                  [attr.aria-label]="'Hide confirm password'"
+                  [attr.aria-pressed]="hideConfirmPassword">
+            <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error>{{ getConfirmPasswordErrorMessage() }}</mat-error>
+        </mat-form-field>
+        
+        <div class="terms-section">
+          <mat-checkbox formControlName="acceptTerms" color="primary">
+            I agree to the 
+            <a href="/terms" target="_blank">Terms of Service</a> 
+            and 
+            <a href="/privacy" target="_blank">Privacy Policy</a>
+          </mat-checkbox>
+        </div>
+        
+        <button mat-raised-button 
+                color="primary" 
+                type="submit" 
+                class="full-width submit-button"
+                [disabled]="isLoading || !registerForm.valid">
+          <mat-spinner *ngIf="isLoading" diameter="20" class="inline-spinner"></mat-spinner>
+          <span *ngIf="!isLoading">Create Account</span>
+          <span *ngIf="isLoading">Creating account...</span>
+        </button>
+      </form>
+    </mat-card-content>
+    
+    <mat-card-footer>
+      <p class="login-link">
+        Already have an account? 
+        <a mat-button color="primary" (click)="goToLogin()">Sign in</a>
+      </p>
+    </mat-card-footer>
+  </mat-card>
+</div>

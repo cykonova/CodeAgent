@@ -1,11 +1,15 @@
 import { Route } from '@angular/router';
 import { loadRemoteModule } from '@nx/angular/mf';
-import { authGuard, LoginComponent } from '@code-agent/auth';
+import { authGuard, LoginComponent, RegisterComponent } from '@code-agent/auth';
 
 export const appRoutes: Route[] = [
   {
     path: 'login',
     component: LoginComponent
+  },
+  {
+    path: 'register',
+    component: RegisterComponent
   },
   {
     path: 'chat',
