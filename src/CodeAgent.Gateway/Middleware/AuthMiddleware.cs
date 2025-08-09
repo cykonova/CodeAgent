@@ -33,27 +33,26 @@ public class AuthMiddleware
             return;
         }
         
+        // For API endpoints, check if they have RequireAuthorization attribute
+        // This middleware now just validates and sets the user principal
+        // The actual authorization is handled by .RequireAuthorization()
         var token = ExtractToken(context.Request);
         
-        if (string.IsNullOrEmpty(token))
+        if (!string.IsNullOrEmpty(token))
         {
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("Authorization required");
-            return;
+            try
+            {
+                var principal = ValidateToken(token);
+                context.User = principal;
+            }
+            catch (SecurityTokenException ex)
+            {
+                _logger.LogWarning(ex, "Token validation failed");
+                // Don't set user principal if token is invalid
+            }
         }
         
-        try
-        {
-            var principal = ValidateToken(token);
-            context.User = principal;
-            await _next(context);
-        }
-        catch (SecurityTokenException ex)
-        {
-            _logger.LogWarning(ex, "Token validation failed");
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("Invalid token");
-        }
+        await _next(context);
     }
     
     private string? ExtractToken(HttpRequest request)
@@ -80,7 +79,7 @@ public class AuthMiddleware
     
     private ClaimsPrincipal ValidateToken(string token)
     {
-        var secretKey = _configuration["Jwt:SecretKey"] ?? "default-secret-key-change-in-production";
+        var secretKey = _configuration["Jwt:SecretKey"] ?? "default-secret-key-change-in-production-minimum-32-characters";
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         
         var tokenHandler = new JwtSecurityTokenHandler();

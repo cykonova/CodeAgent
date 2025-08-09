@@ -1,0 +1,126 @@
+@use '@angular/material' as mat;
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+  background: var(--mat-app-background-color);
+}
+
+.register-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 24px;
+  
+  mat-card-header {
+    text-align: center;
+    margin-bottom: 32px;
+    
+    mat-card-title {
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 500;
+        color: var(--mat-app-on-surface);
+      }
+    }
+    
+    mat-card-subtitle {
+      margin-top: 8px;
+      font-size: 16px;
+      color: var(--mat-app-on-surface-variant);
+    }
+  }
+  
+  mat-card-content {
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      
+      .name-fields {
+        display: flex;
+        gap: 16px;
+        
+        .half-width {
+          flex: 1;
+        }
+      }
+      
+      .full-width {
+        width: 100%;
+      }
+      
+      .terms-section {
+        margin: 8px 0;
+        
+        mat-checkbox {
+          ::ng-deep .mat-mdc-checkbox-label {
+            font-size: 14px;
+            line-height: 1.5;
+          }
+        }
+        
+        a {
+          color: var(--mat-app-primary);
+          text-decoration: none;
+          
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+      
+      .submit-button {
+        margin-top: 16px;
+        height: 48px;
+        font-size: 16px;
+        
+        .inline-spinner {
+          display: inline-block;
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+  
+  mat-card-footer {
+    padding: 24px 0 0;
+    text-align: center;
+    
+    .login-link {
+      margin: 0;
+      font-size: 14px;
+      color: var(--mat-app-on-surface-variant);
+      
+      a {
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Mobile responsive
+@media (max-width: 600px) {
+  .register-card {
+    max-width: 100%;
+    padding: 16px;
+    
+    mat-card-header {
+      margin-bottom: 24px;
+      
+      mat-card-title h1 {
+        font-size: 24px;
+      }
+    }
+    
+    mat-card-content form {
+      .name-fields {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  }
+}

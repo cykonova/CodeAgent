@@ -14,20 +14,15 @@ RUN npm ci
 # Copy source code
 COPY src/frontend/ ./
 
-# Build all applications
-RUN npm run build:all
+# Build only the shell application which now includes all routes
+RUN npx nx build shell --configuration=production
 
 # Runtime stage - using nginx to serve the static files
 FROM nginx:alpine
 
 # Copy the main shell app files (from browser subdirectory)
+# This now contains all the application code
 COPY --from=build /app/dist/apps/shell/browser /usr/share/nginx/html
-
-# Copy other micro-frontends to subdirectories
-COPY --from=build /app/dist/dashboard /usr/share/nginx/html/dashboard
-COPY --from=build /app/dist/chat /usr/share/nginx/html/chat
-COPY --from=build /app/dist/projects /usr/share/nginx/html/projects
-COPY --from=build /app/dist/settings /usr/share/nginx/html/settings
 
 # Create nginx configuration for SPA routing
 RUN echo 'server { \
