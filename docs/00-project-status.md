@@ -62,7 +62,7 @@ Tasks:
 **Docs:** [06-web-portal.md](06-web-portal.md)  
 **Supporting:** [arch-frontend.md](supporting/arch-frontend.md)  
 Tasks:
-- [ ] React/Blazor UI setup
+- [ ] Angular Material UI setup with Nx.dev
 - [ ] WebSocket client implementation
 - [ ] Provider configuration UI
 - [ ] Project management UI
