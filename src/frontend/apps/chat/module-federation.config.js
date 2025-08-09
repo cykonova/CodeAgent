@@ -1,6 +1,6 @@
 module.exports = {
   name: 'chat',
   exposes: {
-    './Module': './apps/chat/src/app/app.ts',
+    './Module': './chat/src/remote-entry.ts',
   },
 };

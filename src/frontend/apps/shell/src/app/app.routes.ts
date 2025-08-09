@@ -1,5 +1,4 @@
 import { Route } from '@angular/router';
-import { loadRemoteModule } from '@nx/angular/mf';
 import { authGuard, LoginComponent, RegisterComponent } from '@code-agent/auth';
 
 export const appRoutes: Route[] = [
@@ -13,26 +12,26 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'chat',
-    loadChildren: () =>
-      loadRemoteModule('chat', './Module').then(m => m.App),
+    loadComponent: () =>
+      import('../../../../chat/src/app/app').then(m => m.App),
     canActivate: [authGuard]
   },
   {
     path: 'dashboard',
-    loadChildren: () =>
-      loadRemoteModule('dashboard', './Module').then(m => m.App),
+    loadComponent: () =>
+      import('../../../../dashboard/src/app/app').then(m => m.App),
     canActivate: [authGuard]
   },
   {
     path: 'projects',
-    loadChildren: () =>
-      loadRemoteModule('projects', './Module').then(m => m.App),
+    loadComponent: () =>
+      import('../../../../projects/src/app/app').then(m => m.App),
     canActivate: [authGuard]
   },
   {
     path: 'settings',
-    loadChildren: () =>
-      loadRemoteModule('settings', './Module').then(m => m.App),
+    loadComponent: () =>
+      import('../../../../settings/src/app/app').then(m => m.App),
     canActivate: [authGuard]
   },
   {

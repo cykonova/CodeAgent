@@ -1,6 +1,6 @@
 module.exports = {
   name: 'dashboard',
   exposes: {
-    './Module': './apps/dashboard/src/app/app.ts',
+    './Module': './dashboard/src/remote-entry.ts',
   },
 };
