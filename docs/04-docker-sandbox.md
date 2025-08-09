@@ -75,6 +75,16 @@ All permission requests are proxied through the user's interface (web UI, CLI, I
 | Host System | No access |
 | Other Containers | Isolated |
 
+### Resource Limits (User Configurable)
+
+| Resource | Default | Minimum | Maximum |
+|----------|---------|---------|---------|
+| CPU Cores | 2 | 0.5 | Host available |
+| Memory | 2GB | 512MB | Host available |
+| Disk Space | 10GB | 1GB | 100GB |
+| Max Processes | 100 | 10 | 1000 |
+| Network Bandwidth | Unlimited | 1Mbps | Unlimited |
+
 ## Permission Flow
 
 When the sandbox agent needs elevated permissions:

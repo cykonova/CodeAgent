@@ -41,17 +41,19 @@
 
 ## Database Management
 
-### SQLite (Default)
-- Automatic daily snapshots
-- WAL mode for better concurrency
-- VACUUM weekly for optimization
-- Backup via file copy
-
-### PostgreSQL (Optional)
+### PostgreSQL (Primary)
+- Primary database for all deployments
 - pg_dump for backups
 - Point-in-time recovery support
 - Replication for high availability
 - Connection pooling via PgBouncer
+
+### SQLite (Development Only)
+- Local development testing
+- Automatic daily snapshots
+- WAL mode for better concurrency
+- VACUUM weekly for optimization
+- Backup via file copy
 
 ## Log Management
 

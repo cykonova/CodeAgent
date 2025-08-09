@@ -20,8 +20,12 @@ interface Message {
 6. Graceful disconnect
 
 ## Message Flow
+Event-driven architecture using message bus:
 ```
-Client -> Gateway -> Router -> Service -> Response -> Client
+Client -> Gateway -> Event Bus -> Subscribers
+                        |
+                        v
+                  Event Handlers -> Result Events -> Client
 ```
 
 ## Load Balancing

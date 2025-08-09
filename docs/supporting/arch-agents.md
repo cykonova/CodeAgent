@@ -31,11 +31,11 @@ Each agent type receives optimized parameters for its specific task, even when u
 ## Agent Types
 | Agent | Responsibility | Temperature | Max Tokens | Capability Required |
 |-------|---------------|------------|------------|-------------------|
-| Planning | Architecture, design | 0.7 | 4096 | High reasoning |
-| Coding | Implementation | 0.3 | 8192 | Code generation |
-| Review | Quality checks | 0.2 | 4096 | Analysis |
-| Testing | Test generation | 0.1 | 4096 | Fast iteration |
-| Documentation | Docs creation | 0.5 | 4096 | Text generation |
+| Planning | Architecture, design | 0.8 | 4096 | High reasoning |
+| Coding | Implementation | 0.5 | 8192 | Code generation |
+| Review | Quality checks | 0.3 | 4096 | Analysis |
+| Testing | Test generation | 0.2 | 4096 | Fast iteration |
+| Documentation | Docs creation | 0.4 | 4096 | Text generation |
 
 ## Context Management
 ```csharp

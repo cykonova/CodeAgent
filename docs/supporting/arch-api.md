@@ -8,13 +8,13 @@ All API responses include rate limit information:
 - `X-RateLimit-Remaining`: Requests remaining in window
 - `X-RateLimit-Reset`: Unix timestamp when limit resets
 
-### Tier Limits
+### Rate Limits
 
-| Tier | Requests/Hour | Concurrent Sessions | Context Size |
-|------|---------------|---------------------|--------------|
-| Free | 100 | 1 | 32k |
-| Pro | 1000 | 5 | 128k |
-| Enterprise | Unlimited | Unlimited | 200k |
+| Configuration | Default | Maximum |
+|--------------|---------|----------|
+| Requests/Hour | 1000 | Configurable |
+| Concurrent Sessions | 10 | Configurable |
+| Context Size | 128k | 200k |
 
 ## API Versioning
 

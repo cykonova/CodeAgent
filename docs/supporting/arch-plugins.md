@@ -2,22 +2,22 @@
 
 ## Extension Points
 
-Plugins can extend multiple interfaces through a unified API:
+Plugins extend interfaces through event-driven architecture:
 
 | Interface | Extension Capabilities |
 |-----------|----------------------|
-| Web UI | Pages, widgets, menus, actions |
-| CLI | Commands, flags, formatters |
-| IDE | Commands, views, providers |
+| Web UI | Nx.dev library modules, Angular components, event subscriptions |
+| CLI | Commands, flags, formatters, event handlers |
+| IDE | Commands, views, providers, event listeners |
 
 ## Plugin Lifecycle
 
-1. Discovery - Find installed plugins
-2. Loading - Load plugin manifest
-3. Registration - Register extensions
-4. Initialization - Setup plugin services
-5. Activation - Enable UI/commands
-6. Runtime - Handle user interactions
+1. Discovery - Find Nx.dev libraries or installed plugins
+2. Loading - Load plugin manifest and event subscriptions
+3. Registration - Register event handlers and extensions
+4. Initialization - Setup plugin services and event bus connections
+5. Activation - Enable UI/commands and start event listening
+6. Runtime - Process events and handle user interactions
 7. Deactivation - Clean shutdown
 
 ## Extension API

@@ -64,7 +64,8 @@ graph TB
 ## Implementation Steps
 
 1. **Setup Base Project**
-   - Create .NET 8 solution
+   - Create .NET 8 solution (C# backend)
+   - Create Nx.dev workspace (TypeScript frontend)
    - Configure minimal APIs
    - Setup dependency injection
 
