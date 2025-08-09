@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Agents.Tests", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Sandbox", "CodeAgent.Sandbox\CodeAgent.Sandbox.csproj", "{ECEF9978-F507-4EB0-B272-28EEEABE5C4B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Projects", "CodeAgent.Projects\CodeAgent.Projects.csproj", "{DAD9E9B6-030D-4E82-9656-2E5A6496E940}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeAgent.Projects.Tests", "CodeAgent.Projects.Tests\CodeAgent.Projects.Tests.csproj", "{26245AA3-A4A7-494D-971A-22EB5CBDF11C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +58,13 @@ Global
 		{ECEF9978-F507-4EB0-B272-28EEEABE5C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECEF9978-F507-4EB0-B272-28EEEABE5C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECEF9978-F507-4EB0-B272-28EEEABE5C4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAD9E9B6-030D-4E82-9656-2E5A6496E940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAD9E9B6-030D-4E82-9656-2E5A6496E940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAD9E9B6-030D-4E82-9656-2E5A6496E940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAD9E9B6-030D-4E82-9656-2E5A6496E940}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26245AA3-A4A7-494D-971A-22EB5CBDF11C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26245AA3-A4A7-494D-971A-22EB5CBDF11C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26245AA3-A4A7-494D-971A-22EB5CBDF11C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26245AA3-A4A7-494D-971A-22EB5CBDF11C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
