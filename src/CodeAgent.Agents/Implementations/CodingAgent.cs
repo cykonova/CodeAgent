@@ -113,7 +113,7 @@ Output format:
                     Type = ArtifactType.Code,
                     Content = codeBlock.Code,
                     Language = codeBlock.Language,
-                    FilePath = codeBlock.FilePath
+                    FilePath = codeBlock.FilePath ?? string.Empty
                 });
             }
             
