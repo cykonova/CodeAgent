@@ -1,0 +1,153 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+  
+  mat-card-header {
+    text-align: center;
+    margin-bottom: 30px;
+    
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+    }
+    
+    mat-card-subtitle {
+      margin-top: 8px;
+      font-size: 16px;
+    }
+  }
+  
+  mat-card-content {
+    padding: 0 20px;
+  }
+  
+  mat-card-footer {
+    text-align: center;
+    padding: 20px;
+    margin: 0 -20px -20px;
+    background-color: rgba(0, 0, 0, 0.02);
+    
+    .register-link {
+      margin: 0;
+      font-size: 14px;
+      
+      a {
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-form-field {
+  margin-bottom: 20px;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  a {
+    font-size: 14px;
+  }
+}
+
+.submit-button {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  
+  .inline-spinner {
+    display: inline-block;
+    margin-right: 8px;
+  }
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 30px 0;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.12);
+  }
+  
+  span {
+    position: relative;
+    padding: 0 16px;
+    background-color: white;
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 14px;
+  }
+}
+
+.social-login {
+  button {
+    margin-bottom: 12px;
+    height: 42px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+  
+  .google-button {
+    color: #4285f4;
+    border-color: #4285f4;
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(66, 133, 244, 0.04);
+    }
+  }
+  
+  .github-button {
+    color: #24292e;
+    border-color: #24292e;
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(36, 41, 46, 0.04);
+    }
+  }
+}
+
+// Dark theme adjustments
+.dark-theme {
+  .login-container {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  }
+  
+  .divider span {
+    background-color: #424242;
+  }
+  
+  mat-card-footer {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+}

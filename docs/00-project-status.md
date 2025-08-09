@@ -58,24 +58,30 @@ Tasks:
 - [x] Project state management
 
 ### Phase 6: Web Portal
-**Status:** Completed  
+**Status:** In Progress  
 **Docs:** [06-web-portal.md](06-web-portal.md)  
 **Supporting:** [arch-frontend.md](supporting/arch-frontend.md)  
 Tasks:
 - [x] Angular Material UI setup with Nx.dev
-- [x] WebSocket client implementation
-- [x] Provider configuration UI
-- [x] Project management UI
+- [x] Shell application with navigation and theme switching
+- [x] Module Federation configuration for micro-frontends
 - [x] Chat Interface - Complete agent interaction UI with real-time messaging
 - [x] Settings Page - Provider configuration, agent management, security settings
-- [] Shared UI Components - More reusable components (dialogs, forms, data tables)
-- [] Authentication System - Login/logout, JWT token management, route guards
-- [] Error Handling - Global error interceptor, retry logic, user-friendly error messages
-- [] Loading States - Skeleton screens, progress indicators
+- [x] Dashboard - Metrics display with real-time updates
+- [x] Projects - Full CRUD operations with Material table
+- [x] WebSocket service library implementation
+- [x] Data access layer with API services
+- [x] Basic UI components (Card, StatCard)
+- [x] Theme system (light/dark mode)
 - [x] Route Configuration - Set up proper routing between shell and remote apps
-- [x] Module Federation Config - Update webpack configs to properly expose/consume modules
-- [] Environment Configuration - Dev/staging/prod environment files
-- [] Testing - Unit tests for components and services
+- [ ] Authentication System - Login/logout, JWT token management, route guards
+- [ ] Additional UI Components - Forms, tables, dialogs, navigation libraries
+- [ ] Error Handling - Global error interceptor, retry logic
+- [ ] Loading States - Skeleton screens, progress indicators
+- [ ] Full i18n Support - 8+ languages (currently only 2)
+- [ ] RTL Support - Arabic and Hebrew layouts
+- [ ] Environment Configuration - Dev/staging/prod environment files
+- [ ] Testing - Unit tests for components and services
 
 
 ### Phase 7: CLI Tool

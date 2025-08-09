@@ -33,15 +33,20 @@
       <button mat-icon-button (click)="toggleTheme()" matTooltip="Toggle theme">
         <mat-icon>{{ isDarkTheme ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="User menu">
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="User menu" *ngIf="isAuthenticated$ | async">
         <mat-icon>account_circle</mat-icon>
       </button>
       <mat-menu #userMenu="matMenu">
-        <button mat-menu-item>
+        <div *ngIf="currentUser$ | async as user" class="user-info">
+          <strong>{{ user.name }}</strong>
+          <span>{{ user.email }}</span>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="navigateToProfile()">
           <mat-icon>person</mat-icon>
           <span>Profile</span>
         </button>
-        <button mat-menu-item>
+        <button mat-menu-item (click)="logout()">
           <mat-icon>logout</mat-icon>
           <span>Logout</span>
         </button>
