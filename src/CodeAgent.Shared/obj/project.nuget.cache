@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "zN+xGH8NJdA=",
+  "dgSpecHash": "mPYQ49pAjOo=",
   "success": true,
   "projectFilePath": "/Users/jack/Source/CodeAgent/src/CodeAgent.Shared/CodeAgent.Shared.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/Users/jack/.nuget/packages/microsoft.netcore.app.ref/8.0.12/microsoft.netcore.app.ref.8.0.12.nupkg.sha512",
+    "/Users/jack/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.12/microsoft.aspnetcore.app.ref.8.0.12.nupkg.sha512"
+  ],
   "logs": []
 }
