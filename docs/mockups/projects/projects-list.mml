@@ -1,0 +1,179 @@
+// Projects Remote - Projects List Page
+// Shows all projects with management options
+
+screen(id="projects-list", initial=true, device=desktop) {
+    header {
+        text(fontSize*=1.8) { Projects }
+        toolbar(style=transparent) {
+            expander
+            field(placeholder="Search projects...", prefix="icon:search")
+            button(style=primary, label="New Project", icon="plus", transitionTo="project-create")
+        }
+    }
+    
+    // Filter toolbar
+    toolbar(style=transparent) {
+        text { Filter by: }
+        field(type=dropdown, options="All Projects,Active,Paused,Completed,Archived", value="All Projects")
+        text { Sort by: }
+        field(type=dropdown, options="Last Modified,Name,Created Date,Status", value="Last Modified")
+    }
+    
+    // Projects table
+    table(style="striped hover") {
+        row(type=header) {
+            cell { text { Project Name } }
+            cell { text { Status } }
+            cell { text { Agents } }
+            cell { text { Last Modified } }
+            cell { text { Created } }
+            cell { text { Actions } }
+        }
+        row {
+            cell { 
+                row {
+                    icon(iconName="folder", style=primary)
+                    link(label="E-Commerce Scraper", transitionTo="project-detail")
+                }
+            }
+            cell { 
+                row {
+                    icon(iconName="circle", style=success, size=small)
+                    text { Active }
+                }
+            }
+            cell { text { 3 agents } }
+            cell { text { 2 hours ago } }
+            cell { text { Dec 15, 2024 } }
+            cell {
+                button(icon="play", label="", style=success)
+                button(icon="pause", label="", style=warning)
+                button(icon="cog", label="", style=primary)
+                button(icon="trash", label="", style=danger)
+            }
+        }
+        row {
+            cell { 
+                row {
+                    icon(iconName="folder", style=primary)
+                    link(label="Code Review Bot", transitionTo="project-detail")
+                }
+            }
+            cell { 
+                row {
+                    icon(iconName="circle", style=warning, size=small)
+                    text { Paused }
+                }
+            }
+            cell { text { 2 agents } }
+            cell { text { 1 day ago } }
+            cell { text { Dec 10, 2024 } }
+            cell {
+                button(icon="play", label="", style=success)
+                button(icon="pause", label="", style=warning)
+                button(icon="cog", label="", style=primary)
+                button(icon="trash", label="", style=danger)
+            }
+        }
+        row {
+            cell { 
+                row {
+                    icon(iconName="folder", style=primary)
+                    link(label="Documentation Generator", transitionTo="project-detail")
+                }
+            }
+            cell { 
+                row {
+                    icon(iconName="circle", style=success, size=small)
+                    text { Active }
+                }
+            }
+            cell { text { 4 agents } }
+            cell { text { 3 days ago } }
+            cell { text { Dec 5, 2024 } }
+            cell {
+                button(icon="play", label="", style=success)
+                button(icon="pause", label="", style=warning)
+                button(icon="cog", label="", style=primary)
+                button(icon="trash", label="", style=danger)
+            }
+        }
+        row {
+            cell { 
+                row {
+                    icon(iconName="folder", style=primary)
+                    link(label="Test Automation Suite", transitionTo="project-detail")
+                }
+            }
+            cell { 
+                row {
+                    icon(iconName="check-circle", style=secondary, size=small)
+                    text { Completed }
+                }
+            }
+            cell { text { 5 agents } }
+            cell { text { 1 week ago } }
+            cell { text { Nov 28, 2024 } }
+            cell {
+                button(icon="play", label="", style=success)
+                button(icon="pause", label="", style=warning)
+                button(icon="cog", label="", style=primary)
+                button(icon="trash", label="", style=danger)
+            }
+        }
+        row {
+            cell { 
+                row {
+                    icon(iconName="folder", style=primary)
+                    link(label="Data Pipeline Manager", transitionTo="project-detail")
+                }
+            }
+            cell { 
+                row {
+                    icon(iconName="circle", style=success, size=small)
+                    text { Active }
+                }
+            }
+            cell { text { 6 agents } }
+            cell { text { 2 weeks ago } }
+            cell { text { Nov 20, 2024 } }
+            cell {
+                button(icon="play", label="", style=success)
+                button(icon="pause", label="", style=warning)
+                button(icon="cog", label="", style=primary)
+                button(icon="trash", label="", style=danger)
+            }
+        }
+    }
+    
+    // Pagination
+    toolbar(style=transparent) {
+        text { Showing 1-5 of 12 projects }
+        expander
+        button(label="Previous", style=secondary)
+        button(label="1", style=primary)
+        button(label="2", style=secondary)
+        button(label="3", style=secondary)
+        button(label="Next", style=secondary)
+    }
+    
+    // Quick stats
+    layout(type=grid, cols=4) {
+        card {
+            text(style=muted) { Total Projects }
+            text(fontSize*=1.5) { 12 }
+        }
+        card {
+            text(style=muted) { Active }
+            text(fontSize*=1.5, style=success) { 7 }
+        }
+        card {
+            text(style=muted) { Total Agents }
+            text(fontSize*=1.5) { 38 }
+        }
+        card {
+            text(style=muted) { Resources Used }
+            text(fontSize*=1.5) { 65% }
+        }
+    }
+}

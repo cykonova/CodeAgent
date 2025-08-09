@@ -1,83 +1,110 @@
-# Suggested Development Commands
+# Suggested Commands for Development
 
-## Building and Testing
+## Backend (.NET 8)
 ```bash
-# Build the entire solution
+# Build the solution
 dotnet build
 
-# Run all tests
+# Run tests
 dotnet test
 
-# Run tests with coverage
-dotnet test --collect:"XPlat Code Coverage"
+# Run a specific test
+dotnet test --filter "FullyQualifiedName~TestClassName.TestMethodName"
 
-# Restore packages
-dotnet restore
+# Start the backend server
+dotnet run --project src/CodeAgent.Gateway
+
+# Run with hot reload
+dotnet watch run --project src/CodeAgent.Gateway
+
+# Add a new project to solution
+dotnet new classlib -n CodeAgent.Providers -o src/CodeAgent.Providers
+dotnet sln src/CodeAgent.sln add src/CodeAgent.Providers/CodeAgent.Providers.csproj
+
+# Add package references
+dotnet add package PackageName
 ```
 
-## Running the Application
+## Frontend (Angular/Nx)
 ```bash
-# Run the CLI application directly
-dotnet run --project src/CodeAgent.CLI
+# Install dependencies
+npm install
 
-# Run as global tool (if installed)
-codeagent
+# Serve development server
+nx serve shell
 
-# Interactive mode
-codeagent
-# Or
-dotnet run --project src/CodeAgent.CLI
+# Build for production
+nx build shell --configuration=production
 
-# Command mode examples
-codeagent scan
-codeagent setup
-codeagent --help
+# Run unit tests
+nx test shell
 
-# Piped input
-echo "Explain this code" | codeagent
-echo "/scan" | codeagent
+# Run specific library tests
+nx test ui-components
+
+# Lint check
+nx lint shell
+
+# Format code
+nx format:write
+
+# Generate component
+nx generate @nx/angular:component component-name
 ```
 
-## Packaging and Publishing
+## Docker Operations
 ```bash
-# Create NuGet package
-dotnet pack src/CodeAgent.CLI/CodeAgent.CLI.csproj -c Release
+# Build containers
+docker-compose build
 
-# Publish for specific platform
-dotnet publish src/CodeAgent.CLI -c Release -r win-x64 --self-contained
-dotnet publish src/CodeAgent.CLI -c Release -r linux-x64 --self-contained
-dotnet publish src/CodeAgent.CLI -c Release -r osx-arm64 --self-contained
+# Start all services
+docker-compose up -d
 
-# Install as global tool locally
-dotnet tool install --global --add-source ./src/CodeAgent.CLI/nupkg Cykonova.CodeAgent
+# View logs
+docker-compose logs -f [service-name]
+
+# Stop services
+docker-compose down
 ```
 
-## Development Workflow
+## Git Commands (Darwin/macOS)
 ```bash
-# Clean solution
-dotnet clean
+# Check status
+git status
 
-# Watch and rebuild on changes
-dotnet watch --project src/CodeAgent.CLI run
+# Add files
+git add .
+git add <file>
 
-# Run specific test project
-dotnet test tests/CodeAgent.Infrastructure.Tests
+# Commit
+git commit -m "message"
 
-# Run specific test method
-dotnet test --filter "MethodName"
+# View logs
+git log --oneline -n 10
+
+# View diff
+git diff
+git diff --staged
 ```
 
-## macOS/Darwin Specific Commands
+## System Utilities (macOS)
 ```bash
-# Standard Unix commands available:
-ls, cd, grep, find, git
+# List files
+ls -la
+
+# Find files
+find . -name "*.cs"
+
+# Search in files (use ripgrep)
+rg "pattern"
+
+# Directory navigation
+cd path/to/dir
+pwd
 
 # File operations
-cat filename.cs
-head -20 filename.cs
-tail -20 filename.cs
-
-# Search operations
-find . -name "*.cs" -type f
-grep -r "FileSystem" src/
+cp source dest
+mv source dest
+rm file
+mkdir -p dir
 ```

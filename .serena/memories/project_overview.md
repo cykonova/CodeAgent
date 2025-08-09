@@ -1,20 +1,25 @@
-# CodeAgent Project Overview
+# Code Agent Project Overview
 
 ## Purpose
-CodeAgent is a cross-platform .NET 8 command-line AI coding assistant that integrates with multiple LLM providers (OpenAI, Claude, Ollama). It serves as a local, privacy-focused alternative to cloud-based coding assistants, providing intelligent code analysis, modification, and development assistance.
+Code Agent is a comprehensive development assistant platform that integrates multiple LLM providers through a unified interface. The system follows a **zero-configuration by default** principle - users can start immediately with just a provider configured.
 
-## Key Features
-- Multiple LLM provider support (OpenAI, Claude, Ollama)
-- Interactive chat interface with markdown rendering
-- Project file scanning and analysis
-- Configurable provider settings
-- Rich terminal UI with Spectre.Console
-- Command history and persistence
-- Model Context Protocol (MCP) support
-- Pipe input support for automation
+## Tech Stack
+- **Backend**: .NET 8 (C#) with minimal APIs
+- **Frontend**: Angular 20.1 with Nx.dev (TypeScript) and Module Federation
+- **UI Framework**: Angular Material with strict theming standards
+- **CLI**: .NET with Spectre.Console for rich terminal output
+- **Communication**: WebSocket gateway for real-time messaging
+- **Containerization**: Docker with sandbox isolation for agent execution
 
-## Mission
-To create a flexible, extensible, and user-friendly coding agent that democratizes access to AI-powered development tools across different LLM providers, programming languages, and development workflows.
+## Architecture Components
+1. **WebSocket Gateway**: Central communication hub handling all client connections
+2. **Provider Management**: Registry for LLM providers (Anthropic, OpenAI, Ollama)
+3. **Agent System**: Orchestrator for multi-agent coordination and workflows
+4. **Docker Sandbox**: Secure execution environment with MCP support
+5. **Project Management**: Configuration inheritance and workflow templates
 
-## Current Status
-The project is functional with a working CLI, interactive shell, and basic file operations. The core architecture is established with proper separation of concerns following Clean Architecture principles.
+## Project Structure
+- Backend: .NET 8 projects (Gateway, Core, Shared)
+- Frontend: Nx monorepo with Angular apps
+- Documentation: Phased implementation docs in docs/
+- 10 implementation phases from core infrastructure to deployment

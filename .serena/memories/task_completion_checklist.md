@@ -1,57 +1,33 @@
 # Task Completion Checklist
 
-When completing any development task in CodeAgent, follow these steps:
+When completing a development task, always:
 
-## Code Quality Checks
-1. **Build Verification**
-   ```bash
-   dotnet build
-   ```
-   - Ensure no compilation errors
-   - Fix any warnings if possible
+## Before Committing Code
+1. **Build the solution** - Run `dotnet build` to ensure no compilation errors
+2. **Run tests** - Execute `dotnet test` for backend, `nx test` for frontend
+3. **Check linting** - Run appropriate lint commands
+4. **Verify warnings** - Ensure no warnings (they're treated as errors)
 
-2. **Run Tests**
-   ```bash
-   dotnet test
-   ```
-   - All tests must pass
-   - Add new tests for new functionality
-   - Update existing tests if behavior changed
+## After Implementation
+1. **Update project status** - Mark tasks as completed in docs/00-project-status.md
+2. **Add new files to git** - Use `git add` for any new files created
+3. **Commit changes** - Create meaningful commit messages
+4. **Test the feature** - Verify the implementation works as expected
 
-3. **Code Style Compliance**
-   - Follow one-type-per-file rule
-   - Use proper naming conventions
-   - Ensure nullable reference types are handled
-   - Add XML documentation for public APIs
+## Documentation Updates
+1. **Update phase documentation** if requirements change
+2. **Mark completed tasks** with [x] in status document
+3. **Update phase status** (Not Started → In Progress → Completed)
 
-## Design Pattern Adherence
-- **SOLID Principles**: Ensure code follows SOLID design principles
-- **Clean Architecture**: Maintain proper layer separation
-- **Dependency Injection**: Use constructor injection with interfaces
-- **Async/Await**: Use async patterns for I/O operations
+## Quality Checks
+1. **Follow SOLID principles** in all code
+2. **Ensure proper DI** for services
+3. **No hardcoded values** - use configuration
+4. **Proper error handling** throughout
+5. **Unit test coverage** meets 80% minimum
 
-## Cross-Platform Considerations
-- Use `Path.Combine()` for file paths
-- Handle line endings with `Environment.NewLine`
-- Test path separator handling with `Path.DirectorySeparatorChar`
-- Ensure compatibility across Windows, Linux, and macOS
-
-## Git Workflow
-After code completion:
-1. **Stage Changes**
-   ```bash
-   git add .
-   ```
-
-2. **Commit Changes**
-   ```bash
-   git commit -m "descriptive commit message"
-   ```
-   - Use clear, descriptive commit messages
-   - Follow conventional commit format if established
-
-## Safety and Validation
-- **File Operations**: Ensure safe file handling with proper error handling
-- **Configuration**: Never commit sensitive data (API keys, secrets)
-- **Testing**: Test with temporary directories for file operations
-- **Rollback**: Ensure operations can be undone if needed
+## Important Reminders
+- DO NOT alter project docs without approval
+- Never add features without permission (Product Owner constraint)
+- Always use serena tools for project management
+- Test changes with builds and unit tests

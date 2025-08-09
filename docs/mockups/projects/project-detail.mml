@@ -1,0 +1,290 @@
+// Projects Remote - Project Detail Page
+// Shows detailed information about a specific project
+
+screen(id="project-detail", device=desktop) {
+    header {
+        breadcrumb {
+            link(transitionTo="projects-list", label="Projects")
+            text { E-Commerce Scraper }
+        }
+    }
+    
+    // Project header with status
+    panel {
+        layout(type=row) {
+            layout(type=column, align=left) {
+                text(fontSize*=1.5) { E-Commerce Scraper }
+                row {
+                    icon(iconName="circle", style=success, size=small)
+                    text { Active }
+                    text(style=muted) { • }
+                    text(style=muted) { Created Dec 15, 2024 }
+                    text(style=muted) { • }
+                    text(style=muted) { Last run 2 hours ago }
+                }
+            }
+            expander
+            toolbar(style=transparent) {
+                button(style=success, label="Run", icon="play")
+                button(style=warning, label="Pause", icon="pause")
+                button(style=primary, label="Configure", icon="cog")
+                button(style=secondary, label="Clone", icon="copy")
+            }
+        }
+    }
+    
+    // Project tabs
+    tabs {
+        tab(label="Overview") {
+            layout(type=grid, cols=2) {
+                // Project Information
+                panel {
+                    text(fontSize*=1.2) { Project Information }
+                    
+                    layout(type=column, align=left) {
+                        row {
+                            text(style=muted) { Description: }
+                            text { Automated scraping of product data from e-commerce sites }
+                        }
+                        row {
+                            text(style=muted) { Type: }
+                            text { Data Collection }
+                        }
+                        row {
+                            text(style=muted) { Schedule: }
+                            text { Every 6 hours }
+                        }
+                        row {
+                            text(style=muted) { Next Run: }
+                            text { In 4 hours (6:00 PM) }
+                        }
+                        row {
+                            text(style=muted) { Output Format: }
+                            text { JSON, CSV }
+                        }
+                    }
+                }
+                
+                // Statistics
+                panel {
+                    text(fontSize*=1.2) { Statistics }
+                    
+                    layout(type=column, align=left) {
+                        row {
+                            text(style=muted) { Total Runs: }
+                            text { 342 }
+                        }
+                        row {
+                            text(style=muted) { Success Rate: }
+                            text(style=success) { 98.5% }
+                        }
+                        row {
+                            text(style=muted) { Data Collected: }
+                            text { 125,432 items }
+                        }
+                        row {
+                            text(style=muted) { Avg Runtime: }
+                            text { 12 min 34 sec }
+                        }
+                        row {
+                            text(style=muted) { Storage Used: }
+                            text { 2.4 GB }
+                        }
+                    }
+                }
+            }
+            
+            // Recent Activity
+            panel {
+                text(fontSize*=1.2) { Recent Activity }
+                
+                table(style="striped") {
+                    row(type=header) {
+                        cell { text { Time } }
+                        cell { text { Event } }
+                        cell { text { Status } }
+                        cell { text { Duration } }
+                        cell { text { Items } }
+                    }
+                    row {
+                        cell { text { 2 hours ago } }
+                        cell { text { Scheduled Run } }
+                        cell { 
+                            row {
+                                icon(iconName="check-circle", style=success, size=small)
+                                text { Success }
+                            }
+                        }
+                        cell { text { 11m 23s } }
+                        cell { text { 412 } }
+                    }
+                    row {
+                        cell { text { 8 hours ago } }
+                        cell { text { Scheduled Run } }
+                        cell { 
+                            row {
+                                icon(iconName="check-circle", style=success, size=small)
+                                text { Success }
+                            }
+                        }
+                        cell { text { 13m 45s } }
+                        cell { text { 398 } }
+                    }
+                    row {
+                        cell { text { 14 hours ago } }
+                        cell { text { Manual Run } }
+                        cell { 
+                            row {
+                                icon(iconName="exclamation-circle", style=warning, size=small)
+                                text { Partial }
+                            }
+                        }
+                        cell { text { 8m 12s } }
+                        cell { text { 234 } }
+                    }
+                }
+            }
+        }
+        
+        tab(label="Agents") {
+            // Agents configuration
+            panel {
+                text(fontSize*=1.2) { Configured Agents }
+                
+                layout(type=grid, cols=2) {
+                    card {
+                        row {
+                            icon(iconName="robot", style=primary, size=large)
+                            layout(type=column, align=left) {
+                                text(fontSize*=1.2) { URL Collector }
+                                text(style=muted) { Gathers product URLs }
+                            }
+                        }
+                        row {
+                            text(style=muted) { Status: }
+                            text(style=success) { Active }
+                        }
+                        row {
+                            text(style=muted) { Provider: }
+                            text { Anthropic Claude }
+                        }
+                        button(style=primary, label="Configure", icon="cog")
+                    }
+                    
+                    card {
+                        row {
+                            icon(iconName="robot", style=primary, size=large)
+                            layout(type=column, align=left) {
+                                text(fontSize*=1.2) { Data Extractor }
+                                text(style=muted) { Extracts product details }
+                            }
+                        }
+                        row {
+                            text(style=muted) { Status: }
+                            text(style=success) { Active }
+                        }
+                        row {
+                            text(style=muted) { Provider: }
+                            text { OpenAI GPT-4 }
+                        }
+                        button(style=primary, label="Configure", icon="cog")
+                    }
+                    
+                    card {
+                        row {
+                            icon(iconName="robot", style=primary, size=large)
+                            layout(type=column, align=left) {
+                                text(fontSize*=1.2) { Data Validator }
+                                text(style=muted) { Validates and cleans data }
+                            }
+                        }
+                        row {
+                            text(style=muted) { Status: }
+                            text(style=success) { Active }
+                        }
+                        row {
+                            text(style=muted) { Provider: }
+                            text { Ollama Llama 3 }
+                        }
+                        button(style=primary, label="Configure", icon="cog")
+                    }
+                }
+                
+                button(style=primary, label="Add Agent", icon="plus")
+            }
+        }
+        
+        tab(label="Configuration") {
+            // Project configuration
+            panel {
+                text(fontSize*=1.2) { Project Settings }
+                
+                field(label="Project Name", value="E-Commerce Scraper")
+                field(label="Description", value="Automated scraping of product data from e-commerce sites")
+                
+                field(label="Schedule", type=dropdown, options="Hourly,Every 6 hours,Daily,Weekly,Manual", value="Every 6 hours")
+                
+                field(label="Output Format", type=dropdown, options="JSON,CSV,XML,Database", value="JSON")
+                
+                field(label="Target URLs", placeholder="Enter target URLs (one per line)")
+                
+                field(label="Enable notifications", type=toggle, checked=true)
+                field(label="Auto-retry on failure", type=toggle, checked=true)
+                field(label="Data deduplication", type=toggle, checked=true)
+                
+                toolbar(style=transparent) {
+                    button(style=primary, label="Save Changes", icon="save")
+                    button(style=secondary, label="Cancel")
+                }
+            }
+        }
+        
+        tab(label="Logs") {
+            // Execution logs
+            panel {
+                text(fontSize*=1.2) { Execution Logs }
+                
+                toolbar(style=transparent) {
+                    field(type=dropdown, options="All Logs,Errors Only,Warnings,Info", value="All Logs")
+                    expander
+                    button(style=secondary, label="Clear Logs", icon="trash")
+                    button(style=secondary, label="Export", icon="download")
+                }
+                
+                // Log entries
+                card {
+                    layout(type=column, align=left) {
+                        row {
+                            text(style=success) { [INFO] }
+                            text { 2024-12-20 14:23:45 - Starting scheduled run }
+                        }
+                        row {
+                            text(style=success) { [INFO] }
+                            text { 2024-12-20 14:23:46 - URL Collector agent initialized }
+                        }
+                        row {
+                            text(style=success) { [INFO] }
+                            text { 2024-12-20 14:23:48 - Found 412 product URLs }
+                        }
+                        row {
+                            text(style=warning) { [WARN] }
+                            text { 2024-12-20 14:24:12 - Rate limit approaching for provider }
+                        }
+                        row {
+                            text(style=success) { [INFO] }
+                            text { 2024-12-20 14:24:15 - Data Extractor processing batch 1/5 }
+                        }
+                        row {
+                            text(style=danger) { [ERROR] }
+                            text { 2024-12-20 14:25:03 - Failed to extract data from URL: timeout }
+                        }
+                        row {
+                            text(style=success) { [INFO] }
+                            text { 2024-12-20 14:35:08 - Run completed successfully. 412 items processed }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,72 +1,49 @@
-# Multi-stage build for CodeAgent Web Application
-# Stage 1: Build Angular frontend
-FROM node:20-alpine AS frontend-builder
-
-WORKDIR /app/client
-
-# Copy package files
-COPY src/CodeAgent.Web/client/package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy Angular source code
-COPY src/CodeAgent.Web/client/ ./
-
-# Build Angular app
-RUN npm run build:prod
-
-# Stage 2: Build .NET backend
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS backend-builder
-
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy all project files
-COPY src/ ./
+# Copy solution and project files
+COPY src/*.sln .
+COPY src/*/*.csproj ./
+RUN for file in $(ls *.csproj); do \
+    mkdir -p ${file%.*}/ && mv $file ${file%.*}/; \
+    done
 
-# Restore dependencies for all projects
-RUN dotnet restore CodeAgent.Web/CodeAgent.Web.csproj
+# Copy source code
+COPY src/ .
 
-# Build the web project
-RUN dotnet publish CodeAgent.Web/CodeAgent.Web.csproj -c Release -o /app/publish
+# Restore dependencies
+RUN dotnet restore
 
-# Stage 3: Runtime image
+# Build the application
+RUN dotnet build -c Release
+
+# Publish the application
+RUN dotnet publish CodeAgent.Gateway/CodeAgent.Gateway.csproj -c Release -o /app/publish
+
+# Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
-
-# Install additional tools that CodeAgent might need
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
-# Copy published .NET app
-COPY --from=backend-builder /app/publish .
+# Install Docker CLI for sandbox management
+RUN apt-get update && apt-get install -y \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy built Angular app to wwwroot
-COPY --from=frontend-builder /app/wwwroot ./wwwroot
+# Copy published application
+COPY --from=build /app/publish .
 
-# Create directories for CodeAgent
-RUN mkdir -p /workspace && \
-    mkdir -p /app/data && \
-    mkdir -p /app/logs
-
-# Environment variables
-ENV ASPNETCORE_URLS=http://+:5001 \
-    ASPNETCORE_ENVIRONMENT=Development \
-    DOTNET_RUNNING_IN_CONTAINER=true \
-    CodeAgent__ProjectDirectory=/workspace \
-    CodeAgent__DataDirectory=/app/data \
-    CodeAgent__LogDirectory=/app/logs
+# Create directories for runtime
+RUN mkdir -p /var/codeagent/workspaces && \
+    chmod 755 /var/codeagent/workspaces
 
 # Expose ports
+EXPOSE 5000
 EXPOSE 5001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5001/health || exit 1
+    CMD curl -f http://localhost:5000/health || exit 1
 
-# Start the application
-ENTRYPOINT ["dotnet", "CodeAgent.Web.dll"]
+# Set entrypoint
+ENTRYPOINT ["dotnet", "CodeAgent.Gateway.dll"]

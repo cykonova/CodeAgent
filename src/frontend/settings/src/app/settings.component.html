@@ -1,0 +1,284 @@
+<div class="settings-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>settings</mat-icon>
+        Settings
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-tab-group>
+        <!-- Providers Tab -->
+        <mat-tab label="Providers">
+          <div class="tab-content">
+            <div class="section-header">
+              <h3>LLM Providers</h3>
+              <p>Configure your language model providers</p>
+            </div>
+
+            <mat-card class="form-card">
+              <form [formGroup]="providerForm" (ngSubmit)="selectedProvider ? updateProvider() : addProvider()">
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Provider Name</mat-label>
+                    <input matInput formControlName="name" placeholder="My Provider">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Provider Type</mat-label>
+                    <mat-select formControlName="type">
+                      <mat-option *ngFor="let type of providerTypes" [value]="type.value">
+                        {{ type.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>API Key</mat-label>
+                    <input matInput formControlName="apiKey" type="password" placeholder="sk-...">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Endpoint URL</mat-label>
+                    <input matInput formControlName="endpoint" placeholder="https://api.example.com">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Model</mat-label>
+                    <input matInput formControlName="model" placeholder="gpt-4, claude-3, etc.">
+                  </mat-form-field>
+
+                  <mat-slide-toggle formControlName="enabled" class="toggle-field">
+                    Enabled
+                  </mat-slide-toggle>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit">
+                    {{ selectedProvider ? 'Update' : 'Add' }} Provider
+                  </button>
+                  <button mat-button type="button" (click)="cancelProviderEdit()" *ngIf="selectedProvider">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </mat-card>
+
+            <mat-divider></mat-divider>
+
+            <div class="providers-list">
+              <h4>Configured Providers</h4>
+              <mat-list>
+                <mat-list-item *ngFor="let provider of providers" class="provider-item">
+                  <mat-icon matListItemIcon>dns</mat-icon>
+                  <div matListItemTitle>{{ provider.name }}</div>
+                  <div matListItemLine>
+                    Type: {{ provider.type }} | Model: {{ provider.model || 'Default' }}
+                    <mat-chip-set>
+                      <mat-chip [color]="provider.enabled ? 'primary' : ''" >
+                        {{ provider.enabled ? 'Enabled' : 'Disabled' }}
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                  <div matListItemMeta>
+                    <button mat-icon-button (click)="editProvider(provider)" matTooltip="Edit">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="deleteProvider(provider)" matTooltip="Delete">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </mat-list-item>
+              </mat-list>
+              <div *ngIf="providers.length === 0" class="empty-state">
+                <mat-icon>cloud_off</mat-icon>
+                <p>No providers configured</p>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Agents Tab -->
+        <mat-tab label="Agents">
+          <div class="tab-content">
+            <div class="section-header">
+              <h3>Agent Configuration</h3>
+              <p>Configure and manage your AI agents</p>
+            </div>
+
+            <mat-card class="form-card">
+              <form [formGroup]="agentForm" (ngSubmit)="selectedAgent ? updateAgent() : addAgent()">
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Agent Name</mat-label>
+                    <input matInput formControlName="name" placeholder="My Agent">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Agent Type</mat-label>
+                    <mat-select formControlName="type">
+                      <mat-option *ngFor="let type of agentTypes" [value]="type.value">
+                        {{ type.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput formControlName="description" rows="3"></textarea>
+                </mat-form-field>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Provider</mat-label>
+                    <mat-select formControlName="providerId">
+                      <mat-option *ngFor="let provider of providers" [value]="provider.id">
+                        {{ provider.name }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-slide-toggle formControlName="enabled" class="toggle-field">
+                    Enabled
+                  </mat-slide-toggle>
+                </div>
+
+                <mat-expansion-panel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>Advanced Configuration</mat-panel-title>
+                  </mat-expansion-panel-header>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Temperature</mat-label>
+                      <input matInput type="number" formControlName="temperature" min="0" max="2" step="0.1">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Max Tokens</mat-label>
+                      <input matInput type="number" formControlName="maxTokens" min="1" max="32000">
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Top P</mat-label>
+                      <input matInput type="number" formControlName="topP" min="0" max="1" step="0.1">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Frequency Penalty</mat-label>
+                      <input matInput type="number" formControlName="frequencyPenalty" min="-2" max="2" step="0.1">
+                    </mat-form-field>
+                  </div>
+                </mat-expansion-panel>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit">
+                    {{ selectedAgent ? 'Update' : 'Add' }} Agent
+                  </button>
+                  <button mat-button type="button" (click)="cancelAgentEdit()" *ngIf="selectedAgent">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </mat-card>
+
+            <mat-divider></mat-divider>
+
+            <div class="agents-list">
+              <h4>Configured Agents</h4>
+              <mat-list>
+                <mat-list-item *ngFor="let agent of agents" class="agent-item">
+                  <mat-icon matListItemIcon>smart_toy</mat-icon>
+                  <div matListItemTitle>{{ agent.name }}</div>
+                  <div matListItemLine>
+                    Type: {{ agent.type }} | Provider: {{ getProviderName(agent.providerId) }}
+                    <mat-chip-set>
+                      <mat-chip [color]="agent.enabled ? 'primary' : ''" >
+                        {{ agent.enabled ? 'Enabled' : 'Disabled' }}
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                  <div matListItemMeta>
+                    <button mat-icon-button (click)="editAgent(agent)" matTooltip="Edit">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="deleteAgent(agent)" matTooltip="Delete">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </mat-list-item>
+              </mat-list>
+              <div *ngIf="agents.length === 0" class="empty-state">
+                <mat-icon>smart_toy</mat-icon>
+                <p>No agents configured</p>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Security Tab -->
+        <mat-tab label="Security">
+          <div class="tab-content">
+            <div class="section-header">
+              <h3>Security Settings</h3>
+              <p>Configure sandbox and security options</p>
+            </div>
+
+            <mat-card class="form-card">
+              <form [formGroup]="securityForm" (ngSubmit)="saveSecuritySettings()">
+                <div class="form-section">
+                  <h4>Sandbox Configuration</h4>
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Sandbox Level</mat-label>
+                    <mat-select formControlName="sandboxLevel">
+                      <mat-option *ngFor="let level of sandboxLevels" [value]="level.value">
+                        <strong>{{ level.label }}</strong> - {{ level.description }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-section">
+                  <h4>Permissions</h4>
+                  <div class="security-toggles">
+                    <mat-slide-toggle formControlName="enableMcp">
+                      Enable Model Context Protocol (MCP)
+                    </mat-slide-toggle>
+                    <mat-slide-toggle formControlName="allowFileAccess">
+                      Allow File System Access
+                    </mat-slide-toggle>
+                    <mat-slide-toggle formControlName="allowNetworkAccess">
+                      Allow Network Access
+                    </mat-slide-toggle>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <h4>Execution Limits</h4>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Max Execution Time (ms)</mat-label>
+                    <input matInput type="number" formControlName="maxExecutionTime" min="1000" max="3600000">
+                    <mat-hint>Maximum time for agent execution in milliseconds</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit">
+                    Save Security Settings
+                  </button>
+                </div>
+              </form>
+            </mat-card>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

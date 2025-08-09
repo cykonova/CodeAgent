@@ -4,22 +4,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CodeAgent is a .NET 8 cross-platform command-line coding assistant application that integrates with multiple LLM providers. The project follows Clean Architecture principles with separated concerns across multiple projects.
+Code Agent is a comprehensive development assistant platform that integrates multiple LLM providers through a unified interface. The system follows a **zero-configuration by default** principle - users can start immediately with just a provider configured.
 
 ## Architecture
 
-The solution uses a layered architecture:
-- **CodeAgent.Domain**: Core business logic, entities, and abstractions (no external dependencies)
-- **CodeAgent.Core**: Application services and use cases
-- **CodeAgent.Infrastructure**: External service implementations (file system, Git, database)
-- **CodeAgent.Providers**: LLM provider implementations (OpenAI, Claude, Ollama, LMStudio)
-- **CodeAgent.MCP**: Model Context Protocol client implementation
-- **CodeAgent.CLI**: Console application entry point using Spectre.Console
+### Technology Stack
+- **Backend**: .NET 8 (C#) with minimal APIs
+- **Frontend**: Angular with Nx.dev (TypeScript) and Module Federation
+- **UI Framework**: Angular Material with strict theming standards
+- **CLI**: .NET with Spectre.Console for rich terminal output
+- **Communication**: WebSocket gateway for real-time messaging
+- **Containerization**: Docker with sandbox isolation for agent execution
+
+### Core Components
+1. **WebSocket Gateway**: Central communication hub handling all client connections
+2. **Provider Management**: Registry for LLM providers (Anthropic, OpenAI, Ollama)
+3. **Agent System**: Orchestrator for multi-agent coordination and workflows
+4. **Docker Sandbox**: Secure execution environment with MCP support
+5. **Project Management**: Configuration inheritance and workflow templates
 
 ## Development Commands
 
-Once the project is implemented, use these commands:
-
+### Backend (.NET 8)
 ```bash
 # Build the solution
 dotnet build
@@ -27,107 +33,132 @@ dotnet build
 # Run tests
 dotnet test
 
-# Run tests with coverage
-dotnet test --collect:"XPlat Code Coverage"
+# Run a specific test
+dotnet test --filter "FullyQualifiedName~TestClassName.TestMethodName"
 
-# Run the application
-dotnet run --project src/CodeAgent.CLI
+# Start the backend server
+dotnet run --project src/CodeAgent.Gateway
 
-# Publish for production (platform-specific)
-dotnet publish src/CodeAgent.CLI -c Release -r win-x64 --self-contained
-dotnet publish src/CodeAgent.CLI -c Release -r linux-x64 --self-contained
-dotnet publish src/CodeAgent.CLI -c Release -r osx-arm64 --self-contained
+# Run with hot reload
+dotnet watch run --project src/CodeAgent.Gateway
 ```
 
-## Key Implementation Guidelines
+### Frontend (Angular/Nx)
+```bash
+# Install dependencies
+npm install
 
-### Project Structure Requirements
-- One type per file (classes, interfaces, enums, records)
-- Follow namespace hierarchy matching folder structure
-- Place interfaces in Domain project, implementations in appropriate layer
-- Use dependency injection for all service dependencies
+# Serve development server
+nx serve shell
 
-### LLM Provider Implementation
-When implementing new LLM providers:
-1. Create provider-specific project in CodeAgent.Providers namespace
-2. Implement ILLMProvider interface from Domain project
-3. Handle streaming responses with IAsyncEnumerable
-4. Include proper error handling and retry logic
-5. Support provider-specific configuration through options pattern
+# Build for production
+nx build shell --configuration=production
 
-### File Operations
-- Always use IFileSystemService abstraction for file operations
-- Implement change tracking and rollback capability
-- Show file diffs before applying changes
-- Request user confirmation for destructive operations
+# Run unit tests
+nx test shell
 
-### Git Integration
-- Use LibGit2Sharp for Git operations
-- Detect repository boundaries and respect .gitignore
-- Track changes in Git-aware manner
-- Support staging and commit operations
+# Run specific library tests
+nx test ui-components
 
-### Configuration Management
-- Use Microsoft.Extensions.Configuration
-- Store sensitive data (API keys) in User Secrets during development
-- Support environment variables for production
-- Implement provider profiles for multiple configurations
+# Lint check
+nx lint shell
+
+# Format code
+nx format:write
+```
+
+### Docker Operations
+```bash
+# Build containers
+docker-compose build
+
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f [service-name]
+
+# Stop services
+docker-compose down
+```
+
+## Project Structure
+
+### Backend Organization
+- `src/CodeAgent.Gateway/` - WebSocket gateway and routing
+- `src/CodeAgent.Providers/` - LLM provider integrations
+- `src/CodeAgent.Agents/` - Agent orchestration services
+- `src/CodeAgent.Sandbox/` - Docker sandbox management
+- `src/CodeAgent.Projects/` - Project management services
+
+### Frontend Organization (Nx Monorepo)
+- `src/frontend/apps/shell/` - Main container application
+- `src/frontend/apps/dashboard/` - Metrics remote module
+- `src/frontend/apps/projects/` - Project management remote
+- `src/frontend/apps/chat/` - Agent interaction remote
+- `src/frontend/libs/ui-components/` - Reusable Material components
+- `src/frontend/libs/data-access/` - API and state management
+- `src/frontend/libs/websocket/` - Real-time communication
+
+## Development Standards
+
+### Angular Material Requirements
+- Use Material components for ALL UI elements
+- No hardcoded colors - use theme variables only
+- Support light/dark mode switching
+- All text must be externalized for i18n
+- Maximum 100 lines per component file
+
+### Backend Standards
+- Minimal API pattern for all endpoints
+- Dependency injection for all services
+- Channel-based async communication
+- JWT authentication with rate limiting
 
 ### Testing Requirements
-- Write unit tests for all domain logic
-- Use xUnit, FluentAssertions, Moq, and AutoFixture
-- Mock external dependencies in unit tests
-- Create integration tests for infrastructure components
-- Test file system operations with temporary directories
-- Ensure cross-platform compatibility in tests
+- Unit test coverage minimum: 80%
+- Integration tests for all API endpoints
+- WebSocket connection tests required
+- Mock providers for external services
 
-### Safety and Security
-- Never log or expose API keys or sensitive configuration
-- Implement confirmation prompts for file modifications
-- Support dry-run mode for testing changes
-- Provide rollback capability for applied changes
-- Validate and sanitize all file paths
+## Implementation Status
 
-## Project Status
+The project is organized in 10 phases (see `docs/00-project-status.md`). Each phase has:
+- Primary documentation in `docs/[phase-number]-[name].md`
+- Supporting architecture docs in `docs/supporting/arch-*.md`
 
-**Current Phase**: Planning/Documentation
-- Requirements documented in docs/coding-agent-requirements.md
-- Architecture specified in docs/codeagent-architecture.md
-- No source code implemented yet
+When implementing a phase:
+1. Update status in `00-project-status.md`
+2. Follow the specific phase documentation
+3. Reference supporting docs only as needed
+4. Create implementation in appropriate project structure
 
-**Next Implementation Steps**:
-1. Create solution and project structure
-2. Implement domain models and interfaces
-3. Build CLI with Spectre.Console
-4. Add first LLM provider (start with OpenAI or Claude)
-5. Implement file system operations with safety features
-6. Add Git integration
-7. Create comprehensive test suite
+## Key Design Decisions
 
-## Important Patterns
+1. **Module Federation**: Each frontend app is independently deployable
+2. **Event-Driven**: All communication through WebSocket events
+3. **Plugin Architecture**: Extensible through standardized plugin manifests
+4. **Security Levels**: Configurable sandbox isolation (None/Container/VM)
+5. **Provider Agnostic**: Unified interface for all LLM providers
 
-### Dependency Injection
-All services use constructor injection with interfaces defined in Domain project.
+## Common Development Tasks
 
-### Async/Await
-Use async operations throughout for I/O operations and API calls.
+### Adding a New Provider
+1. Implement `IProvider` interface in `CodeAgent.Providers`
+2. Register in `ProviderRegistry`
+3. Add configuration schema
+4. Create UI configuration component
 
-### Result Pattern
-Consider using Result<T> pattern for operations that can fail instead of exceptions.
+### Creating a New Agent Type
+1. Define agent configuration in `AgentTypes/`
+2. Implement execution logic in `AgentOrchestrator`
+3. Add workflow templates if needed
+4. Update agent selection UI
 
-### Command Pattern
-CLI commands follow command pattern with separate handler classes.
+### Adding a CLI Command
+1. Create command class inheriting from `BaseCommand`
+2. Use Spectre.Console for all output
+3. Add to command registration
+4. Include help text and examples
 
-### Configuration
-Use strongly-typed configuration with IOptions<T> pattern.
-
-## Cross-Platform Considerations
-- Use Path.Combine() for file paths
-- Handle line endings appropriately (Environment.NewLine)
-- Test on Windows, Linux, and macOS
-- Use platform-agnostic file system operations
-- Support both forward and backward slashes in paths
-
-## Project Management Notes
-
-- This is your project, I'm just the project planner. Commit and push as you see fit.
+- Angular 20 web frontend

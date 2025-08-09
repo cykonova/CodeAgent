@@ -1,0 +1,119 @@
+.table-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.table-header {
+  padding: 16px;
+  
+  .search-field {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: 16px;
+  
+  span {
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 14px;
+  }
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow: auto;
+  
+  table {
+    width: 100%;
+    
+    &.striped {
+      tr.mat-row:nth-child(odd) {
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+    }
+    
+    &.hoverable {
+      tr.mat-row:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+    }
+    
+    tr.mat-row.clickable {
+      cursor: pointer;
+    }
+    
+    .mat-header-cell {
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    .mat-cell {
+      font-size: 14px;
+    }
+  }
+}
+
+.no-data-row {
+  .mat-cell {
+    padding: 48px;
+  }
+}
+
+.empty-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(0, 0, 0, 0.38);
+  
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+  
+  span {
+    font-size: 16px;
+  }
+}
+
+mat-paginator {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+// Dark theme adjustments
+.dark-theme {
+  .loading-container span {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .table-wrapper table {
+    &.striped {
+      tr.mat-row:nth-child(odd) {
+        background-color: rgba(255, 255, 255, 0.02);
+      }
+    }
+    
+    &.hoverable {
+      tr.mat-row:hover {
+        background-color: rgba(255, 255, 255, 0.04);
+      }
+    }
+  }
+  
+  .empty-message {
+    color: rgba(255, 255, 255, 0.38);
+  }
+  
+  mat-paginator {
+    border-top-color: rgba(255, 255, 255, 0.12);
+  }
+}
