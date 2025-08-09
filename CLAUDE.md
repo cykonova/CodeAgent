@@ -160,3 +160,5 @@ When implementing a phase:
 2. Use Spectre.Console for all output
 3. Add to command registration
 4. Include help text and examples
+
+- Angular 20 web frontend

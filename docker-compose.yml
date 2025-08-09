@@ -11,7 +11,7 @@ services:
       - "5001:5001"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5000;https://+:5001
+      - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Default=Host=postgres;Database=codeagent;Username=codeagent;Password=codeagent123
     depends_on:
       - postgres
@@ -41,6 +41,18 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    networks:
+      - codeagent-network
+
+  # Frontend web application
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway
     networks:
       - codeagent-network
 

@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { StatCardComponent, SkeletonLoaderComponent, LoadingOverlayComponent } from '@src/ui-components';
+import { StatCardComponent, SkeletonLoaderComponent } from '@src/ui-components';
 import { AgentService, ProjectService, ProviderService } from '@src/data-access';
 import { WebSocketService } from '@src/websocket';
 
@@ -18,8 +18,7 @@ import { WebSocketService } from '@src/websocket';
     MatProgressSpinnerModule,
     MatGridListModule,
     StatCardComponent,
-    SkeletonLoaderComponent,
-    LoadingOverlayComponent
+    SkeletonLoaderComponent
   ],
   selector: 'app-dashboard',
   templateUrl: './app.html',

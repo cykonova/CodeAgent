@@ -26,7 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
         }
         @case ('bar') {
           <mat-progress-bar
-            [mode]="mode"
+            mode="indeterminate"
             [value]="value"
             [bufferValue]="bufferValue">
           </mat-progress-bar>
@@ -180,7 +180,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class ProgressIndicatorComponent {
   @Input() type: 'spinner' | 'bar' | 'circular' | 'dots' = 'spinner';
-  @Input() mode: 'determinate' | 'indeterminate' | 'buffer' | 'query' = 'indeterminate';
+  @Input() mode: 'determinate' | 'indeterminate' = 'indeterminate';
   @Input() value = 0;
   @Input() bufferValue = 0;
   @Input() size: 'small' | 'medium' | 'large' = 'medium';

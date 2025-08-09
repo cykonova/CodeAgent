@@ -9,17 +9,17 @@ RUN for file in $(ls *.csproj); do \
     mkdir -p ${file%.*}/ && mv $file ${file%.*}/; \
     done
 
-# Restore dependencies
-RUN dotnet restore
-
 # Copy source code
 COPY src/ .
 
+# Restore dependencies
+RUN dotnet restore
+
 # Build the application
-RUN dotnet build -c Release --no-restore
+RUN dotnet build -c Release
 
 # Publish the application
-RUN dotnet publish CodeAgent.Gateway/CodeAgent.Gateway.csproj -c Release -o /app/publish --no-restore
+RUN dotnet publish CodeAgent.Gateway/CodeAgent.Gateway.csproj -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0

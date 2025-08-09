@@ -23,7 +23,11 @@ public class AuthMiddleware
     
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.Request.Path.StartsWithSegments("/ws"))
+        // Allow certain endpoints without authentication
+        if (context.Request.Path.StartsWithSegments("/ws") ||
+            context.Request.Path.StartsWithSegments("/health") ||
+            context.Request.Path.StartsWithSegments("/api/auth") ||
+            context.Request.Path.StartsWithSegments("/swagger"))
         {
             await _next(context);
             return;

@@ -52,9 +52,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 
     .skeleton-line {
       height: 16px;
-      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
+      background-color: var(--mat-app-outline-variant);
+      animation: pulse 1.5s infinite;
       margin-bottom: 8px;
       border-radius: 4px;
     }
@@ -68,9 +67,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 
     .skeleton-header {
       height: 24px;
-      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
+      background-color: var(--mat-app-outline-variant);
+      animation: pulse 1.5s infinite;
       margin-bottom: 16px;
       border-radius: 4px;
       width: 60%;
@@ -89,9 +87,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     .skeleton-cell {
       flex: 1;
       height: 40px;
-      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
+      background-color: var(--mat-app-outline-variant);
+      animation: pulse 1.5s infinite;
       border-radius: 4px;
     }
 
@@ -99,34 +96,24 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
+      background-color: var(--mat-app-outline-variant);
+      animation: pulse 1.5s infinite;
     }
 
     .skeleton-image {
       width: 100%;
       height: 200px;
-      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
+      background-color: var(--mat-app-outline-variant);
+      animation: pulse 1.5s infinite;
       border-radius: 8px;
     }
 
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
     }
 
-    :host-context(.dark-theme) .skeleton-line,
-    :host-context(.dark-theme) .skeleton-header,
-    :host-context(.dark-theme) .skeleton-cell,
-    :host-context(.dark-theme) .skeleton-avatar,
-    :host-context(.dark-theme) .skeleton-image {
-      background: linear-gradient(90deg, #424242 25%, #525252 50%, #424242 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
+    // Dark theme is handled automatically by theme variables
   `]
 })
 export class SkeletonLoaderComponent {

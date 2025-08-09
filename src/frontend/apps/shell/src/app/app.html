@@ -1,3 +1,4 @@
+@if (isAuthenticated$ | async) {
 <mat-sidenav-container class="app-container">
   <mat-sidenav #sidenav mode="side" [opened]="sidenavOpened" class="sidenav">
     <mat-toolbar color="primary">
@@ -33,14 +34,16 @@
       <button mat-icon-button (click)="toggleTheme()" matTooltip="Toggle theme">
         <mat-icon>{{ isDarkTheme ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="User menu" *ngIf="isAuthenticated$ | async">
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="User menu">
         <mat-icon>account_circle</mat-icon>
       </button>
       <mat-menu #userMenu="matMenu">
-        <div *ngIf="currentUser$ | async as user" class="user-info">
-          <strong>{{ user.name }}</strong>
-          <span>{{ user.email }}</span>
+        @if (currentUser$ | async) {
+        <div class="user-info">
+          <strong>{{ (currentUser$ | async)?.name }}</strong>
+          <span>{{ (currentUser$ | async)?.email }}</span>
         </div>
+        }
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="navigateToProfile()">
           <mat-icon>person</mat-icon>
@@ -58,3 +61,6 @@
     </main>
   </mat-sidenav-content>
 </mat-sidenav-container>
+} @else {
+  <router-outlet></router-outlet>
+}

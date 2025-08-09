@@ -20,7 +20,7 @@ import {
   ProjectStatus,
   CreateProjectRequest 
 } from '@src/data-access';
-import { SkeletonLoaderComponent, LoadingOverlayComponent } from '@src/ui-components';
+import { SkeletonLoaderComponent } from '@src/ui-components';
 
 @Component({
   selector: 'app-projects',
@@ -40,8 +40,7 @@ import { SkeletonLoaderComponent, LoadingOverlayComponent } from '@src/ui-compon
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    SkeletonLoaderComponent,
-    LoadingOverlayComponent
+    SkeletonLoaderComponent
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
