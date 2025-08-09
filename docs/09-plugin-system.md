@@ -1,130 +1,148 @@
 # Phase 9: Plugin System
 
 ## Overview
-Implement extensible plugin architecture for custom providers, tools, and integrations.
+Implement extensible plugin architecture that allows plugins to enhance web UI, CLI commands, and IDE features through a unified extension system.
 
 ## Plugin Architecture
 ```mermaid
 graph TB
-    subgraph "Plugin Manager"
-        LOADER[Plugin Loader]
-        REG[Plugin Registry]
-        SAND[Plugin Sandbox]
+    subgraph "User Interfaces"
+        WEB[Web UI]
+        CLI[CLI Tool]
+        IDE[IDE Extensions]
+    end
+    
+    subgraph "Plugin System"
+        MGR[Plugin Manager]
+        REG[Registry]
+        API[Extension API]
     end
     
     subgraph "Plugin Types"
-        PROV[Provider Plugins]
-        TOOL[Tool Plugins]
-        MCP[MCP Plugins]
+        PROV[Providers]
+        CMD[Commands]
+        UI[UI Components]
+        TOOL[Tools]
     end
     
-    subgraph "Core Plugins"
-        DOCKER[Docker MCP]
-        LLM[Docker LLM]
-        SANDBOX[Sandbox Manager]
-    end
+    WEB --> API
+    CLI --> API
+    IDE --> API
     
-    LOADER --> REG
-    REG --> SAND
+    API --> MGR
+    MGR --> REG
     
-    SAND --> PROV
-    SAND --> TOOL
-    SAND --> MCP
-    
-    DOCKER --> MCP
-    LLM --> PROV
-    SANDBOX --> TOOL
+    REG --> PROV
+    REG --> CMD
+    REG --> UI
+    REG --> TOOL
 ```
 
-## Plugin Manifest
-```json
-{
-  "name": "docker-mcp-tools",
-  "version": "1.0.0",
-  "type": "mcp-provider",
-  "main": "index.js",
-  "permissions": [
-    "docker.access",
-    "filesystem.read"
-  ],
-  "configuration": {
-    "docker_socket": {
-      "type": "string",
-      "default": "/var/run/docker.sock"
-    }
-  }
-}
-```
+## Interface Extensions
+
+### Web UI Extensions
+| Extension Point | Plugin Can Add |
+|----------------|----------------|
+| Navigation | Menu items, sidebar panels |
+| Views | Custom pages, dashboards |
+| Widgets | Status indicators, toolbars |
+| Actions | Context menus, buttons |
+
+### CLI Extensions
+| Extension Point | Plugin Can Add |
+|----------------|----------------|
+| Commands | New top-level commands |
+| Subcommands | Extensions to existing commands |
+| Flags | Global or command-specific options |
+| Output | Custom formatters, filters |
+
+### IDE Extensions
+| Extension Point | Plugin Can Add |
+|----------------|----------------|
+| Commands | Command palette entries |
+| Views | Tool windows, panels |
+| Providers | Completions, diagnostics |
+| Actions | Quick fixes, refactorings |
 
 ## Plugin Types
 
 ### Provider Plugins
-- LLM provider adapters
-- Custom model integrations
-- Specialized providers
+Add new LLM providers or extend existing ones with custom models and capabilities.
+
+### Command Plugins
+Add new commands to CLI and IDE command palettes for specialized workflows.
+
+### UI Component Plugins
+Provide custom UI elements for web interface and IDE panels.
 
 ### Tool Plugins
-- Development tools
-- Build systems
-- Testing frameworks
+Integrate development tools, build systems, and testing frameworks.
 
-### MCP Plugins
-- Docker integration
-- Container management
-- Orchestration tools
+## Plugin Manifest
+
+Plugins declare their extensions and requirements:
+
+| Field | Purpose |
+|-------|---------|
+| name | Unique identifier |
+| version | Semantic version |
+| type | provider, command, ui, tool |
+| interfaces | web, cli, ide (which to extend) |
+| permissions | Required system access |
+| extensions | Specific UI/command additions |
 
 ## Implementation Steps
 
-1. **Plugin Manager**
-   - Plugin discovery
-   - Loading mechanism
+1. **Extension API**
+   - Unified interface for all UIs
+   - Hook registration
+   - Event system
+
+2. **Plugin Manager**
+   - Discovery and loading
    - Dependency resolution
-
-2. **Plugin Sandbox**
-   - Permission system
-   - Resource isolation
-   - API restrictions
-
-3. **Plugin Registry**
-   - Registration system
    - Version management
-   - Conflict resolution
 
-4. **Core Plugins**
-   - Docker MCP tools
-   - Docker LLM provider
-   - Sandbox manager
+3. **Interface Adapters**
+   - Web UI adapter
+   - CLI adapter
+   - IDE adapter
 
-5. **Plugin API**
-   - Hook system
-   - Event emitters
-   - Service injection
+4. **Permission System**
+   - Capability-based security
+   - User approval flow
+   - Sandbox isolation
+
+5. **Core Plugins**
+   - Docker integration
+   - Additional providers
+   - Workflow extensions
+
+## Plugin Examples
+
+### Web UI Plugin
+Adds a new dashboard panel showing project metrics and custom actions.
+
+### CLI Plugin
+Adds `codeagent deploy` command with cloud provider integrations.
+
+### IDE Plugin Enhancement
+Adds inline AI suggestions and custom code actions to existing IDE extensions.
+
+### Cross-Interface Plugin
+Single plugin that adds features to all three interfaces simultaneously.
 
 ## Key Files
+- `Plugins/ExtensionAPI.cs`
 - `Plugins/PluginManager.cs`
-- `Plugins/PluginSandbox.cs`
-- `Plugins/IPlugin.cs`
-- `Plugins/Core/DockerMCP.cs`
-
-## Plugin Development
-```csharp
-public class CustomPlugin : IPlugin
-{
-    public string Name => "custom-plugin";
-    public string Version => "1.0.0";
-    
-    public Task InitializeAsync(IServiceProvider services)
-    {
-        var registry = services.GetService<IProviderRegistry>();
-        registry.Register(new CustomProvider());
-        return Task.CompletedTask;
-    }
-}
-```
+- `Plugins/Adapters/WebAdapter.cs`
+- `Plugins/Adapters/CLIAdapter.cs`
+- `Plugins/Adapters/IDEAdapter.cs`
 
 ## Success Criteria
-- [ ] Plugin loading working
+- [ ] Plugins can extend web UI
+- [ ] Plugins can add CLI commands
+- [ ] Plugins can enhance IDE features
 - [ ] Permissions enforced
-- [ ] Core plugins operational
-- [ ] Plugin configuration saved
+- [ ] Cross-interface plugins work
 - [ ] Hot reload supported

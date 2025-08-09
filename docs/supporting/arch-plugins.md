@@ -1,96 +1,57 @@
 # Plugin Architecture
 
-## Plugin Interface
-```csharp
-public interface IPlugin
-{
-    string Name { get; }
-    string Version { get; }
-    PluginType Type { get; }
-    string[] RequiredPermissions { get; }
-    
-    Task InitializeAsync(IServiceProvider services);
-    Task StartAsync();
-    Task StopAsync();
-    void Dispose();
-}
+## Extension Points
 
-public enum PluginType
-{
-    Provider,
-    Tool,
-    MCP,
-    Extension
-}
-```
+Plugins can extend multiple interfaces through a unified API:
 
-## Plugin Manifest
-```json
-{
-  "name": "my-plugin",
-  "version": "1.0.0",
-  "type": "provider",
-  "main": "MyPlugin.dll",
-  "author": "Author Name",
-  "description": "Plugin description",
-  "dependencies": {
-    "core": ">=1.0.0"
-  },
-  "permissions": [
-    "network.external",
-    "filesystem.read",
-    "docker.access"
-  ],
-  "configuration": {
-    "endpoint": {
-      "type": "string",
-      "required": true
-    }
-  }
-}
-```
+| Interface | Extension Capabilities |
+|-----------|----------------------|
+| Web UI | Pages, widgets, menus, actions |
+| CLI | Commands, flags, formatters |
+| IDE | Commands, views, providers |
 
-## Plugin Loader
-```csharp
-public class PluginLoader
-{
-    private readonly Dictionary<string, Assembly> _assemblies;
-    private readonly Dictionary<string, IPlugin> _plugins;
-    
-    public async Task<IPlugin> LoadPlugin(string path)
-    {
-        var manifest = LoadManifest(path);
-        ValidatePermissions(manifest.Permissions);
-        
-        var assembly = Assembly.LoadFrom(Path.Combine(path, manifest.Main));
-        var pluginType = assembly.GetTypes()
-            .FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t));
-            
-        var plugin = Activator.CreateInstance(pluginType) as IPlugin;
-        await plugin.InitializeAsync(_serviceProvider);
-        
-        return plugin;
-    }
-}
-```
+## Plugin Lifecycle
 
-## Permission System
-```csharp
-public enum PluginPermission
-{
-    NetworkExternal,
-    NetworkLocal,
-    FilesystemRead,
-    FilesystemWrite,
-    DockerAccess,
-    SystemExecute,
-    ConfigurationRead,
-    ConfigurationWrite
-}
-```
+1. Discovery - Find installed plugins
+2. Loading - Load plugin manifest
+3. Registration - Register extensions
+4. Initialization - Setup plugin services
+5. Activation - Enable UI/commands
+6. Runtime - Handle user interactions
+7. Deactivation - Clean shutdown
 
-## Plugin Sandbox
-- Isolated AppDomain (if .NET Framework)
-- AssemblyLoadContext isolation (.NET Core)
-- Resource quotas
-- API access control
+## Extension API
+
+The unified extension API allows plugins to register capabilities:
+
+| Method | Purpose |
+|--------|---------|
+| RegisterCommand | Add CLI/IDE command |
+| RegisterView | Add UI view/panel |
+| RegisterProvider | Add LLM provider |
+| RegisterAction | Add context action |
+| RegisterFormatter | Add output formatter |
+
+## Cross-Interface Communication
+
+Plugins can communicate across interfaces:
+- Web UI ↔ Backend via WebSocket
+- CLI ↔ Backend via API calls  
+- IDE ↔ Backend via Language Server Protocol
+- Plugin ↔ Plugin via event bus
+
+## Permission Model
+
+| Permission Level | Access |
+|-----------------|--------|
+| Basic | Read config, emit events |
+| Extended | Network, filesystem |
+| Privileged | Docker, system commands |
+| Admin | Modify core behavior |
+
+## Plugin Distribution
+
+- Official registry for verified plugins
+- Local file installation
+- Git repository references
+- Auto-update capability
