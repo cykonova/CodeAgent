@@ -1,40 +1,135 @@
 <mat-nav-list class="nav-list" [class.collapsed]="collapsed">
-  @for (section of navSections; track section.title) {
-    <div class="nav-section">
-      @if (!collapsed) {
-        <h3 matSubheader>{{ section.title }}</h3>
+  @for (section of menuItems; track trackBySection($index, section)) {
+    <div class="nav-section" [class.expanded]="section.expanded">
+      <!-- Section header -->
+      @if (!collapsed && section.title) {
+        @if (section.collapsible) {
+          <button 
+            mat-button 
+            class="section-header collapsible"
+            (click)="toggleSection(section)"
+            [attr.aria-expanded]="section.expanded">
+            <span class="section-title">{{ section.title }}</span>
+            <mat-icon class="expand-icon">
+              {{ section.expanded ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
+          </button>
+        } @else {
+          <h3 matSubheader class="section-header">{{ section.title }}</h3>
+        }
       }
 
-      @for (item of section.items; track item.route) {
-        <a
-          mat-list-item
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          (click)="onItemClick(item)"
-          [matTooltip]="collapsed ? item.label : ''"
-          matTooltipPosition="right"
-          class="nav-item">
+      <!-- Section items -->
+      @if (!section.collapsible || section.expanded) {
+        <div class="section-content">
+          @for (item of section.items; track trackByItem($index, item)) {
+            @if (hasPermission(item)) {
+              <!-- Parent item -->
+              <a
+                mat-list-item
+                [routerLink]="item.route"
+                [routerLinkActive]="!item.children?.length ? 'active' : ''"
+                [class.active]="isItemActive(item)"
+                [class.has-children]="item.children && item.children.length > 0"
+                [class.expanded]="item.expanded"
+                [class.disabled]="item.disabled"
+                (click)="onItemClick(item)"
+                [matTooltip]="getItemTooltip(item)"
+                matTooltipPosition="right"
 
-          <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
+                class="nav-item">
+                
+                <!-- Active indicator -->
+                @if (isItemActive(item) || isChildActive(item)) {
+                  <div class="active-indicator"></div>
+                }
 
-          @if (!collapsed) {
-              <span>{{ item.label }}</span>
+                <!-- Icon -->
+                @if (showIcons) {
+                  <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
+                }
 
-              @if (item.badge) {
-                <span
-                  matBadge="{{ item.badge }}"
-                  [matBadgeColor]="item.badgeColor || 'primary'"
-                  matBadgeSize="small"
-                  class="nav-badge">
-                </span>
+                <!-- Label -->
+                @if (!collapsed) {
+                  <span class="nav-label">{{ item.label }}</span>
+
+                  <!-- Badge -->
+                  @if (showBadges && item.badge) {
+                    <span 
+                      class="nav-badge"
+                      [class.badge-primary]="!item.badgeColor || item.badgeColor === 'primary'"
+                      [class.badge-accent]="item.badgeColor === 'accent'"
+                      [class.badge-warn]="item.badgeColor === 'warn'">
+                      {{ item.badge }}
+                    </span>
+                  }
+
+                  <!-- Expand icon for items with children -->
+                  @if (item.children && item.children.length > 0 && allowNesting) {
+                    <mat-icon class="expand-icon">
+                      {{ item.expanded ? 'expand_less' : 'expand_more' }}
+                    </mat-icon>
+                  }
+                }
+              </a>
+
+              <!-- Nested children -->
+              @if (item.children && item.children.length > 0 && item.expanded && !collapsed && allowNesting) {
+                <div class="nested-items">
+                  @for (child of item.children; track trackByItem($index, child)) {
+                    @if (hasPermission(child)) {
+                      <a
+                        mat-list-item
+                        [routerLink]="child.route"
+                        routerLinkActive="active"
+                        [class.disabled]="child.disabled"
+                        (click)="onItemClick(child)"
+        
+                        class="nav-item nested-item">
+                        
+                        <!-- Active indicator -->
+                        @if (isItemActive(child)) {
+                          <div class="active-indicator"></div>
+                        }
+
+                        <!-- Icon -->
+                        @if (showIcons && child.icon) {
+                          <mat-icon matListItemIcon class="nav-icon nested-icon">{{ child.icon }}</mat-icon>
+                        } @else {
+                          <span class="icon-spacer"></span>
+                        }
+
+                        <!-- Label -->
+                        <span class="nav-label nested-label">{{ child.label }}</span>
+
+                        <!-- Badge -->
+                        @if (showBadges && child.badge) {
+                          <span 
+                            class="nav-badge"
+                            [class.badge-primary]="!child.badgeColor || child.badgeColor === 'primary'"
+                            [class.badge-accent]="child.badgeColor === 'accent'"
+                            [class.badge-warn]="child.badgeColor === 'warn'">
+                            {{ child.badge }}
+                          </span>
+                        }
+                      </a>
+                    }
+                  }
+                </div>
               }
+            }
           }
-        </a>
+        </div>
       }
     </div>
+
+    <!-- Section divider -->
+    @if (!$last) {
+      <mat-divider class="section-divider"></mat-divider>
+    }
   }
 
-  <!-- Version info at bottom -->
+  <!-- Footer -->
   <div class="nav-footer">
     <mat-divider></mat-divider>
     <div class="version-info" [class.collapsed]="collapsed">
