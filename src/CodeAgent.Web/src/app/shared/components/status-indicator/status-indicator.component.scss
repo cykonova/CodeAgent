@@ -1,12 +1,12 @@
 .status-indicator {
   display: inline-flex;
   align-items: center;
-  gap: var(--mdc-theme-spacing-xs, 4px);
+  gap: var(--spacing-xs, 4px);
   
   &.with-label {
-    padding: var(--mdc-theme-spacing-xs, 4px) var(--mdc-theme-spacing-sm, 8px);
-    background: var(--mdc-theme-surface-variant, #f5f5f5);
-    border-radius: var(--mdc-shape-small, 4px);
+    padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
+    background: var(--theme-surface-variant, #f5f5f5);
+    border-radius: var(--radius-sm, 4px);
   }
 }
 
@@ -15,13 +15,13 @@
   height: 8px;
   border-radius: 50%;
   
-  .status-success & { background: #4caf50; }
-  .status-warning & { background: #ff9800; }
-  .status-error & { background: #f44336; }
-  .status-info & { background: #2196f3; }
-  .status-idle & { background: #9e9e9e; }
-  .status-running & { background: #4caf50; }
-  .status-paused & { background: #ff9800; }
+  .status-success & { background: var(--theme-status-success, #4caf50); }
+  .status-warning & { background: var(--theme-status-warning, #ff9800); }
+  .status-error & { background: var(--theme-status-error, #f44336); }
+  .status-info & { background: var(--theme-status-info, #2196f3); }
+  .status-idle & { background: var(--theme-status-idle, #9e9e9e); }
+  .status-running & { background: var(--theme-status-running, #4caf50); }
+  .status-paused & { background: var(--theme-status-paused, #ff9800); }
   
   .pulse & {
     animation: pulse-animation 2s infinite;

@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--mdc-theme-spacing-lg, 24px) * 2);
+  padding: var(--spacing-xxl, 48px);
   text-align: center;
   min-height: 300px;
 }
@@ -12,24 +12,24 @@
   font-size: 64px;
   width: 64px;
   height: 64px;
-  color: var(--mdc-theme-text-disabled, rgba(0, 0, 0, 0.38));
-  margin-bottom: var(--mdc-theme-spacing-lg, 24px);
+  color: var(--theme-text-disabled, rgba(0, 0, 0, 0.38));
+  margin-bottom: var(--spacing-lg, 24px);
 }
 
 .empty-title {
-  margin: 0 0 var(--mdc-theme-spacing-sm, 8px);
-  color: var(--mdc-theme-text-primary, rgba(0, 0, 0, 0.87));
-  font-weight: 400;
+  margin: 0 0 var(--spacing-sm, 8px);
+  color: var(--theme-text-primary, rgba(0, 0, 0, 0.87));
+  font-weight: var(--font-weight-regular, 400);
 }
 
 .empty-message {
-  margin: 0 0 var(--mdc-theme-spacing-lg, 24px);
-  color: var(--mdc-theme-text-secondary, rgba(0, 0, 0, 0.6));
+  margin: 0 0 var(--spacing-lg, 24px);
+  color: var(--theme-text-secondary, rgba(0, 0, 0, 0.6));
   max-width: 400px;
 }
 
 button {
   mat-icon {
-    margin-right: var(--mdc-theme-spacing-xs, 4px);
+    margin-right: var(--spacing-xs, 4px);
   }
 }

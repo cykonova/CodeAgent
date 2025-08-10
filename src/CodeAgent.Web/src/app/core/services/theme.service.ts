@@ -175,7 +175,29 @@ export class ThemeService implements OnDestroy {
       // Scrollbar
       '--theme-scrollbar-track': '#f1f1f1',
       '--theme-scrollbar-thumb': '#888',
-      '--theme-scrollbar-thumb-hover': '#555'
+      '--theme-scrollbar-thumb-hover': '#555',
+      
+      // Skeleton loader colors
+      '--theme-skeleton-base': '#e0e0e0',
+      '--theme-skeleton-shimmer': 'rgba(255, 255, 255, 0.4)',
+      
+      // Status colors
+      '--theme-status-success': '#4caf50',
+      '--theme-status-warning': '#ff9800',
+      '--theme-status-error': '#f44336',
+      '--theme-status-info': '#2196f3',
+      '--theme-status-idle': '#9e9e9e',
+      '--theme-status-running': '#4caf50',
+      '--theme-status-paused': '#ff9800',
+      
+      // Loading overlay
+      '--theme-overlay-backdrop': 'rgba(0, 0, 0, 0.5)',
+      
+      // Progress colors (uses Material theme colors)
+      '--theme-progress-track': 'rgba(0, 0, 0, 0.12)',
+      '--theme-progress-fill-primary': '#1976d2',
+      '--theme-progress-fill-accent': '#ff9800',
+      '--theme-progress-fill-warn': '#f44336'
     };
   }
   
@@ -209,7 +231,29 @@ export class ThemeService implements OnDestroy {
       // Scrollbar
       '--theme-scrollbar-track': '#2e2e2e',
       '--theme-scrollbar-thumb': '#6b6b6b',
-      '--theme-scrollbar-thumb-hover': '#959595'
+      '--theme-scrollbar-thumb-hover': '#959595',
+      
+      // Skeleton loader colors
+      '--theme-skeleton-base': '#424242',
+      '--theme-skeleton-shimmer': 'rgba(255, 255, 255, 0.08)',
+      
+      // Status colors (slightly adjusted for dark theme)
+      '--theme-status-success': '#66bb6a',
+      '--theme-status-warning': '#ffa726',
+      '--theme-status-error': '#ef5350',
+      '--theme-status-info': '#42a5f5',
+      '--theme-status-idle': '#bdbdbd',
+      '--theme-status-running': '#66bb6a',
+      '--theme-status-paused': '#ffa726',
+      
+      // Loading overlay
+      '--theme-overlay-backdrop': 'rgba(0, 0, 0, 0.7)',
+      
+      // Progress colors (uses Material theme colors for dark)
+      '--theme-progress-track': 'rgba(255, 255, 255, 0.12)',
+      '--theme-progress-fill-primary': '#90caf9',
+      '--theme-progress-fill-accent': '#ffb74d',
+      '--theme-progress-fill-warn': '#ef5350'
     };
   }
   

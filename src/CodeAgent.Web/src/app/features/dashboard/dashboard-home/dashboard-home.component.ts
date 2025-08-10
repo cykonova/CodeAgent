@@ -10,6 +10,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { TableCardComponent } from '../../../shared/components/table-card/table-card.component';
+import { LoadingOverlayComponent } from '../../../shared/components/loading-overlay/loading-overlay.component';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
+import { StatusIndicatorComponent } from '../../../shared/components/status-indicator/status-indicator.component';
+import { ProgressIndicatorComponent } from '../../../shared/components/progress-indicator/progress-indicator.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { TableConfig } from '../../../shared/models/table.model';
 
 @Component({
@@ -26,12 +31,23 @@ import { TableConfig } from '../../../shared/models/table.model';
     MatFormFieldModule,
     MatInputModule,
     CardComponent,
-    TableCardComponent
+    TableCardComponent,
+    LoadingOverlayComponent,
+    SkeletonLoaderComponent,
+    StatusIndicatorComponent,
+    ProgressIndicatorComponent,
+    EmptyStateComponent
   ],
   templateUrl: './dashboard-home.component.html',
   styleUrl: './dashboard-home.component.scss'
 })
 export class DashboardHomeComponent {
+  // Demo states for new components
+  showLoadingOverlay = false;
+  showSkeletons = false;
+  progressValue = 65;
+  currentStep = 2;
+  
   // Sample data for testing
   stats = [
     { label: 'Active Projects', value: 12, icon: 'folder', color: 'primary' },
@@ -113,5 +129,34 @@ export class DashboardHomeComponent {
 
   deleteProject(project: any): void {
     console.log('Delete project:', project);
+  }
+
+  // Demo methods for new components
+  toggleLoadingOverlay(): void {
+    this.showLoadingOverlay = true;
+    setTimeout(() => {
+      this.showLoadingOverlay = false;
+    }, 3000);
+  }
+
+  toggleSkeletons(): void {
+    this.showSkeletons = !this.showSkeletons;
+  }
+
+  incrementProgress(): void {
+    this.progressValue = Math.min(100, this.progressValue + 10);
+  }
+
+  nextStep(): void {
+    this.currentStep = Math.min(3, this.currentStep + 1);
+  }
+
+  resetDemo(): void {
+    this.progressValue = 0;
+    this.currentStep = 0;
+  }
+
+  handleEmptyAction(): void {
+    console.log('Empty state action clicked');
   }
 }

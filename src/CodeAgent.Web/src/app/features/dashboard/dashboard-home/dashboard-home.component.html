@@ -247,4 +247,214 @@
       (rowClick)="onProjectSelect($event)">
     </app-table-card>
   </section>
+
+  <!-- New Shared Components Showcase -->
+  <section class="mb-xl">
+    <h2 class="mat-headline-6 mb-md">New Shared Components</h2>
+    
+    <!-- Loading Overlay Demo -->
+    <div class="mb-lg">
+      <h3 class="mat-subtitle-1 mb-sm">Loading Overlay</h3>
+      <app-card elevation="raised" padding="large" style="position: relative; min-height: 200px;">
+        <button mat-raised-button color="primary" (click)="toggleLoadingOverlay()">
+          Show Loading Overlay (3 seconds)
+        </button>
+        <p class="mt-md">Click the button to see the loading overlay in action.</p>
+        <app-loading-overlay 
+          [visible]="showLoadingOverlay" 
+          message="Loading your data..."
+          [fullscreen]="false">
+        </app-loading-overlay>
+      </app-card>
+    </div>
+
+    <!-- Skeleton Loader Demo -->
+    <div class="mb-lg">
+      <h3 class="mat-subtitle-1 mb-sm">Skeleton Loaders</h3>
+      <app-card elevation="raised" padding="medium">
+        <button mat-raised-button color="primary" (click)="toggleSkeletons()" class="mb-md">
+          Toggle Skeletons
+        </button>
+        
+        <div *ngIf="!showSkeletons; else skeletonContent">
+          <h4>Actual Content</h4>
+          <p>This is the real content that would be loaded.</p>
+          <img src="https://via.placeholder.com/300x150" alt="Sample" style="width: 100%; max-width: 300px;">
+        </div>
+        
+        <ng-template #skeletonContent>
+          <div class="d-flex flex-column gap-sm">
+            <app-skeleton-loader type="title" width="200px"></app-skeleton-loader>
+            <app-skeleton-loader type="text"></app-skeleton-loader>
+            <app-skeleton-loader type="text" width="80%"></app-skeleton-loader>
+            <app-skeleton-loader type="text" width="60%"></app-skeleton-loader>
+            <div class="d-flex gap-md mt-md">
+              <app-skeleton-loader type="avatar"></app-skeleton-loader>
+              <div class="flex-1">
+                <app-skeleton-loader type="text" width="150px"></app-skeleton-loader>
+                <app-skeleton-loader type="text" width="100px"></app-skeleton-loader>
+              </div>
+            </div>
+            <app-skeleton-loader type="image" width="300px"></app-skeleton-loader>
+            <app-skeleton-loader type="card"></app-skeleton-loader>
+          </div>
+        </ng-template>
+      </app-card>
+    </div>
+
+    <!-- Status Indicator Demo -->
+    <div class="mb-lg">
+      <h3 class="mat-subtitle-1 mb-sm">Status Indicators</h3>
+      <app-card elevation="raised" padding="medium">
+        <div class="d-flex flex-column gap-md">
+          <div>
+            <h4 class="mat-body-2 mb-sm">Dot Style</h4>
+            <div class="d-flex gap-md align-center flex-wrap">
+              <app-status-indicator status="success"></app-status-indicator>
+              <app-status-indicator status="warning"></app-status-indicator>
+              <app-status-indicator status="error"></app-status-indicator>
+              <app-status-indicator status="info"></app-status-indicator>
+              <app-status-indicator status="running" [pulse]="true"></app-status-indicator>
+              <app-status-indicator status="paused"></app-status-indicator>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="mat-body-2 mb-sm">Icon Style</h4>
+            <div class="d-flex gap-md align-center flex-wrap">
+              <app-status-indicator status="success" style="icon"></app-status-indicator>
+              <app-status-indicator status="warning" style="icon"></app-status-indicator>
+              <app-status-indicator status="error" style="icon"></app-status-indicator>
+              <app-status-indicator status="info" style="icon"></app-status-indicator>
+              <app-status-indicator status="running" style="icon"></app-status-indicator>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="mat-body-2 mb-sm">With Labels</h4>
+            <div class="d-flex gap-md align-center flex-wrap">
+              <app-status-indicator status="success" [showLabel]="true"></app-status-indicator>
+              <app-status-indicator status="error" style="icon" [showLabel]="true"></app-status-indicator>
+              <app-status-indicator status="running" [showLabel]="true" [pulse]="true"></app-status-indicator>
+              <app-status-indicator status="paused" style="icon" [showLabel]="true" label="On Hold"></app-status-indicator>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="mat-body-2 mb-sm">With Tooltips</h4>
+            <div class="d-flex gap-md align-center flex-wrap">
+              <app-status-indicator status="success" tooltip="Operation completed successfully"></app-status-indicator>
+              <app-status-indicator status="error" style="icon" tooltip="Connection failed"></app-status-indicator>
+              <app-status-indicator status="running" [pulse]="true" tooltip="Process is running"></app-status-indicator>
+            </div>
+          </div>
+        </div>
+      </app-card>
+    </div>
+
+    <!-- Progress Indicator Demo -->
+    <div class="mb-lg">
+      <h3 class="mat-subtitle-1 mb-sm">Progress Indicators</h3>
+      <app-card elevation="raised" padding="medium">
+        <div class="d-flex flex-column gap-lg">
+          <div>
+            <h4 class="mat-body-2 mb-sm">Linear Progress</h4>
+            <app-progress-indicator 
+              type="linear" 
+              [value]="progressValue" 
+              label="Upload Progress">
+            </app-progress-indicator>
+            <div class="mt-sm">
+              <button mat-button (click)="incrementProgress()">Add 10%</button>
+              <button mat-button (click)="progressValue = 0">Reset</button>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="mat-body-2 mb-sm">Circular Progress</h4>
+            <div class="d-flex gap-md align-center">
+              <app-progress-indicator 
+                type="circular" 
+                [value]="progressValue" 
+                [diameter]="60">
+              </app-progress-indicator>
+              <app-progress-indicator 
+                type="circular" 
+                [value]="progressValue" 
+                [diameter]="80"
+                color="accent">
+              </app-progress-indicator>
+              <app-progress-indicator 
+                type="circular" 
+                mode="indeterminate"
+                [diameter]="60"
+                color="warn">
+              </app-progress-indicator>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="mat-body-2 mb-sm">Step Progress</h4>
+            <app-progress-indicator 
+              type="steps" 
+              [steps]="['Setup', 'Configure', 'Deploy', 'Complete']"
+              [currentStep]="currentStep">
+            </app-progress-indicator>
+            <div class="mt-sm">
+              <button mat-button (click)="nextStep()">Next Step</button>
+              <button mat-button (click)="currentStep = 0">Reset</button>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="mat-body-2 mb-sm">Indeterminate Progress</h4>
+            <app-progress-indicator 
+              type="linear" 
+              mode="indeterminate"
+              label="Processing...">
+            </app-progress-indicator>
+          </div>
+        </div>
+      </app-card>
+    </div>
+
+    <!-- Empty State Demo -->
+    <div class="mb-lg">
+      <h3 class="mat-subtitle-1 mb-sm">Empty States</h3>
+      <div class="d-flex gap-md flex-wrap">
+        <app-card elevation="raised" padding="none" class="flex-1">
+          <app-empty-state
+            icon="folder_open"
+            title="No projects yet"
+            message="Create your first project to get started with automation"
+            actionLabel="Create Project"
+            actionIcon="add"
+            (actionClick)="handleEmptyAction()">
+          </app-empty-state>
+        </app-card>
+        
+        <app-card elevation="raised" padding="none" class="flex-1">
+          <app-empty-state
+            icon="search_off"
+            title="No results found"
+            message="Try adjusting your search filters"
+            actionLabel="Clear Filters"
+            actionColor="accent"
+            (actionClick)="handleEmptyAction()">
+          </app-empty-state>
+        </app-card>
+      </div>
+      
+      <app-card elevation="raised" padding="none" class="mt-md">
+        <app-empty-state
+          icon="cloud_off"
+          title="Connection Lost"
+          message="Unable to connect to the server. Please check your internet connection and try again."
+          actionLabel="Retry"
+          actionIcon="refresh"
+          (actionClick)="handleEmptyAction()">
+        </app-empty-state>
+      </app-card>
+    </div>
+  </section>
 </div>
