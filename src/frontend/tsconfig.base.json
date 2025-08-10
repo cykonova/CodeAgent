@@ -15,13 +15,14 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@code-agent/auth": ["auth/src/index.ts"],
-      "@code-agent/ui-forms": ["ui-forms/src/index.ts"],
-      "@code-agent/ui-tables": ["ui-tables/src/index.ts"],
-      "@src/data-access": ["data-access/src/index.ts"],
-      "@src/i18n": ["i18n/src/index.ts"],
-      "@src/ui-components": ["ui-components/src/index.ts"],
-      "@src/websocket": ["websocket/src/index.ts"]
+      "@code-agent/data-access": ["libs/data-access/src/index.ts"],
+      "@code-agent/feature/auth": ["libs/feature/auth/src/index.ts"],
+      "@code-agent/ui/components": ["libs/ui/components/src/index.ts"],
+      "@code-agent/ui/forms": ["libs/ui/forms/src/index.ts"],
+      "@code-agent/ui/tables": ["libs/ui/tables/src/index.ts"],
+      "@code-agent/util/i18n": ["libs/util/i18n/src/index.ts"],
+      "@code-agent/util/websocket": ["libs/util/websocket/src/index.ts"],
+      "@code-agent/core/error-handler": ["libs/core/error-handler/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

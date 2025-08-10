@@ -9,8 +9,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
-import { AuthService, User } from '@code-agent/auth';
-import { HeaderService } from '@src/data-access';
+import { AuthService, User } from '@code-agent/feature/auth';
+import { HeaderService } from '@code-agent/data-access';
 import { Observable } from 'rxjs';
 
 @Component({

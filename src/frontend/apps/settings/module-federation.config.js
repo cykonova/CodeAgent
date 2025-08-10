@@ -1,6 +1,6 @@
 module.exports = {
   name: 'settings',
   exposes: {
-    './Module': './settings/src/remote-entry.ts',
+    './Module': './apps/settings/src/remote-entry.ts',
   },
 };

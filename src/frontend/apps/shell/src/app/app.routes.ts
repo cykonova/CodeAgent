@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { authGuard, LoginComponent, RegisterComponent } from '@code-agent/auth';
+import { authGuard, LoginComponent, RegisterComponent } from '@code-agent/feature/auth';
 
 export const appRoutes: Route[] = [
   {
@@ -12,26 +12,26 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'chat',
-    loadComponent: () =>
-      import('../../../../chat/src/app/app').then(m => m.App),
+    loadChildren: () =>
+      import('chat/Module').then(m => m.RemoteEntryModule),
     canActivate: [authGuard]
   },
   {
     path: 'dashboard',
-    loadComponent: () =>
-      import('../../../../dashboard/src/app/app').then(m => m.App),
+    loadChildren: () =>
+      import('dashboard/Module').then(m => m.RemoteEntryModule),
     canActivate: [authGuard]
   },
   {
     path: 'projects',
-    loadComponent: () =>
-      import('../../../../projects/src/app/app').then(m => m.App),
+    loadChildren: () =>
+      import('projects/Module').then(m => m.RemoteEntryModule),
     canActivate: [authGuard]
   },
   {
     path: 'settings',
-    loadComponent: () =>
-      import('../../../../settings/src/app/app').then(m => m.App),
+    loadChildren: () =>
+      import('settings/Module').then(m => m.RemoteEntryModule),
     canActivate: [authGuard]
   },
   {
