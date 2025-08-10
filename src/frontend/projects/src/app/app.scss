@@ -18,9 +18,13 @@
     }
     
     .sidenav-content {
-      padding: var(--spacing-lg);
-      height: calc(100% - calc(var(--spacing-md) * 2 + var(--spacing-lg) + 1px));
+      padding: 0;
+      height: calc(100% - 73px);
       overflow-y: auto;
+      
+      .project-form {
+        padding: var(--spacing-lg);
+      }
       
       .form-grid {
         display: grid;
@@ -40,12 +44,19 @@
         }
       }
       
+      mat-form-field {
+        .mat-mdc-form-field-subscript-wrapper {
+          margin-top: var(--spacing-xs);
+        }
+      }
+      
       .form-actions {
         display: flex;
         justify-content: flex-end;
         gap: var(--spacing-sm);
-        margin-top: var(--spacing-lg);
+        padding: var(--spacing-lg);
         padding-top: var(--spacing-md);
+        margin: 0 calc(var(--spacing-lg) * -1);
         border-top: 1px solid var(--mat-divider-color);
       }
     }

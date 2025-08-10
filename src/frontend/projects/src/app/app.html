@@ -9,22 +9,22 @@
     </div>
     
     <div class="sidenav-content">
-      <form [formGroup]="projectForm" (ngSubmit)="saveProject()">
+      <form [formGroup]="projectForm" (ngSubmit)="saveProject()" class="project-form">
         <div class="form-grid">
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Project Name</mat-label>
             <input matInput formControlName="name" required>
             <mat-error *ngIf="projectForm.get('name')?.hasError('required')">Name is required</mat-error>
             <mat-error *ngIf="projectForm.get('name')?.hasError('minlength')">Name must be at least 3 characters</mat-error>
           </mat-form-field>
 
-          <mat-form-field *ngIf="!editMode">
+          <mat-form-field *ngIf="!editMode" appearance="outline">
             <mat-label>Project Path</mat-label>
             <input matInput formControlName="path" placeholder="/path/to/project" required>
             <mat-error>Path is required</mat-error>
           </mat-form-field>
 
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Project Type</mat-label>
             <mat-select formControlName="type" required>
               <mat-option *ngFor="let type of projectTypes" [value]="type">
@@ -34,32 +34,32 @@
           </mat-form-field>
 
 
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Language</mat-label>
             <input matInput formControlName="language" placeholder="e.g., TypeScript, Python">
           </mat-form-field>
 
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Framework</mat-label>
             <input matInput formControlName="framework" placeholder="e.g., Angular, React, Django">
           </mat-form-field>
 
-          <mat-form-field class="full-width">
+          <mat-form-field class="full-width" appearance="outline">
             <mat-label>Description</mat-label>
             <textarea matInput formControlName="description" rows="3"></textarea>
           </mat-form-field>
 
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Build Command</mat-label>
             <input matInput formControlName="buildCommand" placeholder="e.g., npm run build">
           </mat-form-field>
 
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Test Command</mat-label>
             <input matInput formControlName="testCommand" placeholder="e.g., npm test">
           </mat-form-field>
 
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Start Command</mat-label>
             <input matInput formControlName="startCommand" placeholder="e.g., npm start">
           </mat-form-field>
