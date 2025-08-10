@@ -32,7 +32,7 @@ import {
 export class WebSocketService implements OnDestroy {
   private socket?: WebSocket;
   private config: WebSocketConfig = {
-    url: 'ws://localhost:8080/ws',
+    url: '', // Will be set in constructor
     reconnect: true,
     reconnectInterval: 5000,
     reconnectAttempts: 5,
@@ -102,8 +102,27 @@ export class WebSocketService implements OnDestroy {
   );
   
   constructor() {
+    // Set the WebSocket URL based on environment
+    this.config.url = this.getWebSocketUrl();
     // Auto-connect on service creation
     this.connect();
+  }
+  
+  private getWebSocketUrl(): string {
+    // In development, use relative URL to leverage Angular proxy
+    // In production, this would use the actual WebSocket endpoint
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    
+    // Use relative path for development (will be proxied)
+    // The proxy.conf.json will handle routing /ws to the backend
+    if (host.includes('localhost:4200')) {
+      // Development mode - use relative path that will be proxied
+      return `${protocol}//${host}/ws`;
+    }
+    
+    // Production or other environments
+    return `${protocol}//${host}/ws`;
   }
   
   ngOnDestroy() {
