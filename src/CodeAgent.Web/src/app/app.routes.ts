@@ -12,8 +12,8 @@ export const routes: Routes = [
     children: [
       {
         path: 'register',
-        loadComponent: () => import('./features/auth/login/login.component')
-          .then(m => m.LoginComponent) // Placeholder - will be replaced with RegisterComponent
+        loadComponent: () => import('./features/auth/registration/registration.component')
+          .then(m => m.RegistrationComponent)
       },
       {
         path: 'forgot-password',
