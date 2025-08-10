@@ -1,4 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject, Observable, Subject, throwError, of } from 'rxjs';
@@ -38,6 +39,7 @@ export class AuthService implements OnDestroy {
   public loading$ = this.authState$.pipe(map(state => state.loading));
   
   constructor(
+    private http: HttpClient,
     private wsService: WebSocketService,
     private router: Router,
     private snackBar: MatSnackBar
@@ -49,6 +51,37 @@ export class AuthService implements OnDestroy {
     this.clearTokenRefreshTimer();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private getApiUrl(path: string): string {
+    // Get the base URL from environment or use current origin
+    const baseUrl = window.location.origin;
+    return `${baseUrl}${path}`;
+  }
+
+  private mapBackendResponse(response: any): AuthResponse {
+    // Map backend response format to frontend AuthResponse format
+    return {
+      user: {
+        id: response.User?.Id || response.user?.id,
+        email: response.User?.Email || response.user?.email,
+        firstName: response.User?.FirstName || response.user?.firstName,
+        lastName: response.User?.LastName || response.user?.lastName,
+        displayName: `${response.User?.FirstName || ''} ${response.User?.LastName || ''}`.trim(),
+        roles: response.User?.Roles || response.user?.roles || [],
+        permissions: response.User?.Permissions || response.user?.permissions || [],
+        emailVerified: response.User?.EmailVerified || false,
+        createdAt: new Date(),
+        lastLogin: new Date()
+      },
+      tokens: {
+        accessToken: response.Token || response.token,
+        refreshToken: response.RefreshToken || response.refreshToken,
+        expiresIn: response.ExpiresIn || response.expiresIn || 86400,
+        tokenType: 'Bearer'
+      },
+      sessionId: response.SessionId || response.sessionId || ''
+    };
   }
 
   private initializeAuth(): void {
@@ -97,8 +130,17 @@ export class AuthService implements OnDestroy {
   public login(credentials: LoginCredentials): Observable<AuthResponse> {
     this.updateAuthState({ loading: true, error: null });
     
-    return this.wsService.request<LoginCredentials, any>('auth', credentials).pipe(
-      map(response => response as AuthResponse),
+    // Use HTTP POST to the login endpoint
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+    
+    const apiUrl = this.getApiUrl('/api/auth/login');
+    
+    return this.http.post<any>(apiUrl, credentials, httpOptions).pipe(
+      map(response => this.mapBackendResponse(response)),
       tap(response => {
         this.storeAuthData(response, credentials.rememberMe);
         
@@ -116,9 +158,10 @@ export class AuthService implements OnDestroy {
         this.router.navigate(['/dashboard']);
       }),
       catchError(error => {
+        const errorMessage = error.error?.error || error.message || 'Login failed';
         this.updateAuthState({
           loading: false,
-          error: error.message || 'Login failed'
+          error: errorMessage
         });
         return throwError(() => error);
       })
@@ -128,24 +171,52 @@ export class AuthService implements OnDestroy {
   public register(data: RegistrationData): Observable<AuthResponse> {
     this.updateAuthState({ loading: true, error: null });
     
-    return this.wsService.request<RegistrationData, any>('register', data).pipe(
-      map(response => response as AuthResponse),
+    // Use HTTP POST to the registration endpoint
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+    
+    const apiUrl = this.getApiUrl('/api/auth/register');
+    const requestData = {
+      email: data.email,
+      password: data.password,
+      firstName: data.firstName,
+      lastName: data.lastName
+    };
+    
+    return this.http.post<any>(apiUrl, requestData, httpOptions).pipe(
+      map(response => this.mapBackendResponse(response)),
       tap(response => {
+        // Store auth data but don't mark as authenticated yet (email not verified)
         this.updateAuthState({
           loading: false,
           error: null
         });
         
+        // Navigate to email verification page
         this.router.navigate(['/auth/verify-email'], {
           queryParams: { email: data.email }
         });
+        
+        this.snackBar.open(
+          'Registration successful! Please check your email to verify your account.',
+          'Close',
+          {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top'
+          }
+        );
       }),
       catchError(error => {
+        const errorMessage = error.error?.error || error.message || 'Registration failed';
         this.updateAuthState({
           loading: false,
-          error: error.message || 'Registration failed'
+          error: errorMessage
         });
-        return throwError(() => error);
+        return throwError(() => ({ message: errorMessage }));
       })
     );
   }
