@@ -50,14 +50,22 @@
     <mat-card>
       <mat-card-content>
         <div class="d-flex gap-md flex-wrap">
-          <mat-form-field appearance="fill">
-            <mat-label>Fill Input</mat-label>
+          <mat-form-field>
+            <mat-label>Default Input (Outline)</mat-label>
             <input matInput placeholder="Type here...">
+            <mat-hint>All form fields use outline by default</mat-hint>
           </mat-form-field>
           
-          <mat-form-field appearance="outline">
-            <mat-label>Outline Input</mat-label>
-            <input matInput placeholder="Type here...">
+          <mat-form-field>
+            <mat-label>Another Input</mat-label>
+            <input matInput placeholder="Enter text...">
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+          
+          <mat-form-field>
+            <mat-label>Password Field</mat-label>
+            <input matInput type="password" placeholder="Enter password...">
+            <mat-icon matSuffix>visibility_off</mat-icon>
           </mat-form-field>
         </div>
       </mat-card-content>
