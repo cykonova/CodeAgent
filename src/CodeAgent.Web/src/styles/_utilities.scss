@@ -1,0 +1,276 @@
+// Utility Classes and Mixins
+
+// ============================================
+// Mixins
+// ============================================
+
+// Responsive breakpoint mixin
+@mixin breakpoint($size) {
+  @if $size == 'xs' {
+    @media (max-width: 599px) { @content; }
+  } @else if $size == 'sm' {
+    @media (min-width: 600px) and (max-width: 959px) { @content; }
+  } @else if $size == 'md' {
+    @media (min-width: 960px) and (max-width: 1279px) { @content; }
+  } @else if $size == 'lg' {
+    @media (min-width: 1280px) and (max-width: 1919px) { @content; }
+  } @else if $size == 'xl' {
+    @media (min-width: 1920px) { @content; }
+  }
+}
+
+// Truncate text with ellipsis
+@mixin truncate($max-width: 100%) {
+  max-width: $max-width;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Center content flexbox
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Card elevation
+@mixin card-elevation($level: 'md') {
+  @if $level == 'sm' {
+    box-shadow: var(--shadow-sm);
+  } @else if $level == 'md' {
+    box-shadow: var(--shadow-md);
+  } @else if $level == 'lg' {
+    box-shadow: var(--shadow-lg);
+  } @else if $level == 'xl' {
+    box-shadow: var(--shadow-xl);
+  }
+}
+
+// Focus visible outline
+@mixin focus-outline {
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+}
+
+// ============================================
+// Spacing Utilities
+// ============================================
+
+// Margin utilities
+@each $side in (top, right, bottom, left) {
+  @each $size, $value in (
+    'xs': var(--spacing-xs),
+    'sm': var(--spacing-sm),
+    'md': var(--spacing-md),
+    'lg': var(--spacing-lg),
+    'xl': var(--spacing-xl),
+    'xxl': var(--spacing-xxl)
+  ) {
+    .m#{str-slice($side, 0, 1)}-#{$size} {
+      margin-#{$side}: #{$value} !important;
+    }
+  }
+}
+
+// Margin all sides
+@each $size, $value in (
+  'xs': var(--spacing-xs),
+  'sm': var(--spacing-sm),
+  'md': var(--spacing-md),
+  'lg': var(--spacing-lg),
+  'xl': var(--spacing-xl),
+  'xxl': var(--spacing-xxl)
+) {
+  .m-#{$size} {
+    margin: #{$value} !important;
+  }
+}
+
+// Padding utilities
+@each $side in (top, right, bottom, left) {
+  @each $size, $value in (
+    'xs': var(--spacing-xs),
+    'sm': var(--spacing-sm),
+    'md': var(--spacing-md),
+    'lg': var(--spacing-lg),
+    'xl': var(--spacing-xl),
+    'xxl': var(--spacing-xxl)
+  ) {
+    .p#{str-slice($side, 0, 1)}-#{$size} {
+      padding-#{$side}: #{$value} !important;
+    }
+  }
+}
+
+// Padding all sides
+@each $size, $value in (
+  'xs': var(--spacing-xs),
+  'sm': var(--spacing-sm),
+  'md': var(--spacing-md),
+  'lg': var(--spacing-lg),
+  'xl': var(--spacing-xl),
+  'xxl': var(--spacing-xxl)
+) {
+  .p-#{$size} {
+    padding: #{$value} !important;
+  }
+}
+
+// ============================================
+// Display Utilities
+// ============================================
+
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-inline { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.d-flex { display: flex !important; }
+.d-inline-flex { display: inline-flex !important; }
+.d-grid { display: grid !important; }
+
+// ============================================
+// Flexbox Utilities
+// ============================================
+
+.flex-row { flex-direction: row !important; }
+.flex-column { flex-direction: column !important; }
+.flex-wrap { flex-wrap: wrap !important; }
+.flex-nowrap { flex-wrap: nowrap !important; }
+
+.justify-start { justify-content: flex-start !important; }
+.justify-end { justify-content: flex-end !important; }
+.justify-center { justify-content: center !important; }
+.justify-between { justify-content: space-between !important; }
+.justify-around { justify-content: space-around !important; }
+.justify-evenly { justify-content: space-evenly !important; }
+
+.align-start { align-items: flex-start !important; }
+.align-end { align-items: flex-end !important; }
+.align-center { align-items: center !important; }
+.align-baseline { align-items: baseline !important; }
+.align-stretch { align-items: stretch !important; }
+
+.flex-1 { flex: 1 !important; }
+.flex-auto { flex: auto !important; }
+.flex-none { flex: none !important; }
+
+.gap-xs { gap: var(--spacing-xs) !important; }
+.gap-sm { gap: var(--spacing-sm) !important; }
+.gap-md { gap: var(--spacing-md) !important; }
+.gap-lg { gap: var(--spacing-lg) !important; }
+.gap-xl { gap: var(--spacing-xl) !important; }
+
+// ============================================
+// Text Utilities
+// ============================================
+
+.text-left { text-align: left !important; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+.text-justify { text-align: justify !important; }
+
+.text-lowercase { text-transform: lowercase !important; }
+.text-uppercase { text-transform: uppercase !important; }
+.text-capitalize { text-transform: capitalize !important; }
+
+.text-truncate {
+  @include truncate();
+}
+
+.font-weight-light { font-weight: var(--font-weight-light) !important; }
+.font-weight-regular { font-weight: var(--font-weight-regular) !important; }
+.font-weight-medium { font-weight: var(--font-weight-medium) !important; }
+.font-weight-bold { font-weight: var(--font-weight-bold) !important; }
+
+// ============================================
+// Color Utilities
+// ============================================
+
+.text-primary { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-disabled { color: var(--text-disabled) !important; }
+.text-hint { color: var(--text-hint) !important; }
+
+.bg-primary { background-color: var(--background-primary) !important; }
+.bg-secondary { background-color: var(--background-secondary) !important; }
+.bg-tertiary { background-color: var(--background-tertiary) !important; }
+
+// ============================================
+// Border Utilities
+// ============================================
+
+.border-0 { border: 0 !important; }
+.border { border: 1px solid var(--divider-color) !important; }
+.border-top { border-top: 1px solid var(--divider-color) !important; }
+.border-right { border-right: 1px solid var(--divider-color) !important; }
+.border-bottom { border-bottom: 1px solid var(--divider-color) !important; }
+.border-left { border-left: 1px solid var(--divider-color) !important; }
+
+.rounded-0 { border-radius: 0 !important; }
+.rounded-sm { border-radius: var(--radius-sm) !important; }
+.rounded-md { border-radius: var(--radius-md) !important; }
+.rounded-lg { border-radius: var(--radius-lg) !important; }
+.rounded-full { border-radius: var(--radius-full) !important; }
+
+// ============================================
+// Shadow Utilities
+// ============================================
+
+.shadow-none { box-shadow: none !important; }
+.shadow-sm { @include card-elevation('sm'); }
+.shadow-md { @include card-elevation('md'); }
+.shadow-lg { @include card-elevation('lg'); }
+.shadow-xl { @include card-elevation('xl'); }
+
+// ============================================
+// Position Utilities
+// ============================================
+
+.position-static { position: static !important; }
+.position-relative { position: relative !important; }
+.position-absolute { position: absolute !important; }
+.position-fixed { position: fixed !important; }
+.position-sticky { position: sticky !important; }
+
+// ============================================
+// Size Utilities
+// ============================================
+
+.w-100 { width: 100% !important; }
+.h-100 { height: 100% !important; }
+.w-auto { width: auto !important; }
+.h-auto { height: auto !important; }
+
+// ============================================
+// Visibility Utilities
+// ============================================
+
+.visible { visibility: visible !important; }
+.invisible { visibility: hidden !important; }
+
+// ============================================
+// Overflow Utilities
+// ============================================
+
+.overflow-auto { overflow: auto !important; }
+.overflow-hidden { overflow: hidden !important; }
+.overflow-visible { overflow: visible !important; }
+.overflow-scroll { overflow: scroll !important; }
+
+.overflow-x-auto { overflow-x: auto !important; }
+.overflow-y-auto { overflow-y: auto !important; }
+.overflow-x-hidden { overflow-x: hidden !important; }
+.overflow-y-hidden { overflow-y: hidden !important; }
+
+// ============================================
+// Cursor Utilities
+// ============================================
+
+.cursor-pointer { cursor: pointer !important; }
+.cursor-default { cursor: default !important; }
+.cursor-not-allowed { cursor: not-allowed !important; }
+.cursor-wait { cursor: wait !important; }
+.cursor-move { cursor: move !important; }

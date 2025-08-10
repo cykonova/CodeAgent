@@ -1,0 +1,121 @@
+<div class="dashboard-container">
+  <h1 class="mat-headline-4 mb-lg">Theme System Test Dashboard</h1>
+  
+  <!-- Spacing Test -->
+  <section class="mb-xl">
+    <h2 class="mat-headline-6 mb-md">Spacing & Layout</h2>
+    <div class="d-flex gap-md flex-wrap">
+      <mat-card class="p-xs shadow-sm">XS Padding</mat-card>
+      <mat-card class="p-sm shadow-md">SM Padding</mat-card>
+      <mat-card class="p-md shadow-lg">MD Padding</mat-card>
+      <mat-card class="p-lg shadow-xl">LG Padding</mat-card>
+    </div>
+  </section>
+
+  <!-- Stats Cards -->
+  <section class="mb-xl">
+    <h2 class="mat-headline-6 mb-md">Statistics Cards</h2>
+    <div class="stats-grid">
+      <mat-card *ngFor="let stat of stats" class="stat-card">
+        <mat-card-content class="d-flex align-center gap-md">
+          <mat-icon [color]="stat.color" class="stat-icon">{{ stat.icon }}</mat-icon>
+          <div>
+            <p class="mat-caption text-secondary m-0">{{ stat.label }}</p>
+            <p class="mat-headline-5 m-0">{{ stat.value }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Buttons Test -->
+  <section class="mb-xl">
+    <h2 class="mat-headline-6 mb-md">Button Variants</h2>
+    <mat-card>
+      <mat-card-content class="d-flex gap-sm flex-wrap">
+        <button mat-raised-button color="primary">Primary</button>
+        <button mat-raised-button color="accent">Accent</button>
+        <button mat-raised-button color="warn">Warn</button>
+        <button mat-raised-button>Default</button>
+        <button mat-stroked-button>Stroked</button>
+        <button mat-flat-button>Flat</button>
+        <button mat-icon-button><mat-icon>favorite</mat-icon></button>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <!-- Form Fields -->
+  <section class="mb-xl">
+    <h2 class="mat-headline-6 mb-md">Form Fields</h2>
+    <mat-card>
+      <mat-card-content>
+        <div class="d-flex gap-md flex-wrap">
+          <mat-form-field appearance="fill">
+            <mat-label>Fill Input</mat-label>
+            <input matInput placeholder="Type here...">
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline">
+            <mat-label>Outline Input</mat-label>
+            <input matInput placeholder="Type here...">
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <!-- Table Test -->
+  <section class="mb-xl">
+    <h2 class="mat-headline-6 mb-md">Data Table</h2>
+    <mat-card>
+      <mat-card-content>
+        <table mat-table [dataSource]="tableData" class="w-100">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Project Name</th>
+            <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+          </ng-container>
+          
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-chip-set>
+                <mat-chip [highlighted]="element.status === 'Active'">
+                  {{ element.status }}
+                </mat-chip>
+              </mat-chip-set>
+            </td>
+          </ng-container>
+          
+          <ng-container matColumnDef="lastUpdated">
+            <th mat-header-cell *matHeaderCellDef>Last Updated</th>
+            <td mat-cell *matCellDef="let element">{{ element.lastUpdated }}</td>
+          </ng-container>
+          
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <!-- Color Palette Test -->
+  <section class="mb-xl">
+    <h2 class="mat-headline-6 mb-md">Color System</h2>
+    <mat-card>
+      <mat-card-content>
+        <div class="color-grid">
+          <div class="color-box bg-primary">Primary BG</div>
+          <div class="color-box bg-secondary">Secondary BG</div>
+          <div class="color-box bg-tertiary">Tertiary BG</div>
+        </div>
+        <mat-divider class="my-md"></mat-divider>
+        <div class="d-flex gap-md">
+          <span class="text-primary">Primary Text</span>
+          <span class="text-secondary">Secondary Text</span>
+          <span class="text-disabled">Disabled Text</span>
+          <span class="text-hint">Hint Text</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
+</div>

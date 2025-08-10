@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-sticky);
+  box-shadow: var(--shadow-sm);
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.app-content {
+  flex: 1;
+  padding: var(--spacing-lg);
+  background-color: var(--background-secondary);
+  overflow-y: auto;
+}
