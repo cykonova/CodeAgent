@@ -107,7 +107,6 @@ docker-compose down
 - No hardcoded colors - use theme variables only
 - Support light/dark mode switching
 - All text must be externalized for i18n
-- Maximum 100 lines per component file
 
 ### Backend Standards
 - Minimal API pattern for all endpoints

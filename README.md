@@ -131,9 +131,19 @@ changes prior to actually committing.
 ## Claude Limits
 After starting the rewrite for this project, on a Saturday morning.  I get
 the ever so annoying `Approaching Opus usage limit · /model to use best available model`
-warning at around 2p (3hrs in).  We're on Phase 5, half way through the project.
+warning at around 2p (3hrs in).  We're on Phase 5, halfway through the project.
 
 I push through starting phase 6.  Now claude begins randomly stopping mid phase.
 Phase 6 is the web portal, I fear I should have broken that up into smaller phases.
 I prompt it with `continue`, claude then states it's complete and updates the project status.
 The web project only has the default angular scaffolding.
+
+## Prompt Engineering
+I've seen this term several times now, I'm starting to understand its meaning a bit more.  The WebUI portion
+of this project creates a perfect example.  The amount of code and context associated with a web
+frontend is a lot larger than claude can consume.  I'm having it start over on the frontend projects.
+I've decided to dumb down the implementation to basic angular project (no nx.dev, no module federation).  I'm
+now having claude go through the original project docs and break out each step as I would for a dev 
+within a given sprint.  ie: Shared Components, Shared Services, Login Page, Registration Page, etc.  My 
+hope is I, and claude, can reduce the context size per phase.  Hopefully this will allow claude to build
+without getting lost, duplicating code, authoring projects outside the expected structure, etc.
