@@ -155,6 +155,16 @@
       }
     }
   }
+  
+  // When no sidenav is shown (auth routes)
+  &.no-sidenav {
+    height: 100vh;
+    
+    .mat-drawer-content,
+    .mat-sidenav-content {
+      margin-left: 0 !important;
+    }
+  }
 }
 
 // Sidenav styles

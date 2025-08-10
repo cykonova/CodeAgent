@@ -12,7 +12,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { Subject, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil, filter, map } from 'rxjs/operators';
+import { takeUntil, filter, map, startWith } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ThemeService } from '@core/services/theme.service';
@@ -80,6 +80,9 @@ export class AppComponent implements OnInit, OnDestroy {
   isTablet = false;
   isDesktop = true;
   
+  // Layout visibility
+  showLayout$: Observable<boolean>;
+  
   private destroy$ = new Subject<void>();
   
   constructor(
@@ -98,6 +101,17 @@ export class AppComponent implements OnInit, OnDestroy {
     this.connectionClass$ = this.webSocketService.connectionClass$;
     this.connectionText$ = this.webSocketService.connectionText$;
     this.isConnecting$ = this.webSocketService.isConnecting$;
+    
+    // Initialize layout visibility based on route
+    this.showLayout$ = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map((event: NavigationEnd) => {
+        // Hide layout for auth routes (login, register, forgot-password, etc.)
+        const authRoutes = ['/login', '/auth'];
+        return !authRoutes.some(route => event.url.startsWith(route));
+      }),
+      startWith(!this.isAuthRoute(this.router.url))
+    );
   }
   
   ngOnInit(): void {
@@ -108,6 +122,14 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+  
+  /**
+   * Check if the current route is an auth route
+   */
+  private isAuthRoute(url: string): boolean {
+    const authRoutes = ['/login', '/auth'];
+    return authRoutes.some(route => url.startsWith(route));
   }
   
   /**

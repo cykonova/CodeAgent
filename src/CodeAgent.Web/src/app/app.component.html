@@ -1,4 +1,4 @@
-<mat-toolbar color="primary" class="app-toolbar">
+<mat-toolbar *ngIf="showLayout$ | async" color="primary" class="app-toolbar">
   <!-- Menu toggle button -->
   <button 
     mat-icon-button 
@@ -99,9 +99,11 @@
 <!-- Main layout container -->
 <mat-sidenav-container class="sidenav-container" 
   [class.dark-theme]="isDarkTheme$ | async"
-  [class.sidenav-collapsed]="isCollapsed && !isMobile">
+  [class.sidenav-collapsed]="isCollapsed && !isMobile"
+  [class.no-sidenav]="!(showLayout$ | async)">
   <!-- Side navigation -->
   <mat-sidenav 
+    *ngIf="showLayout$ | async"
     #sidenav
     [mode]="(sidenavMode$ | async) || 'side'"
     [opened]="(sidenavOpened$ | async) || false"
