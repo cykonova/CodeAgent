@@ -23,21 +23,23 @@ Phase 06 implements the web-based user interface as a standard Angular applicati
 - **[06.6 - App Shell](06.6-app-shell.md)** - Main application container with toolbar
 
 ### Core Services
-- **[06.7 - WebSocket Service](06.7-websocket-service.md)** - Real-time communication
-- **[06.8 - Project List Page](06.8-project-list.md)** - Project management interface
+- **[06.7 - WebSocket Service](06.7-websocket-service.md)** - Real-time communication (handles all API calls)
+- **[06.8 - Navigation Menu](06.8-navigation-menu.md)** - Hierarchical navigation component
+- **[06.9 - Theme Service](06.9-theme-service.md)** - Theme management and switching
+- **[06.10 - Auth Service](06.10-auth-service.md)** - Authentication and authorization
 
-### Additional Components (To Be Created)
-- Status Indicator Component - Status badges and indicators
-- Metric Card Component - Dashboard metric display cards
-- API Service - REST API integration
-- Navigation Menu Component - Side navigation implementation
+### Additional Shared Components
+- **[06.11 - Shared Components](06.11-shared-components.md)** - Loading, Skeleton, Status, Progress, Empty State
 
-### Feature Pages (To Be Created)
-- Dashboard Overview - Main metrics page
-- Project Create Page - New project creation
-- Project Details Page - View/edit project
-- Chat Interface - Agent communication
-- Settings Pages - Configuration management
+### Feature Pages
+- **[06.12 - Login Page](06.12-login-page.md)** - User authentication interface
+- **[06.13 - Registration Page](06.13-registration-page.md)** - New user registration
+- **[06.14 - Project List](06.14-project-list.md)** - Project management interface
+- Dashboard Overview - Main metrics page (To Be Created)
+- Project Create Page - New project creation (To Be Created)
+- Project Details Page - View/edit project (To Be Created)
+- Chat Interface - Agent communication (To Be Created)
+- Settings Pages - Configuration management (To Be Created)
 
 ## Common UI Elements Used
 
@@ -81,15 +83,25 @@ Phase 06 implements the web-based user interface as a standard Angular applicati
 2. Theme System (06.2) ✓
 3. Site Layout (06.3) ✓
 
-### Phase 2: Core Services & Components
+### Phase 2: Core Components
 4. Card Component (06.4) ✓
 5. Table Card Component (06.5) ✓
 6. App Shell Implementation (06.6) ✓
-7. WebSocket Service (06.7) ✓
 
-### Phase 3: Feature Implementation
-8. Project List Page (06.8) ✓
-9. Additional pages and components as needed
+### Phase 3: Core Services
+7. WebSocket Service (06.7) ✓
+8. Navigation Menu (06.8) ✓
+9. Theme Service (06.9) ✓
+10. Auth Service (06.10) ✓
+
+### Phase 4: Shared Components
+11. Additional Shared Components (06.11) ✓
+
+### Phase 5: Feature Implementation
+12. Login Page (06.12) ✓
+13. Registration Page (06.13) ✓
+14. Project List Page (06.14) ✓
+15. Additional pages and components as needed
 
 ## Project Structure
 
