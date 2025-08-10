@@ -1,7 +1,5 @@
 .projects-container {
   height: 100%;
-  display: flex;
-  flex-direction: column;
   
   .project-sidenav {
     width: 600px;
@@ -54,29 +52,13 @@
   }
   
   mat-sidenav-content {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
+    padding: var(--spacing-lg);
     
     .projects-actions {
-      padding: var(--spacing-lg) var(--spacing-lg) 0;
       margin-bottom: var(--spacing-lg);
     }
     
     .projects-table-card {
-      flex: 1;
-      margin: 0 var(--spacing-lg) var(--spacing-lg);
-      display: flex;
-      flex-direction: column;
-      
-      mat-card-content {
-        flex: 1;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-      }
-      
       .card-footer {
         display: flex;
         align-items: center;
@@ -89,7 +71,6 @@
       }
       
       .projects-table {
-        flex: 1;
         width: 100%;
         
         .name-cell {
