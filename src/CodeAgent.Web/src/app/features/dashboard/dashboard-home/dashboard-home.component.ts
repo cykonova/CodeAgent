@@ -8,6 +8,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { CardComponent } from '../../../shared/components/card/card.component';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -21,7 +22,8 @@ import { MatInputModule } from '@angular/material/input';
     MatDividerModule,
     MatTableModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    CardComponent
   ],
   templateUrl: './dashboard-home.component.html',
   styleUrl: './dashboard-home.component.scss'
@@ -42,4 +44,8 @@ export class DashboardHomeComponent {
   ];
 
   displayedColumns: string[] = ['name', 'status', 'lastUpdated'];
+
+  onCardClick(): void {
+    console.log('Card clicked!');
+  }
 }
