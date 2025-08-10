@@ -42,9 +42,10 @@
 }
 
 .main-content {
-  padding: 24px;
+  padding: var(--spacing-lg);
   overflow-y: auto;
   flex: 1;
+  height: calc(100vh - 64px);
 }
 
 .user-info {

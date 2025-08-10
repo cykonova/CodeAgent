@@ -62,7 +62,7 @@ export class App implements OnInit {
     
     // Load projects
     this.projectService.getProjects().subscribe(projects => {
-      this.runningProjects = projects.filter(p => p.status === 'active').length;
+      this.runningProjects = projects.filter(p => p.state?.status === 'running').length;
     });
     
     // Load providers and check system status
