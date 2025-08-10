@@ -97,7 +97,9 @@
 </mat-menu>
 
 <!-- Main layout container -->
-<mat-sidenav-container class="sidenav-container" [class.dark-theme]="isDarkTheme$ | async">
+<mat-sidenav-container class="sidenav-container" 
+  [class.dark-theme]="isDarkTheme$ | async"
+  [class.sidenav-collapsed]="isCollapsed && !isMobile">
   <!-- Side navigation -->
   <mat-sidenav 
     #sidenav
