@@ -1,0 +1,65 @@
+
+// Import theme system
+@use '@angular/material' as mat;
+@use './styles/theme-variables';
+@use './styles/theme' as theme;
+@use './styles/utilities';
+
+// Include Angular Material core styles
+@include mat.core();
+
+// Apply light theme by default
+:root {
+  @include mat.all-component-themes(theme.$light-theme);
+}
+
+// Dark theme
+.dark-theme {
+  @include mat.all-component-themes(theme.$dark-theme);
+}
+
+// Global styles
+html, body { 
+  height: 100%; 
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+body {
+  background-color: var(--mat-background);
+  color: var(--mat-on-surface);
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+// Global resets
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--mat-primary);
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Scrollbar styling
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mat-surface-container-low);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mat-outline-variant);
+  border-radius: var(--radius-sm);
+  
+  &:hover {
+    background: var(--mat-outline);
+  }
+}

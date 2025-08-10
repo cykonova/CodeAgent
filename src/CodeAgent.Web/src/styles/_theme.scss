@@ -1,0 +1,101 @@
+// Angular Material Theme Configuration
+// =====================================
+
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+// Define custom color palettes
+// Using Material 3 color system
+$primary-palette: mat.$blue-palette;
+$accent-palette: mat.$orange-palette;
+$warn-palette: mat.$red-palette;
+
+// Light Theme Configuration
+$light-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: $primary-palette,
+    tertiary: $accent-palette,
+  ),
+  typography: (
+    brand-family: 'Roboto, "Helvetica Neue", sans-serif',
+    plain-family: 'Roboto, "Helvetica Neue", sans-serif',
+  ),
+  density: (
+    scale: 0,
+  )
+));
+
+// Dark Theme Configuration
+$dark-theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+    primary: $primary-palette,
+    tertiary: $accent-palette,
+  ),
+  typography: (
+    brand-family: 'Roboto, "Helvetica Neue", sans-serif',
+    plain-family: 'Roboto, "Helvetica Neue", sans-serif',
+  ),
+  density: (
+    scale: 0,
+  )
+));
+
+// Helper mixins for accessing theme colors
+@mixin theme-colors($theme) {
+  $color-config: mat.get-theme-color($theme, primary);
+  
+  // Surface colors
+  --mat-surface: #{mat.get-theme-color($theme, surface)};
+  --mat-surface-variant: #{mat.get-theme-color($theme, surface-variant)};
+  --mat-background: #{mat.get-theme-color($theme, surface-container)};
+  --mat-surface-container-low: #{mat.get-theme-color($theme, surface-container-low)};
+  --mat-surface-container: #{mat.get-theme-color($theme, surface-container)};
+  --mat-surface-container-high: #{mat.get-theme-color($theme, surface-container-high)};
+  
+  // Primary colors
+  --mat-primary: #{mat.get-theme-color($theme, primary)};
+  --mat-on-primary: #{mat.get-theme-color($theme, on-primary)};
+  --mat-primary-container: #{mat.get-theme-color($theme, primary-container)};
+  --mat-on-primary-container: #{mat.get-theme-color($theme, on-primary-container)};
+  
+  // Secondary colors
+  --mat-secondary: #{mat.get-theme-color($theme, secondary)};
+  --mat-on-secondary: #{mat.get-theme-color($theme, on-secondary)};
+  --mat-secondary-container: #{mat.get-theme-color($theme, secondary-container)};
+  --mat-on-secondary-container: #{mat.get-theme-color($theme, on-secondary-container)};
+  
+  // Tertiary colors
+  --mat-tertiary: #{mat.get-theme-color($theme, tertiary)};
+  --mat-on-tertiary: #{mat.get-theme-color($theme, on-tertiary)};
+  --mat-tertiary-container: #{mat.get-theme-color($theme, tertiary-container)};
+  --mat-on-tertiary-container: #{mat.get-theme-color($theme, on-tertiary-container)};
+  
+  // Error colors
+  --mat-error: #{mat.get-theme-color($theme, error)};
+  --mat-on-error: #{mat.get-theme-color($theme, on-error)};
+  --mat-error-container: #{mat.get-theme-color($theme, error-container)};
+  --mat-on-error-container: #{mat.get-theme-color($theme, on-error-container)};
+  
+  // Text colors
+  --mat-on-surface: #{mat.get-theme-color($theme, on-surface)};
+  --mat-on-surface-variant: #{mat.get-theme-color($theme, on-surface-variant)};
+  --mat-outline: #{mat.get-theme-color($theme, outline)};
+  --mat-outline-variant: #{mat.get-theme-color($theme, outline-variant)};
+  
+  // Inverse colors
+  --mat-inverse-surface: #{mat.get-theme-color($theme, inverse-surface)};
+  --mat-inverse-on-surface: #{mat.get-theme-color($theme, inverse-on-surface)};
+  --mat-inverse-primary: #{mat.get-theme-color($theme, inverse-primary)};
+}
+
+// Apply light theme colors
+:root {
+  @include theme-colors($light-theme);
+}
+
+// Apply dark theme colors
+.dark-theme {
+  @include theme-colors($dark-theme);
+}
