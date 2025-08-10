@@ -68,3 +68,38 @@ select {
     scroll-behavior: auto !important;
   }
 }
+
+// Material Button Overrides - More squared appearance
+// Override MDC CSS variables for consistent button shapes
+:root {
+  --mdc-filled-button-container-shape: var(--button-radius);
+  --mdc-outlined-button-container-shape: var(--button-radius);
+  --mdc-text-button-container-shape: var(--button-radius);
+  --mdc-protected-button-container-shape: var(--button-radius);
+  --mdc-elevated-button-container-shape: var(--button-radius);
+  
+  // FAB button shapes
+  --mdc-fab-container-shape: var(--radius-sm);
+  --mdc-fab-small-container-shape: var(--radius-sm);
+}
+
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-flat-button,
+.mat-mdc-stroked-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button {
+  border-radius: var(--button-radius) !important;
+}
+
+// Keep icon buttons circular
+.mat-mdc-icon-button {
+  border-radius: var(--radius-full) !important;
+  --mdc-icon-button-container-shape: var(--radius-full);
+}
+
+// Squared appearance for FAB buttons
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  border-radius: var(--radius-sm) !important;
+}
