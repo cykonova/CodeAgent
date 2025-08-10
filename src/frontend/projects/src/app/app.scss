@@ -18,12 +18,12 @@
     }
     
     .sidenav-content {
-      padding: 0;
-      height: calc(100% - 73px);
+      padding: var(--spacing-lg);
+      height: calc(100% - 73px - var(--spacing-lg) * 2);
       overflow-y: auto;
       
       .project-form {
-        padding: var(--spacing-lg);
+        padding: 0;
       }
       
       .form-grid {
@@ -56,7 +56,7 @@
         gap: var(--spacing-sm);
         padding: var(--spacing-lg);
         padding-top: var(--spacing-md);
-        margin: 0 calc(var(--spacing-lg) * -1);
+        margin: var(--spacing-lg) calc(var(--spacing-lg) * -1) calc(var(--spacing-lg) * -1);
         border-top: 1px solid var(--mat-divider-color);
       }
     }
