@@ -98,6 +98,16 @@ $dark-theme: mat.define-theme((
 }
 
 // ============================================
+// Material Component Shape Overrides
+// ============================================
+:root {
+  // Remove rounded corners from sidenav
+  --mat-sidenav-container-shape: 0;
+  --mdc-list-list-item-container-shape: 0;
+  --mdc-list-list-item-leading-avatar-shape: 0;
+}
+
+// ============================================
 // Material Overrides & Extensions
 // ============================================
 

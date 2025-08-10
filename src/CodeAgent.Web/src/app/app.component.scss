@@ -45,6 +45,54 @@
   }
 }
 
+// Connection status indicator
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-right: var(--spacing-lg);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    
+    &.connecting {
+      animation: spin 1s linear infinite;
+    }
+  }
+  
+  .connection-text {
+    @media (max-width: 767px) {
+      display: none;
+    }
+  }
+  
+  &.connection-connected {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+  }
+  
+  &.connection-connecting {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: #FF9800;
+  }
+  
+  &.connection-disconnected {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #F44336;
+  }
+  
+  &.connection-error {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #F44336;
+  }
+}
+
 // Loading animation
 @keyframes spin {
   from { transform: rotate(0deg); }
@@ -97,9 +145,9 @@
   background: var(--surface-primary);
   border-right: 1px solid var(--divider-color);
   
-  // Collapsed state (future feature)
+  // Collapsed state
   &.collapsed {
-    width: 64px;
+    width: 72px; // Slightly wider for better icon spacing
     
     .nav-list {
       .mat-list-item-title {
@@ -108,6 +156,15 @@
       
       .nav-section h3 {
         display: none;
+      }
+      
+      a[mat-list-item] {
+        justify-content: center;
+        padding: var(--spacing-md);
+        
+        mat-icon {
+          margin: 0;
+        }
       }
     }
   }
@@ -152,17 +209,20 @@
     a[mat-list-item] {
       height: 48px;
       padding: 0 var(--spacing-md);
-      border-radius: 0;
+      border-radius: 0 !important; // Force no border radius
       transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
       
       &:hover {
         background-color: var(--hover-overlay);
       }
       
       &.active {
-        background-color: var(--primary-color);
         background-color: rgba(var(--primary-rgb), 0.1);
         color: var(--primary-color);
+        border-left: 3px solid var(--primary-color);
+        padding-left: calc(var(--spacing-md) - 3px); // Adjust for border
         
         mat-icon {
           color: var(--primary-color);
@@ -172,6 +232,9 @@
       mat-icon {
         margin-right: var(--spacing-md);
         color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       
       .nav-badge {
@@ -242,6 +305,21 @@
   .sidenav-footer {
     background: var(--background-primary);
   }
+  
+  .connection-status {
+    &.connection-connected {
+      background-color: rgba(76, 175, 80, 0.2);
+    }
+    
+    &.connection-connecting {
+      background-color: rgba(255, 152, 0, 0.2);
+    }
+    
+    &.connection-disconnected,
+    &.connection-error {
+      background-color: rgba(244, 67, 54, 0.2);
+    }
+  }
 }
 
 // Print styles
@@ -283,5 +361,21 @@ a:focus-visible {
   .mat-drawer-transition .mat-drawer-content {
     transition-duration: 0.3s;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  // Remove rounded corners from all list items in sidenav
+  .app-sidenav {
+    .mat-mdc-list-item {
+      border-radius: 0 !important;
+      
+      &:hover {
+        border-radius: 0 !important;
+      }
+    }
+    
+    .mdc-list-item__primary-text {
+      display: flex;
+      align-items: center;
+    }
   }
 }

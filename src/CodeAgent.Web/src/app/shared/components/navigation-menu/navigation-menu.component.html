@@ -1,0 +1,48 @@
+<mat-nav-list class="nav-list" [class.collapsed]="collapsed">
+  @for (section of navSections; track section.title) {
+    <div class="nav-section">
+      @if (!collapsed) {
+        <h3 matSubheader>{{ section.title }}</h3>
+      }
+
+      @for (item of section.items; track item.route) {
+        <a
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          (click)="onItemClick(item)"
+          [matTooltip]="collapsed ? item.label : ''"
+          matTooltipPosition="right"
+          class="nav-item">
+
+          <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
+
+          @if (!collapsed) {
+              <span>{{ item.label }}</span>
+
+              @if (item.badge) {
+                <span
+                  matBadge="{{ item.badge }}"
+                  [matBadgeColor]="item.badgeColor || 'primary'"
+                  matBadgeSize="small"
+                  class="nav-badge">
+                </span>
+              }
+          }
+        </a>
+      }
+    </div>
+  }
+
+  <!-- Version info at bottom -->
+  <div class="nav-footer">
+    <mat-divider></mat-divider>
+    <div class="version-info" [class.collapsed]="collapsed">
+      @if (!collapsed) {
+        <small>Version 1.0.0</small>
+      } @else {
+        <small>v1.0</small>
+      }
+    </div>
+  </div>
+</mat-nav-list>

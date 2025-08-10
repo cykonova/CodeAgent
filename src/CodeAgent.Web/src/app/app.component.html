@@ -14,10 +14,11 @@
   <!-- Spacer to push items to the right -->
   <span class="toolbar-spacer"></span>
   
-  <!-- Loading indicator -->
-  @if (isLoading) {
-    <mat-icon class="loading-spinner" aria-label="Loading">autorenew</mat-icon>
-  }
+  <!-- Connection status indicator -->
+  <div class="connection-status" [ngClass]="connectionClass$ | async">
+    <mat-icon [class.connecting]="isConnecting$ | async">{{ connectionIcon$ | async }}</mat-icon>
+    <span class="connection-text">{{ connectionText$ | async }}</span>
+  </div>
   
   <!-- Notifications -->
   <button 
@@ -96,85 +97,23 @@
 </mat-menu>
 
 <!-- Main layout container -->
-<mat-sidenav-container class="sidenav-container">
+<mat-sidenav-container class="sidenav-container" [class.dark-theme]="isDarkTheme$ | async">
   <!-- Side navigation -->
   <mat-sidenav 
     #sidenav
-    [mode]="sidenavMode"
-    [opened]="sidenavOpened"
+    [mode]="(sidenavMode$ | async) || 'side'"
+    [opened]="(sidenavOpened$ | async) || false"
     [fixedInViewport]="false"
     class="app-sidenav"
     [class.mobile-sidenav]="isMobile"
-    [class.tablet-sidenav]="isTablet">
+    [class.tablet-sidenav]="isTablet"
+    [class.collapsed]="isCollapsed">
     
-    <!-- Navigation menu content -->
-    <mat-nav-list class="nav-list">
-      <!-- Dashboard -->
-      <a mat-list-item routerLink="/dashboard" routerLinkActive="active" (click)="onSidenavClick()">
-        <mat-icon matListItemIcon>dashboard</mat-icon>
-        <span matListItemTitle>Dashboard</span>
-      </a>
-      
-      <!-- Projects section -->
-      <div class="nav-section">
-        <h3 matSubheader>Projects</h3>
-        <a mat-list-item routerLink="/projects" routerLinkActive="active" (click)="onSidenavClick()">
-          <mat-icon matListItemIcon>folder</mat-icon>
-          <span matListItemTitle>All Projects</span>
-        </a>
-        <a mat-list-item routerLink="/projects/new" routerLinkActive="active" (click)="onSidenavClick()">
-          <mat-icon matListItemIcon>add_circle</mat-icon>
-          <span matListItemTitle>Create New</span>
-        </a>
-        <a mat-list-item routerLink="/projects/templates" routerLinkActive="active" (click)="onSidenavClick()">
-          <mat-icon matListItemIcon>content_copy</mat-icon>
-          <span matListItemTitle>Templates</span>
-        </a>
-      </div>
-      
-      <!-- Agents section -->
-      <div class="nav-section">
-        <h3 matSubheader>Agents</h3>
-        <a mat-list-item routerLink="/agents" routerLinkActive="active" (click)="onSidenavClick()">
-          <mat-icon matListItemIcon>smart_toy</mat-icon>
-          <span matListItemTitle>Running Agents</span>
-          <span matBadge="2" matBadgeColor="accent" matBadgeSize="small" class="nav-badge"></span>
-        </a>
-        <a mat-list-item routerLink="/agents/types" routerLinkActive="active" (click)="onSidenavClick()">
-          <mat-icon matListItemIcon>category</mat-icon>
-          <span matListItemTitle>Agent Types</span>
-        </a>
-        <a mat-list-item routerLink="/agents/logs" routerLinkActive="active" (click)="onSidenavClick()">
-          <mat-icon matListItemIcon>history</mat-icon>
-          <span matListItemTitle>Logs</span>
-        </a>
-      </div>
-      
-      <!-- Settings section -->
-      <div class="nav-section">
-        <h3 matSubheader>Settings</h3>
-        <a mat-list-item routerLink="/settings/profile" routerLinkActive="active" (click)="onSidenavClick()">
-          <mat-icon matListItemIcon>person</mat-icon>
-          <span matListItemTitle>Profile</span>
-        </a>
-        <a mat-list-item routerLink="/settings/preferences" routerLinkActive="active" (click)="onSidenavClick()">
-          <mat-icon matListItemIcon>tune</mat-icon>
-          <span matListItemTitle>Preferences</span>
-        </a>
-        <a mat-list-item routerLink="/settings/api-keys" routerLinkActive="active" (click)="onSidenavClick()">
-          <mat-icon matListItemIcon>vpn_key</mat-icon>
-          <span matListItemTitle>API Keys</span>
-        </a>
-      </div>
-    </mat-nav-list>
-    
-    <!-- Sidenav footer -->
-    <div class="sidenav-footer">
-      <mat-divider></mat-divider>
-      <div class="version-info">
-        <small>Version 1.0.0</small>
-      </div>
-    </div>
+    <!-- Navigation menu component -->
+    <app-navigation-menu 
+      [collapsed]="isCollapsed"
+      (itemClick)="onNavItemClick()">
+    </app-navigation-menu>
   </mat-sidenav>
   
   <!-- Main content area -->

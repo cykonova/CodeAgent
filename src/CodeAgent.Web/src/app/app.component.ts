@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -11,8 +11,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule } from '@angular/material/list';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
-import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { Subject, BehaviorSubject, Observable } from 'rxjs';
+import { takeUntil, filter, map } from 'rxjs/operators';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { MatSidenav } from '@angular/material/sidenav';
+import { ThemeService } from '@core/services/theme.service';
+import { WebSocketService, ConnectionState } from '@core/services/websocket.service';
+import { NavigationMenuComponent } from '@shared/components/navigation-menu/navigation-menu.component';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +28,7 @@ import { takeUntil, filter } from 'rxjs/operators';
     RouterLink,
     RouterLinkActive,
     ThemeToggleComponent,
+    NavigationMenuComponent,
     MatToolbarModule,
     MatSidenavModule,
     MatButtonModule,
@@ -38,28 +44,65 @@ import { takeUntil, filter } from 'rxjs/operators';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Code Agent';
   
+  // ViewChild for sidenav reference
+  @ViewChild('sidenav') sidenav!: MatSidenav;
+  
   // Sidenav state
-  sidenavOpened = true;
-  sidenavMode: 'side' | 'over' = 'side';
+  sidenavOpened$ = new BehaviorSubject<boolean>(true);
+  sidenavMode$ = new BehaviorSubject<'side' | 'over' | 'push'>('side');
+  isCollapsed = false;
+  
+  // Theme state
+  isDarkTheme$: Observable<boolean>;
+  
+  // WebSocket connection state
+  connectionState$: Observable<ConnectionState>;
+  connectionIcon$: Observable<string>;
+  connectionClass$: Observable<string>;
+  connectionText$: Observable<string>;
+  isConnecting$: Observable<boolean>;
+  
+  // Notifications
+  notificationCount = 3;
+  notifications = [
+    { type: 'info', icon: 'info', message: 'Agent completed successfully' },
+    { type: 'warning', icon: 'warning', message: 'Build failed in project X' },
+    { type: 'success', icon: 'check_circle', message: 'Deployment completed' }
+  ];
+  
+  // User information
+  userName = 'User Name';
+  userEmail = 'user@example.com';
   
   // Responsive state
   isMobile = false;
   isTablet = false;
   isDesktop = true;
   
-  // Loading state
-  isLoading = false;
-  
   private destroy$ = new Subject<void>();
   
   constructor(
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    private themeService: ThemeService,
+    private webSocketService: WebSocketService
+  ) {
+    // Initialize theme observable
+    this.isDarkTheme$ = toObservable(this.themeService.theme).pipe(
+      map(theme => theme === 'dark')
+    );
+    
+    // Initialize WebSocket observables
+    this.connectionState$ = this.webSocketService.connectionState;
+    this.connectionIcon$ = this.webSocketService.connectionIcon$;
+    this.connectionClass$ = this.webSocketService.connectionClass$;
+    this.connectionText$ = this.webSocketService.connectionText$;
+    this.isConnecting$ = this.webSocketService.isConnecting$;
+  }
   
   ngOnInit(): void {
-    this.setupResponsiveLayout();
+    this.setupResponsiveSidenav();
     this.setupRouterEvents();
   }
   
@@ -68,7 +111,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
   
-  private setupResponsiveLayout(): void {
+  /**
+   * Setup responsive sidenav behavior
+   */
+  private setupResponsiveSidenav(): void {
     // Define breakpoints
     const mobileQuery = '(max-width: 767px)';
     const tabletQuery = '(min-width: 768px) and (max-width: 1023px)';
@@ -84,54 +130,92 @@ export class AppComponent implements OnInit, OnDestroy {
         this.isDesktop = result.breakpoints[desktopQuery];
         
         // Update sidenav behavior based on breakpoint
-        if (this.isMobile || this.isTablet) {
-          this.sidenavMode = 'over';
-          this.sidenavOpened = false;
+        if (this.isMobile) {
+          this.sidenavMode$.next('over');
+          this.sidenavOpened$.next(false);
+          this.isCollapsed = false; // Don't collapse on mobile
+        } else if (this.isTablet) {
+          this.sidenavMode$.next('over');
+          this.sidenavOpened$.next(false);
+          this.isCollapsed = false;
         } else {
-          this.sidenavMode = 'side';
-          this.sidenavOpened = true;
+          this.sidenavMode$.next('side');
+          this.sidenavOpened$.next(true);
+          // Keep collapsed state on desktop
         }
         
         this.cdr.markForCheck();
       });
   }
   
+  /**
+   * Setup router events for navigation handling
+   */
   private setupRouterEvents(): void {
-    // Handle loading states during navigation
     this.router.events
       .pipe(
         takeUntil(this.destroy$),
-        filter(event => 
-          event instanceof NavigationStart || 
-          event instanceof NavigationEnd || 
-          event instanceof NavigationCancel || 
-          event instanceof NavigationError
-        )
+        filter(event => event instanceof NavigationEnd)
       )
-      .subscribe(event => {
-        if (event instanceof NavigationStart) {
-          this.isLoading = true;
-        } else {
-          this.isLoading = false;
-          
-          // Auto-close sidenav on mobile after navigation
-          if (this.isMobile && this.sidenavOpened) {
-            this.sidenavOpened = false;
-          }
+      .subscribe(() => {
+        // Auto-close sidenav on mobile after navigation
+        if (this.isMobile && this.sidenavOpened$.value) {
+          this.sidenavOpened$.next(false);
         }
-        
-        this.cdr.markForCheck();
       });
   }
   
+  /**
+   * Toggle sidenav open/closed or collapsed state
+   */
   toggleSidenav(): void {
-    this.sidenavOpened = !this.sidenavOpened;
+    if (this.isDesktop && this.sidenavOpened$.value) {
+      // On desktop, toggle between expanded and collapsed
+      this.isCollapsed = !this.isCollapsed;
+    } else {
+      // On mobile/tablet or when closed, toggle open/closed
+      this.sidenavOpened$.next(!this.sidenavOpened$.value);
+      if (this.sidenavOpened$.value) {
+        this.isCollapsed = false;
+      }
+    }
   }
   
-  onSidenavClick(): void {
-    // Close sidenav on mobile when clicking a link
+  /**
+   * Handle navigation item click
+   */
+  onNavItemClick(): void {
+    // Close sidenav on mobile after navigation
     if (this.isMobile || this.isTablet) {
-      this.sidenavOpened = false;
+      this.sidenavOpened$.next(false);
     }
+  }
+  
+  /**
+   * Toggle theme between light and dark
+   */
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+  
+  /**
+   * Navigate to all notifications page
+   */
+  viewAllNotifications(): void {
+    this.router.navigate(['/notifications']);
+  }
+  
+  /**
+   * Logout user
+   */
+  logout(): void {
+    // TODO: Implement logout logic
+    console.log('Logout clicked');
+    // This would typically:
+    // 1. Clear auth tokens
+    // 2. Disconnect WebSocket
+    // 3. Navigate to login page
+    this.webSocketService.disconnect();
+    this.router.navigate(['/login']);
   }
 }
