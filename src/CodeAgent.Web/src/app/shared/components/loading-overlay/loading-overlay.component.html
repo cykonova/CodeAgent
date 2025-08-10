@@ -1,0 +1,8 @@
+<div class="loading-overlay" 
+     [class.visible]="visible"
+     [class.fullscreen]="fullscreen">
+  <div class="loading-content">
+    <mat-spinner [diameter]="spinnerSize"></mat-spinner>
+    <div class="loading-message" *ngIf="message">{{ message }}</div>
+  </div>
+</div>

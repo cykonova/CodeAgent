@@ -1,0 +1,41 @@
+<div class="progress-indicator">
+  <!-- Linear progress -->
+  <div *ngIf="type === 'linear'" class="linear-progress">
+    <mat-progress-bar 
+      [mode]="mode"
+      [value]="value"
+      [color]="color">
+    </mat-progress-bar>
+    <div class="progress-info" *ngIf="showInfo">
+      <span class="progress-label">{{ label }}</span>
+      <span class="progress-value">{{ value }}%</span>
+    </div>
+  </div>
+  
+  <!-- Circular progress -->
+  <div *ngIf="type === 'circular'" class="circular-progress">
+    <mat-progress-spinner
+      [mode]="mode"
+      [value]="value"
+      [diameter]="diameter"
+      [color]="color">
+    </mat-progress-spinner>
+    <div class="progress-text" *ngIf="showInfo">
+      {{ value }}%
+    </div>
+  </div>
+  
+  <!-- Step progress -->
+  <div *ngIf="type === 'steps'" class="step-progress">
+    <div class="step" 
+         *ngFor="let step of steps; let i = index"
+         [class.active]="i === currentStep"
+         [class.completed]="i < currentStep">
+      <div class="step-indicator">
+        <mat-icon *ngIf="i < currentStep">check</mat-icon>
+        <span *ngIf="i >= currentStep">{{ i + 1 }}</span>
+      </div>
+      <div class="step-label">{{ step }}</div>
+    </div>
+  </div>
+</div>

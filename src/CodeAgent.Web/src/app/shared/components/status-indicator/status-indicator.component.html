@@ -1,0 +1,13 @@
+<div class="status-indicator" 
+     [class]="'status-' + status"
+     [class.with-label]="showLabel"
+     [class.pulse]="pulse"
+     [matTooltip]="tooltip">
+  <div class="status-dot" *ngIf="style === 'dot'"></div>
+  <mat-icon *ngIf="style === 'icon'" [inline]="true">
+    {{ getIcon() }}
+  </mat-icon>
+  <span class="status-label" *ngIf="showLabel">
+    {{ label || getLabel() }}
+  </span>
+</div>
