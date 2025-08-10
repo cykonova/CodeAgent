@@ -1,0 +1,192 @@
+<mat-sidenav-container class="projects-container">
+  <!-- Right sidenav for create/edit form -->
+  <mat-sidenav #sidenav mode="over" position="end" [opened]="sidenavOpened" class="project-sidenav">
+    <div class="sidenav-header">
+      <h2>{{ editMode ? 'Edit Project' : 'Create New Project' }}</h2>
+      <button mat-icon-button (click)="closeSidenav()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="sidenav-content">
+      <form [formGroup]="projectForm" (ngSubmit)="saveProject()" class="project-form">
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Project Name</mat-label>
+            <input matInput formControlName="name" required>
+            <mat-error *ngIf="projectForm.get('name')?.hasError('required')">Name is required</mat-error>
+            <mat-error *ngIf="projectForm.get('name')?.hasError('minlength')">Name must be at least 3 characters</mat-error>
+          </mat-form-field>
+
+          <mat-form-field *ngIf="!editMode" appearance="outline">
+            <mat-label>Project Path</mat-label>
+            <input matInput formControlName="path" placeholder="/path/to/project" required>
+            <mat-error>Path is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Project Type</mat-label>
+            <mat-select formControlName="type" required>
+              <mat-option *ngFor="let type of projectTypes" [value]="type">
+                {{ type }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+
+          <mat-form-field appearance="outline">
+            <mat-label>Language</mat-label>
+            <input matInput formControlName="language" placeholder="e.g., TypeScript, Python">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Framework</mat-label>
+            <input matInput formControlName="framework" placeholder="e.g., Angular, React, Django">
+          </mat-form-field>
+
+          <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Build Command</mat-label>
+            <input matInput formControlName="buildCommand" placeholder="e.g., npm run build">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Test Command</mat-label>
+            <input matInput formControlName="testCommand" placeholder="e.g., npm test">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Start Command</mat-label>
+            <input matInput formControlName="startCommand" placeholder="e.g., npm start">
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="closeSidenav()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!projectForm.valid">
+            {{ editMode ? 'Update' : 'Create' }} Project
+          </button>
+        </div>
+      </form>
+    </div>
+  </mat-sidenav>
+
+  <!-- Main content -->
+  <mat-sidenav-content>
+    <!-- Create/Edit actions toolbar -->
+    <div class="projects-actions">
+      <button mat-raised-button color="primary" (click)="openCreateProject()">
+        <mat-icon>add</mat-icon>
+        New Project
+      </button>
+    </div>
+
+    <!-- Projects Table -->
+    <mat-card class="projects-table-card">
+      <mat-card-header>
+        <mat-card-title>Projects</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isLoading) {
+          <lib-skeleton-loader type="table" [rows]="[1, 2, 3, 4, 5]" [columns]="[1, 2, 3, 4, 5, 6]"></lib-skeleton-loader>
+        } @else {
+          <div *ngIf="projects.length === 0" class="no-projects">
+          <mat-icon>folder_off</mat-icon>
+          <h3>No Projects Found</h3>
+          <p>Create your first project to get started</p>
+        </div>
+
+        <table mat-table [dataSource]="projects" *ngIf="projects.length > 0" class="projects-table">
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let project" class="name-cell">
+              <div class="project-name">
+                <div>
+                  <strong>{{ project.name }}</strong>
+                  <small>{{ project.configuration?.workingDirectory || 'No path' }}</small>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Type Column -->
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let project" class="type-cell">
+              <mat-chip>{{ project.type }}</mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let project" class="status-cell">
+              <mat-chip [color]="getStatusColor(project.state?.status || 'idle')" selected>
+                {{ project.state?.status || 'idle' }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Last Run Column -->
+          <ng-container matColumnDef="lastRun">
+            <th mat-header-cell *matHeaderCellDef>Last Run</th>
+            <td mat-cell *matCellDef="let project" class="lastrun-cell">
+              {{ project.state?.lastRunAt ? (project.state.lastRunAt | date:'short') : 'Never' }}
+            </td>
+          </ng-container>
+
+          <!-- Updated Column -->
+          <ng-container matColumnDef="updated">
+            <th mat-header-cell *matHeaderCellDef>Last Updated</th>
+            <td mat-cell *matCellDef="let project" class="updated-cell">
+              {{ project.updatedAt | date:'short' }}
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+            <td mat-cell *matCellDef="let project" class="actions-cell">
+              <button mat-icon-button (click)="openProject(project)" matTooltip="Open">
+                <mat-icon>open_in_new</mat-icon>
+              </button>
+              <button mat-icon-button (click)="editProject(project)" matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button 
+                      (click)="pauseProject(project)" 
+                      *ngIf="project.state?.status === 'running'"
+                      matTooltip="Pause">
+                <mat-icon>pause</mat-icon>
+              </button>
+              <button mat-icon-button (click)="deleteProject(project)" matTooltip="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        }
+      </mat-card-content>
+      <mat-card-actions class="card-footer">
+        <button mat-icon-button (click)="loadProjects()" matTooltip="Refresh">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <div class="spacer"></div>
+        <mat-paginator 
+          [length]="projects.length"
+          [pageSize]="10"
+          [pageSizeOptions]="[5, 10, 25, 50]"
+          aria-label="Select page of projects">
+        </mat-paginator>
+      </mat-card-actions>
+    </mat-card>
+  </mat-sidenav-content>
+</mat-sidenav-container>

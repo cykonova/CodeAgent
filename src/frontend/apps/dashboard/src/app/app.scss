@@ -1,0 +1,167 @@
+.dashboard-container {
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  
+  h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 400;
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.dashboard-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.status-alert {
+  margin-bottom: 24px;
+  background-color: #f44336;
+  color: white;
+  
+  &.warning {
+    background-color: #ff9800;
+  }
+  
+  mat-card-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.activity-card {
+  .activity-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .no-activity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    opacity: 0.5;
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+    }
+  }
+  
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-details {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      
+      .activity-title {
+        font-weight: 500;
+      }
+      
+      .activity-time {
+        font-size: 12px;
+        opacity: 0.7;
+      }
+    }
+  }
+}
+
+.quick-actions-card {
+  .quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    button {
+      justify-content: flex-start;
+      
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.health-card {
+  .health-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  
+  .health-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 4px;
+    background-color: rgba(0,0,0,0.02);
+    
+    .health-label {
+      font-weight: 500;
+    }
+    
+    .health-status {
+      &.online {
+        color: #4caf50;
+      }
+      
+      &.warning {
+        color: #ff9800;
+      }
+      
+      &:not(.online):not(.warning) {
+        color: #f44336;
+      }
+    }
+  }
+}

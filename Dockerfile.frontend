@@ -14,14 +14,13 @@ RUN npm ci
 # Copy source code
 COPY src/frontend/ ./
 
-# Build only the shell application which now includes all routes
+# Build just the shell application (it includes all routes via lazy loading)
 RUN npx nx build shell --configuration=production
 
 # Runtime stage - using nginx to serve the static files
 FROM nginx:alpine
 
-# Copy the main shell app files (from browser subdirectory)
-# This now contains all the application code
+# Copy the shell app (includes all lazy-loaded routes)
 COPY --from=build /app/dist/apps/shell/browser /usr/share/nginx/html
 
 # Create nginx configuration for SPA routing

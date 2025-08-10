@@ -12,26 +12,26 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'chat',
-    loadChildren: () =>
-      import('chat/Module').then(m => m.RemoteEntryModule),
+    loadComponent: () =>
+      import('../../../chat/src/app/chat.component').then(m => m.ChatComponent),
     canActivate: [authGuard]
   },
   {
     path: 'dashboard',
-    loadChildren: () =>
-      import('dashboard/Module').then(m => m.RemoteEntryModule),
+    loadComponent: () =>
+      import('../../../dashboard/src/app/dashboard-placeholder').then(m => m.DashboardPlaceholder),
     canActivate: [authGuard]
   },
   {
     path: 'projects',
-    loadChildren: () =>
-      import('projects/Module').then(m => m.RemoteEntryModule),
+    loadComponent: () =>
+      import('../../../projects/src/app/app').then(m => m.App),
     canActivate: [authGuard]
   },
   {
     path: 'settings',
-    loadChildren: () =>
-      import('settings/Module').then(m => m.RemoteEntryModule),
+    loadComponent: () =>
+      import('../../../settings/src/app/settings.component').then(m => m.SettingsComponent),
     canActivate: [authGuard]
   },
   {

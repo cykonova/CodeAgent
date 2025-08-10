@@ -1,0 +1,106 @@
+<div class="chat-container">
+  <mat-card class="chat-header">
+    <div class="header-content">
+      <div class="session-info">
+        <h2>{{ currentSession?.title || 'Chat' }}</h2>
+        <mat-chip-set>
+          <mat-chip *ngIf="selectedAgent">
+            <mat-icon>smart_toy</mat-icon>
+            {{ selectedAgent }}
+          </mat-chip>
+          <mat-chip *ngIf="selectedProvider">
+            <mat-icon>dns</mat-icon>
+            {{ selectedProvider }}
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+      <div class="header-actions">
+        <button mat-icon-button (click)="newSession()" matTooltip="New Session">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button (click)="clearChat()" matTooltip="Clear Chat">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-card>
+
+  <mat-card class="chat-settings">
+    <div class="settings-row">
+      <mat-form-field appearance="outline" class="setting-field">
+        <mat-label>Agent</mat-label>
+        <mat-select [(ngModel)]="selectedAgent">
+          <mat-option value="">Default</mat-option>
+          <mat-option *ngFor="let agent of availableAgents" [value]="agent.id">
+            {{ agent.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="setting-field">
+        <mat-label>Provider</mat-label>
+        <mat-select [(ngModel)]="selectedProvider">
+          <mat-option value="">Default</mat-option>
+          <mat-option *ngFor="let provider of availableProviders" [value]="provider.id">
+            {{ provider.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </mat-card>
+
+  <mat-card class="chat-messages">
+    <div class="messages-container" #messagesContainer>
+      <div *ngIf="messages.length === 0" class="empty-state">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <p>Start a conversation</p>
+      </div>
+
+      <div *ngFor="let message of messages" class="message" [ngClass]="getMessageClass(message.role)">
+        <div class="message-header">
+          <mat-icon *ngIf="message.role === 'user'">person</mat-icon>
+          <mat-icon *ngIf="message.role === 'assistant'">smart_toy</mat-icon>
+          <mat-icon *ngIf="message.role === 'system'">info</mat-icon>
+          <span class="message-role">{{ message.role }}</span>
+          <span class="message-time">{{ formatTimestamp(message.timestamp) }}</span>
+        </div>
+        <div class="message-content" [innerHTML]="message.content"></div>
+      </div>
+
+      <div *ngIf="isLoading" class="loading-indicator">
+        <lib-progress-indicator 
+          type="dots" 
+          size="medium"
+          label="Assistant is thinking...">
+        </lib-progress-indicator>
+      </div>
+    </div>
+  </mat-card>
+
+  <mat-card class="chat-input">
+    <div class="input-container">
+      <mat-form-field appearance="outline" class="message-field">
+        <mat-label>Type your message</mat-label>
+        <textarea
+          matInput
+          #messageInput
+          [(ngModel)]="inputMessage"
+          (keydown.enter)="handleEnterKey($event)"
+          rows="3"
+          placeholder="Ask anything..."
+        ></textarea>
+        <mat-hint>Press Enter to send, Shift+Enter for new line</mat-hint>
+      </mat-form-field>
+
+      <button
+        mat-fab
+        color="primary"
+        (click)="sendMessage()"
+        [disabled]="!inputMessage.trim() || isLoading"
+        class="send-button"
+      >
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+  </mat-card>
+</div>
