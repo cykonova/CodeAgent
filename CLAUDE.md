@@ -163,3 +163,4 @@ When implementing a phase:
 
 - Angular 20 web frontend
 - Use theme based padding and margins, in cases where theme padding/margin isn't enough add calc relative to the theme spacing.
+- Always rebuild the docker container(s) for UAT
