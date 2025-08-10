@@ -90,9 +90,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private webSocketService: WebSocketService
   ) {
     // Initialize theme observable
-    this.isDarkTheme$ = toObservable(this.themeService.theme).pipe(
-      map(theme => theme === 'dark')
-    );
+    this.isDarkTheme$ = this.themeService.isDarkMode$;
     
     // Initialize WebSocket observables
     this.connectionState$ = this.webSocketService.connectionState$;

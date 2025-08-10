@@ -4,11 +4,20 @@
 @import 'styles/theme';
 @import 'styles/utilities';
 
+// Define theme-aware custom properties
+:root {
+  // These will be overridden by ThemeService
+  --theme-background: #fafafa;
+  --theme-surface: #ffffff;
+  --theme-text-primary: rgba(0, 0, 0, 0.87);
+}
+
 // Global styles
 html, body { 
   height: 100%; 
-  background-color: var(--background-primary);
-  color: var(--text-primary);
+  background-color: var(--theme-background);
+  color: var(--theme-text-primary);
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 body { 
@@ -102,4 +111,48 @@ select {
 .mat-mdc-fab,
 .mat-mdc-mini-fab {
   border-radius: var(--radius-sm) !important;
+}
+
+// App container with theme variables
+.app-container {
+  background-color: var(--theme-background);
+  color: var(--theme-text-primary);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+// Smooth theme transitions for all elements
+* {
+  transition: background-color 200ms ease, 
+              color 200ms ease,
+              border-color 200ms ease;
+}
+
+// Disable transitions temporarily when switching themes
+.theme-transition-none * {
+  transition: none !important;
+}
+
+// Custom scrollbar theming
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--theme-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-scrollbar-thumb);
+  border-radius: 4px;
+  
+  &:hover {
+    background: var(--theme-scrollbar-thumb-hover);
+  }
+}
+
+// Firefox scrollbar
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-scrollbar-thumb) var(--theme-scrollbar-track);
 }
