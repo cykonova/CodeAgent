@@ -16,7 +16,8 @@ import { takeUntil, filter, map } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ThemeService } from '@core/services/theme.service';
-import { WebSocketService, ConnectionState } from '@core/services/websocket.service';
+import { WebSocketService } from '@core/services/websocket.service';
+import { WebSocketState } from '@core/models/websocket.model';
 import { NavigationMenuComponent } from '@shared/components/navigation-menu/navigation-menu.component';
 
 @Component({
@@ -56,7 +57,7 @@ export class AppComponent implements OnInit, OnDestroy {
   isDarkTheme$: Observable<boolean>;
   
   // WebSocket connection state
-  connectionState$: Observable<ConnectionState>;
+  connectionState$: Observable<WebSocketState>;
   connectionIcon$: Observable<string>;
   connectionClass$: Observable<string>;
   connectionText$: Observable<string>;
@@ -94,7 +95,7 @@ export class AppComponent implements OnInit, OnDestroy {
     );
     
     // Initialize WebSocket observables
-    this.connectionState$ = this.webSocketService.connectionState;
+    this.connectionState$ = this.webSocketService.connectionState$;
     this.connectionIcon$ = this.webSocketService.connectionIcon$;
     this.connectionClass$ = this.webSocketService.connectionClass$;
     this.connectionText$ = this.webSocketService.connectionText$;

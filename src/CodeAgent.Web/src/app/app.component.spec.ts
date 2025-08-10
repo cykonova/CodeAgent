@@ -6,7 +6,8 @@ import { of, BehaviorSubject } from 'rxjs';
 import { signal } from '@angular/core';
 import { AppComponent } from './app.component';
 import { ThemeService } from '@core/services/theme.service';
-import { WebSocketService, ConnectionState } from '@core/services/websocket.service';
+import { WebSocketService } from '@core/services/websocket.service';
+import { WebSocketState } from '@core/models/websocket.model';
 import { NavigationMenuComponent } from '@shared/components/navigation-menu/navigation-menu.component';
 import { ThemeToggleComponent } from '@shared/components/theme-toggle/theme-toggle.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -26,7 +27,7 @@ describe('AppComponent', () => {
   let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
   let mockBreakpointObserver: jasmine.SpyObj<BreakpointObserver>;
   let mockRouter: jasmine.SpyObj<Router>;
-  let connectionStateSubject: BehaviorSubject<ConnectionState>;
+  let connectionStateSubject: BehaviorSubject<WebSocketState>;
 
   beforeEach(async () => {
     // Create mock services
@@ -34,9 +35,9 @@ describe('AppComponent', () => {
       theme: signal('light')
     });
     
-    connectionStateSubject = new BehaviorSubject<ConnectionState>('disconnected');
+    connectionStateSubject = new BehaviorSubject<WebSocketState>(WebSocketState.Disconnected);
     mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['disconnect'], {
-      connectionState: connectionStateSubject.asObservable(),
+      connectionState$: connectionStateSubject.asObservable(),
       connectionIcon$: of('error'),
       connectionClass$: of('connection-disconnected'),
       connectionText$: of('Disconnected'),
@@ -140,10 +141,10 @@ describe('AppComponent', () => {
 
   describe('Connection Status', () => {
     it('should update connection status when WebSocket state changes', (done) => {
-      connectionStateSubject.next('connected');
+      connectionStateSubject.next(WebSocketState.Connected);
       
       component.connectionState$.subscribe(state => {
-        expect(state).toBe('connected');
+        expect(state).toBe(WebSocketState.Connected);
         done();
       });
     });

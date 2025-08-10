@@ -1,71 +1,100 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Observable, BehaviorSubject, timer, of } from 'rxjs';
-import { map, switchMap, distinctUntilChanged } from 'rxjs/operators';
-
-export type ConnectionState = 'connected' | 'connecting' | 'disconnected' | 'error';
-
-export interface WebSocketConfig {
-  url: string;
-  reconnectInterval?: number;
-  reconnectAttempts?: number;
-}
+import { Injectable, OnDestroy } from '@angular/core';
+import { 
+  Subject, 
+  Observable, 
+  BehaviorSubject, 
+  timer, 
+  throwError,
+  fromEvent,
+  EMPTY
+} from 'rxjs';
+import { 
+  retryWhen, 
+  tap, 
+  delayWhen, 
+  filter,
+  map,
+  takeUntil,
+  catchError,
+  distinctUntilChanged
+} from 'rxjs/operators';
+import { 
+  MessageEnvelope,
+  ServerResponse,
+  WebSocketMessageType, 
+  WebSocketConfig,
+  WebSocketState
+} from '../models/websocket.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WebSocketService {
-  private socket: WebSocket | null = null;
-  private connectionState$ = new BehaviorSubject<ConnectionState>('disconnected');
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectInterval = 3000;
+export class WebSocketService implements OnDestroy {
+  private socket?: WebSocket;
+  private config: WebSocketConfig = {
+    url: 'ws://localhost:8080/ws',
+    reconnect: true,
+    reconnectInterval: 5000,
+    reconnectAttempts: 5,
+    heartbeatInterval: 30000
+  };
   
-  // Public observables
-  public readonly connectionState = this.connectionState$.asObservable();
+  private messagesSubject = new Subject<ServerResponse>();
+  private connectionStateSubject = new BehaviorSubject<WebSocketState>(
+    WebSocketState.Disconnected
+  );
+  private destroy$ = new Subject<void>();
+  private messageQueue: MessageEnvelope[] = [];
+  private reconnectAttempt = 0;
+  private heartbeatTimer?: any;
   
-  // Computed observables for UI
-  public readonly isConnected$ = this.connectionState.pipe(
-    map(state => state === 'connected'),
+  public messages$ = this.messagesSubject.asObservable();
+  public connectionState$ = this.connectionStateSubject.asObservable();
+  
+  // Computed observables for UI compatibility
+  public readonly isConnected$ = this.connectionState$.pipe(
+    map(state => state === WebSocketState.Connected),
     distinctUntilChanged()
   );
   
-  public readonly isConnecting$ = this.connectionState.pipe(
-    map(state => state === 'connecting'),
+  public readonly isConnecting$ = this.connectionState$.pipe(
+    map(state => state === WebSocketState.Connecting),
     distinctUntilChanged()
   );
   
-  public readonly connectionIcon$ = this.connectionState.pipe(
+  public readonly connectionIcon$ = this.connectionState$.pipe(
     map(state => {
       switch (state) {
-        case 'connected':
+        case WebSocketState.Connected:
           return 'check_circle';
-        case 'connecting':
+        case WebSocketState.Connecting:
+        case WebSocketState.Reconnecting:
           return 'sync';
-        case 'disconnected':
+        case WebSocketState.Disconnected:
           return 'error';
-        case 'error':
-          return 'warning';
         default:
           return 'help';
       }
     })
   );
   
-  public readonly connectionClass$ = this.connectionState.pipe(
-    map(state => `connection-${state}`)
+  public readonly connectionClass$ = this.connectionState$.pipe(
+    map(state => `connection-${state.toLowerCase()}`)
   );
   
-  public readonly connectionText$ = this.connectionState.pipe(
+  public readonly connectionText$ = this.connectionState$.pipe(
     map(state => {
       switch (state) {
-        case 'connected':
+        case WebSocketState.Connected:
           return 'Connected';
-        case 'connecting':
+        case WebSocketState.Connecting:
           return 'Connecting...';
-        case 'disconnected':
+        case WebSocketState.Reconnecting:
+          return 'Reconnecting...';
+        case WebSocketState.Disconnected:
           return 'Disconnected';
-        case 'error':
-          return 'Connection Error';
+        case WebSocketState.Disconnecting:
+          return 'Disconnecting...';
         default:
           return 'Unknown';
       }
@@ -73,72 +102,183 @@ export class WebSocketService {
   );
   
   constructor() {
-    // Auto-connect on service initialization
-    // In a real app, this would use actual WebSocket URL from config
-    this.simulateConnection();
+    // Auto-connect on service creation
+    this.connect();
   }
   
-  /**
-   * Connect to WebSocket server
-   */
+  ngOnDestroy() {
+    this.disconnect();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  
   connect(url?: string): void {
-    // For now, simulate connection
-    this.simulateConnection();
+    if (url) {
+      this.config.url = url;
+    }
+    
+    if (this.socket?.readyState === WebSocket.OPEN) {
+      console.log('WebSocket already connected');
+      return;
+    }
+    
+    this.connectionStateSubject.next(WebSocketState.Connecting);
+    
+    try {
+      this.socket = new WebSocket(this.config.url);
+      this.setupSocketListeners();
+    } catch (error) {
+      console.error('WebSocket connection error:', error);
+      this.handleReconnection();
+    }
   }
   
-  /**
-   * Disconnect from WebSocket server
-   */
+  private setupSocketListeners(): void {
+    if (!this.socket) return;
+    
+    this.socket.onopen = (event) => {
+      console.log('WebSocket connected');
+      this.connectionStateSubject.next(WebSocketState.Connected);
+      this.reconnectAttempt = 0;
+      this.flushMessageQueue();
+      this.startHeartbeat();
+    };
+    
+    this.socket.onmessage = (event) => {
+      try {
+        const response: ServerResponse = JSON.parse(event.data);
+        
+        // Handle pong messages internally
+        if (response.type === 'pong') {
+          return;
+        }
+        
+        this.messagesSubject.next(response);
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+    
+    this.socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+    
+    this.socket.onclose = (event) => {
+      console.log('WebSocket disconnected', event);
+      this.connectionStateSubject.next(WebSocketState.Disconnected);
+      this.stopHeartbeat();
+      
+      if (this.config.reconnect && !event.wasClean) {
+        this.handleReconnection();
+      }
+    };
+  }
+  
+  private handleReconnection(): void {
+    if (this.reconnectAttempt >= this.config.reconnectAttempts) {
+      console.error('Max reconnection attempts reached');
+      return;
+    }
+    
+    this.reconnectAttempt++;
+    this.connectionStateSubject.next(WebSocketState.Reconnecting);
+    
+    console.log(`Reconnecting... Attempt ${this.reconnectAttempt}`);
+    
+    setTimeout(() => {
+      this.connect();
+    }, this.config.reconnectInterval);
+  }
+  
   disconnect(): void {
     if (this.socket) {
+      this.connectionStateSubject.next(WebSocketState.Disconnecting);
+      this.config.reconnect = false;
       this.socket.close();
-      this.socket = null;
-    }
-    this.connectionState$.next('disconnected');
-  }
-  
-  /**
-   * Send message through WebSocket
-   */
-  send(message: any): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(message));
+      this.socket = undefined;
+      this.stopHeartbeat();
     }
   }
   
-  /**
-   * Simulate connection for demo purposes
-   * In production, this would be replaced with actual WebSocket connection
-   */
-  private simulateConnection(): void {
-    this.connectionState$.next('connecting');
+  send<T = any>(type: string, payload?: T, correlationId?: string): void {
+    const message: MessageEnvelope<T> = {
+      Type: type,
+      Payload: payload,
+      CorrelationId: correlationId
+    };
     
-    // Simulate connection delay
-    timer(1500).subscribe(() => {
-      this.connectionState$.next('connected');
-    });
-  }
-  
-  /**
-   * Handle reconnection logic
-   */
-  private reconnect(): void {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      this.connectionState$.next('connecting');
-      
-      timer(this.reconnectInterval).subscribe(() => {
-        this.connect();
-      });
+    if (this.socket?.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify(message));
     } else {
-      this.connectionState$.next('error');
+      // Queue message for later delivery
+      this.messageQueue.push(message);
+      console.log('Message queued for delivery:', message);
     }
   }
   
-  /**
-   * Reset reconnection attempts
-   */
-  private resetReconnectAttempts(): void {
-    this.reconnectAttempts = 0;
+  private flushMessageQueue(): void {
+    while (this.messageQueue.length > 0) {
+      const message = this.messageQueue.shift();
+      if (message && this.socket?.readyState === WebSocket.OPEN) {
+        this.socket.send(JSON.stringify(message));
+      }
+    }
+  }
+  
+  private startHeartbeat(): void {
+    this.stopHeartbeat();
+    
+    this.heartbeatTimer = setInterval(() => {
+      if (this.socket?.readyState === WebSocket.OPEN) {
+        // Match backend's ping format
+        const pingMessage = JSON.stringify({ type: 'ping' });
+        this.socket.send(pingMessage);
+      }
+    }, this.config.heartbeatInterval);
+  }
+  
+  private stopHeartbeat(): void {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = undefined;
+    }
+  }
+  
+  // Observable for specific response types
+  on<T extends ServerResponse = ServerResponse>(type: string): Observable<T> {
+    return this.messages$.pipe(
+      filter(message => message.type === type),
+      map(message => message as T)
+    );
+  }
+  
+  // Request-response pattern with correlation ID
+  request<TRequest, TResponse extends ServerResponse>(
+    type: string, 
+    payload?: TRequest
+  ): Observable<TResponse> {
+    const correlationId = this.generateId();
+    
+    // Send the request with correlation ID
+    this.send(type, payload, correlationId);
+    
+    // Wait for correlated response (backend should echo correlationId)
+    return this.messages$.pipe(
+      filter(msg => (msg as any).correlationId === correlationId),
+      map(msg => msg as TResponse),
+      takeUntil(timer(30000)) // 30 second timeout
+    );
+  }
+  
+  private generateId(): string {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  isConnected(): boolean {
+    return this.socket?.readyState === WebSocket.OPEN;
+  }
+  
+  getConnectionState(): WebSocketState {
+    return this.connectionStateSubject.value;
   }
 }

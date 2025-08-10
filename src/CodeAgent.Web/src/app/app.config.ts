@@ -1,10 +1,16 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { WebSocketAuthInterceptor } from './core/interceptors/websocket-auth.interceptor';
+
+// Factory function to initialize WebSocketAuthInterceptor
+export function initializeWebSocketAuth(interceptor: WebSocketAuthInterceptor) {
+  return () => Promise.resolve();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +22,14 @@ export const appConfig: ApplicationConfig = {
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
       useValue: { appearance: 'outline' }
+    },
+    // WebSocket Auth Interceptor
+    WebSocketAuthInterceptor,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeWebSocketAuth,
+      deps: [WebSocketAuthInterceptor],
+      multi: true
     }
   ]
 };
