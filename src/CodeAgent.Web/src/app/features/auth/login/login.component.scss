@@ -1,0 +1,177 @@
+@use '@angular/material' as mat;
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: var(--mdc-protected-button-container-height);
+  background: var(--mat-app-background-color);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: calc(var(--mdc-protected-button-container-height) * 0.5);
+  
+  mat-card-header {
+    text-align: center;
+    margin-bottom: calc(var(--mdc-protected-button-container-height) * 0.75);
+    
+    mat-card-title {
+      font-size: 1.75rem;
+      margin-bottom: calc(var(--mdc-protected-button-container-height) * 0.25);
+    }
+    
+    mat-card-subtitle {
+      font-size: 1rem;
+      opacity: 0.7;
+    }
+  }
+  
+  mat-card-content {
+    padding: 0 calc(var(--mdc-protected-button-container-height) * 0.5);
+  }
+  
+  mat-card-footer {
+    padding: calc(var(--mdc-protected-button-container-height) * 0.5);
+    text-align: center;
+    border-top: 1px solid var(--mat-divider-color);
+    margin-top: calc(var(--mdc-protected-button-container-height) * 0.5);
+  }
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: calc(var(--mdc-protected-button-container-height) * 0.5);
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: calc(var(--mdc-protected-button-container-height) * 0.75);
+  
+  .forgot-password-link {
+    color: var(--mat-primary-text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.submit-button {
+  margin-top: calc(var(--mdc-protected-button-container-height) * 0.25);
+  height: calc(var(--mdc-protected-button-container-height) * 1.2);
+  font-size: 1rem;
+  
+  .button-spinner {
+    display: inline-block;
+    margin-right: calc(var(--mdc-protected-button-container-height) * 0.25);
+    vertical-align: middle;
+  }
+}
+
+.register-prompt {
+  display: flex;
+  gap: calc(var(--mdc-protected-button-container-height) * 0.25);
+  justify-content: center;
+  align-items: center;
+  
+  span {
+    color: var(--mat-app-text-color);
+    opacity: 0.7;
+  }
+  
+  .register-link {
+    color: var(--mat-primary-text);
+    text-decoration: none;
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 600px) {
+  .login-container {
+    padding: calc(var(--mdc-protected-button-container-height) * 0.5);
+  }
+  
+  .login-card {
+    max-width: 100%;
+    box-shadow: none;
+    
+    mat-card-header {
+      mat-card-title {
+        font-size: 1.5rem;
+      }
+      
+      mat-card-subtitle {
+        font-size: 0.875rem;
+      }
+    }
+    
+    mat-card-content {
+      padding: 0;
+    }
+  }
+  
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--mdc-protected-button-container-height) * 0.5);
+    
+    .forgot-password-link {
+      align-self: flex-start;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .login-container {
+    background: var(--mat-app-background-color);
+  }
+  
+  .login-card {
+    background: var(--mat-card-background-color);
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .login-card {
+    border: 2px solid var(--mat-divider-color);
+  }
+  
+  .submit-button:focus {
+    outline: 3px solid var(--mat-primary-text);
+    outline-offset: 2px;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Focus indicators for accessibility
+.login-card {
+  input:focus,
+  button:focus,
+  a:focus,
+  mat-checkbox:focus {
+    outline: 2px solid var(--mat-primary-text);
+    outline-offset: 2px;
+  }
+}
