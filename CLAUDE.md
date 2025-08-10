@@ -162,3 +162,4 @@ When implementing a phase:
 4. Include help text and examples
 
 - Angular 20 web frontend
+- Use theme based padding and margins, in cases where theme padding/margin isn't enough add calc relative to the theme spacing.

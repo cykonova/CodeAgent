@@ -75,11 +75,5 @@ export class ProjectService {
     return this.api.post(`/projects/${projectId}/workflows/${workflowId}/execute`, {});
   }
 
-  archiveProject(id: string): Observable<Project> {
-    return this.updateProject(id, { status: 'archived' as any });
-  }
 
-  activateProject(id: string): Observable<Project> {
-    return this.updateProject(id, { status: 'active' as any });
-  }
 }

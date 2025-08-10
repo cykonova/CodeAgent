@@ -10,6 +10,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService, User } from '@code-agent/auth';
+import { HeaderService } from '@code-agent/data-access';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -32,6 +33,7 @@ import { Observable } from 'rxjs';
 export class App implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private headerService = inject(HeaderService);
   
   protected title = 'Code Agent';
   protected sidenavOpened = true;
@@ -42,6 +44,14 @@ export class App implements OnInit {
   ngOnInit(): void {
     this.isAuthenticated$ = this.authService.isAuthenticated$;
     this.currentUser$ = this.authService.currentUser$;
+    
+    this.headerService.pageTitle$.subscribe(pageTitle => {
+      if (pageTitle) {
+        this.title = `Code Agent - ${pageTitle}`;
+      } else {
+        this.title = 'Code Agent';
+      }
+    });
   }
 
   toggleSidenav(): void {

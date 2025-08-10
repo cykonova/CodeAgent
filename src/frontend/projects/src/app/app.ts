@@ -13,12 +13,15 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { 
   ProjectService, 
   Project, 
   ProjectType, 
   ProjectStatus,
-  CreateProjectRequest 
+  CreateProjectRequest,
+  HeaderService 
 } from '@src/data-access';
 import { SkeletonLoaderComponent } from '@src/ui-components';
 
@@ -40,6 +43,8 @@ import { SkeletonLoaderComponent } from '@src/ui-components';
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatSidenavModule,
+    MatPaginatorModule,
     SkeletonLoaderComponent
   ],
   templateUrl: './app.html',
@@ -48,10 +53,12 @@ import { SkeletonLoaderComponent } from '@src/ui-components';
 export class App implements OnInit {
   protected title = 'Projects';
   projects: Project[] = [];
-  displayedColumns = ['name', 'type', 'status', 'agents', 'updated', 'actions'];
+  displayedColumns = ['name', 'type', 'status', 'lastRun', 'updated', 'actions'];
   isLoading = true;
-  showCreateForm = false;
-  createForm: FormGroup;
+  sidenavOpened = false;
+  editMode = false;
+  selectedProject: Project | null = null;
+  projectForm: FormGroup;
   
   projectTypes = Object.values(ProjectType);
   projectStatuses = Object.values(ProjectStatus);
@@ -60,13 +67,14 @@ export class App implements OnInit {
     private projectService: ProjectService,
     private fb: FormBuilder,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private headerService: HeaderService
   ) {
-    this.createForm = this.fb.group({
+    this.projectForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
       path: ['', Validators.required],
-      type: [ProjectType.WebApplication, Validators.required],
+      type: [ProjectType.Standard, Validators.required],
       language: [''],
       framework: [''],
       buildCommand: [''],
@@ -76,6 +84,7 @@ export class App implements OnInit {
   }
 
   ngOnInit(): void {
+    this.headerService.setPageTitle('Projects');
     this.loadProjects();
   }
 
@@ -94,35 +103,63 @@ export class App implements OnInit {
     });
   }
 
-  createProject(): void {
-    if (this.createForm.valid) {
-      const formValue = this.createForm.value;
-      const request: CreateProjectRequest = {
-        name: formValue.name,
-        description: formValue.description,
-        path: formValue.path,
-        type: formValue.type,
-        configuration: {
-          language: formValue.language,
-          framework: formValue.framework,
-          buildCommand: formValue.buildCommand,
-          testCommand: formValue.testCommand,
-          startCommand: formValue.startCommand
-        }
-      };
+  saveProject(): void {
+    if (this.projectForm.valid) {
+      const formValue = this.projectForm.value;
+      
+      if (this.editMode && this.selectedProject) {
+        // Update existing project
+        const updateRequest = {
+          name: formValue.name,
+          description: formValue.description,
+          configuration: {
+            language: formValue.language,
+            framework: formValue.framework,
+            buildCommand: formValue.buildCommand,
+            testCommand: formValue.testCommand,
+            startCommand: formValue.startCommand
+          }
+        };
+        
+        this.projectService.updateProject(this.selectedProject.id, updateRequest).subscribe({
+          next: (project) => {
+            this.showSuccess(`Project "${project.name}" updated successfully`);
+            this.closeSidenav();
+            this.loadProjects();
+          },
+          error: (error) => {
+            console.error('Failed to update project:', error);
+            this.showError('Failed to update project');
+          }
+        });
+      } else {
+        // Create new project
+        const request: CreateProjectRequest = {
+          name: formValue.name,
+          description: formValue.description,
+          type: formValue.type,
+          configuration: {
+            workingDirectory: formValue.path,
+            language: formValue.language,
+            framework: formValue.framework,
+            buildCommand: formValue.buildCommand,
+            testCommand: formValue.testCommand,
+            startCommand: formValue.startCommand
+          }
+        };
 
-      this.projectService.createProject(request).subscribe({
-        next: (project) => {
-          this.showSuccess(`Project "${project.name}" created successfully`);
-          this.showCreateForm = false;
-          this.createForm.reset();
-          this.loadProjects();
-        },
-        error: (error) => {
-          console.error('Failed to create project:', error);
-          this.showError('Failed to create project');
-        }
-      });
+        this.projectService.createProject(request).subscribe({
+          next: (project) => {
+            this.showSuccess(`Project "${project.name}" created successfully`);
+            this.closeSidenav();
+            this.loadProjects();
+          },
+          error: (error) => {
+            console.error('Failed to create project:', error);
+            this.showError('Failed to create project');
+          }
+        });
+      }
     }
   }
 
@@ -131,9 +168,35 @@ export class App implements OnInit {
     this.showSuccess(`Opened project "${project.name}"`);
   }
 
+  openCreateProject(): void {
+    this.editMode = false;
+    this.selectedProject = null;
+    this.projectForm.reset({
+      type: ProjectType.Standard
+    });
+    this.sidenavOpened = true;
+  }
+
   editProject(project: Project): void {
-    // TODO: Implement edit dialog
-    console.log('Edit project:', project);
+    this.editMode = true;
+    this.selectedProject = project;
+    this.projectForm.patchValue({
+      name: project.name,
+      description: project.description,
+      type: project.type,
+      language: project.configuration?.language,
+      framework: project.configuration?.framework,
+      buildCommand: project.configuration?.buildCommand,
+      testCommand: project.configuration?.testCommand,
+      startCommand: project.configuration?.startCommand
+    });
+    this.sidenavOpened = true;
+  }
+
+  closeSidenav(): void {
+    this.sidenavOpened = false;
+    this.selectedProject = null;
+    this.projectForm.reset();
   }
 
   deleteProject(project: Project): void {
@@ -151,28 +214,24 @@ export class App implements OnInit {
     }
   }
 
-  archiveProject(project: Project): void {
-    this.projectService.archiveProject(project.id).subscribe({
-      next: () => {
-        this.showSuccess(`Project "${project.name}" archived`);
-        this.loadProjects();
-      },
-      error: (error) => {
-        console.error('Failed to archive project:', error);
-        this.showError('Failed to archive project');
-      }
-    });
+  pauseProject(project: Project): void {
+    // TODO: Implement pause functionality
+    this.showSuccess(`Project "${project.name}" paused`);
   }
 
   getStatusColor(status: ProjectStatus): string {
     switch (status) {
-      case ProjectStatus.Active:
+      case ProjectStatus.Running:
         return 'primary';
-      case ProjectStatus.Inactive:
+      case ProjectStatus.Idle:
         return 'accent';
-      case ProjectStatus.Archived:
+      case ProjectStatus.Paused:
+        return 'accent';
+      case ProjectStatus.Completed:
+        return 'primary';
+      case ProjectStatus.Failed:
         return 'warn';
-      case ProjectStatus.Error:
+      case ProjectStatus.Cancelled:
         return 'warn';
       default:
         return '';
@@ -181,20 +240,16 @@ export class App implements OnInit {
 
   getTypeIcon(type: ProjectType): string {
     switch (type) {
-      case ProjectType.WebApplication:
-        return 'web';
-      case ProjectType.API:
-        return 'api';
-      case ProjectType.Library:
-        return 'library_books';
-      case ProjectType.Microservice:
-        return 'hub';
-      case ProjectType.Mobile:
-        return 'phone_android';
-      case ProjectType.Desktop:
-        return 'desktop_windows';
-      case ProjectType.CLI:
-        return 'terminal';
+      case ProjectType.Standard:
+        return 'folder';
+      case ProjectType.Fast:
+        return 'speed';
+      case ProjectType.Quality:
+        return 'verified';
+      case ProjectType.Budget:
+        return 'savings';
+      case ProjectType.Custom:
+        return 'tune';
       default:
         return 'folder';
     }

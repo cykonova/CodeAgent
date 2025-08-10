@@ -10,3 +10,4 @@ export * from './lib/services/api.service';
 export * from './lib/services/provider.service';
 export * from './lib/services/project.service';
 export * from './lib/services/agent.service';
+export * from './lib/services/header.service';
