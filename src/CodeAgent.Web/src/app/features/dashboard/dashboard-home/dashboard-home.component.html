@@ -233,4 +233,18 @@
       </div>
     </app-card>
   </section>
+
+  <!-- Table Card Component Showcase -->
+  <section class="mb-xl">
+    <h2 class="mat-headline-6 mb-md">Table Card Component</h2>
+    
+    <!-- Full-featured Table Card -->
+    <app-table-card
+      title="Active Projects"
+      subtitle="Monitor and manage your projects"
+      [data]="projectData"
+      [config]="tableConfig"
+      (rowClick)="onProjectSelect($event)">
+    </app-table-card>
+  </section>
 </div>

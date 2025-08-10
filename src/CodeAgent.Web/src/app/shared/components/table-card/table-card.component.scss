@@ -1,0 +1,110 @@
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+table {
+  width: 100%;
+}
+
+// Striped rows
+.striped {
+  tr.mat-row:nth-child(even) {
+    background-color: var(--surface-variant);
+  }
+}
+
+// Hoverable rows
+.hoverable {
+  tr.mat-row:hover {
+    background-color: var(--surface-hover);
+    cursor: pointer;
+  }
+}
+
+// Header cells
+th.mat-header-cell {
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--text-primary);
+}
+
+// Data cells
+td.mat-cell {
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--text-primary);
+}
+
+th.mat-header-cell {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+// No data row
+.no-data-row td {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+// Status badge
+.status-badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium, 500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.status-active {
+    background-color: var(--color-success);
+    color: var(--color-on-success);
+  }
+
+  &.status-inactive {
+    background-color: var(--color-neutral);
+    color: var(--color-on-neutral);
+  }
+
+  &.status-pending {
+    background-color: var(--color-warning);
+    color: var(--color-on-warning);
+  }
+
+  &.status-error {
+    background-color: var(--color-error);
+    color: var(--color-on-error);
+  }
+
+  &.status-default {
+    background-color: var(--surface-variant);
+    color: var(--text-primary);
+  }
+}
+
+// Action buttons
+button.mat-icon-button {
+  margin-left: calc(var(--spacing-xs) / 2);
+}
+
+// Paginator styling
+mat-paginator {
+  border-top: 1px solid var(--divider);
+}
+
+.mat-mdc-paginator {
+  border-radius: var(--mdc-elevated-card-container-shape, var(--mat-app-corner-medium));
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  td.mat-cell,
+  th.mat-header-cell {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .status-badge {
+    font-size: 0.65rem;
+    padding: calc(var(--spacing-xs) / 2) var(--spacing-xs);
+  }
+}

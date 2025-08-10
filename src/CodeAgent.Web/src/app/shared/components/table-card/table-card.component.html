@@ -1,0 +1,77 @@
+<app-card [title]="title" [subtitle]="subtitle" padding="none">
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSource" matSort [ngClass]="tableClasses">
+
+      <!-- Dynamic columns -->
+      <ng-container *ngFor="let column of config.columns" [matColumnDef]="column.key">
+        <th mat-header-cell *matHeaderCellDef
+            [mat-sort-header]="column.sortable ? column.key : ''"
+            [disabled]="!column.sortable"
+            [style.width]="column.width"
+            [style.text-align]="column.align || 'left'">
+          {{ column.label }}
+        </th>
+        <td mat-cell *matCellDef="let element"
+            [style.text-align]="column.align || 'left'">
+          <!-- Status type -->
+          <span *ngIf="column.type === 'status'"
+                class="status-badge"
+                [ngClass]="getStatusClass(getColumnValue(element, column))">
+            {{ getColumnValue(element, column) }}
+          </span>
+          <!-- Date type -->
+          <span *ngIf="column.type === 'date'">
+            {{ getColumnValue(element, column) | date:'short' }}
+          </span>
+          <!-- Number type -->
+          <span *ngIf="column.type === 'number'">
+            {{ getColumnValue(element, column) | number }}
+          </span>
+          <!-- Text type or default -->
+          <span *ngIf="!column.type || column.type === 'text'">
+            {{ getColumnValue(element, column) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions column -->
+      <ng-container matColumnDef="actions" *ngIf="config.actions && config.actions.length > 0">
+        <th mat-header-cell *matHeaderCellDef [style.text-align]="'right'">
+          Actions
+        </th>
+        <td mat-cell *matCellDef="let element" [style.text-align]="'right'">
+          <button mat-icon-button
+                  *ngFor="let action of config.actions"
+                  [color]="action.color || 'primary'"
+                  [matTooltip]="action.label"
+                  (click)="action.callback(element); $event.stopPropagation()">
+            <mat-icon>{{ action.icon }}</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Header row -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+      <!-- Data rows -->
+      <tr mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          (click)="onRowClick(row)">
+      </tr>
+
+      <!-- No data row -->
+      <tr class="mat-row no-data-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          No data available
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Paginator -->
+  <mat-paginator *ngIf="config.showPagination !== false"
+                 [pageSizeOptions]="getPageSizeOptions()"
+                 [pageSize]="getPageSize()"
+                 showFirstLastButtons>
+  </mat-paginator>
+</app-card>

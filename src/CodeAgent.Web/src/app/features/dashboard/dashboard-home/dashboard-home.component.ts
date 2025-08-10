@@ -9,6 +9,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CardComponent } from '../../../shared/components/card/card.component';
+import { TableCardComponent } from '../../../shared/components/table-card/table-card.component';
+import { TableConfig } from '../../../shared/models/table.model';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -23,7 +25,8 @@ import { CardComponent } from '../../../shared/components/card/card.component';
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
-    CardComponent
+    CardComponent,
+    TableCardComponent
   ],
   templateUrl: './dashboard-home.component.html',
   styleUrl: './dashboard-home.component.scss'
@@ -45,7 +48,70 @@ export class DashboardHomeComponent {
 
   displayedColumns: string[] = ['name', 'status', 'lastUpdated'];
 
+  // Sample data for table card
+  projectData = [
+    { id: 1, name: 'E-Commerce Scraper', status: 'Active', created: new Date('2024-01-15'), agents: 3, progress: 75 },
+    { id: 2, name: 'Code Review Bot', status: 'Pending', created: new Date('2024-02-01'), agents: 2, progress: 30 },
+    { id: 3, name: 'Data Pipeline', status: 'Active', created: new Date('2024-01-20'), agents: 5, progress: 90 },
+    { id: 4, name: 'Test Automation', status: 'Inactive', created: new Date('2023-12-10'), agents: 0, progress: 100 },
+    { id: 5, name: 'Documentation Generator', status: 'Error', created: new Date('2024-02-10'), agents: 1, progress: 45 },
+    { id: 6, name: 'API Monitor', status: 'Active', created: new Date('2024-02-05'), agents: 4, progress: 60 },
+    { id: 7, name: 'Security Scanner', status: 'Pending', created: new Date('2024-02-12'), agents: 2, progress: 15 },
+    { id: 8, name: 'Performance Tester', status: 'Active', created: new Date('2024-01-25'), agents: 3, progress: 80 }
+  ];
+
+  tableConfig: TableConfig = {
+    columns: [
+      { key: 'name', label: 'Project Name', sortable: true },
+      { key: 'status', label: 'Status', type: 'status', width: '120px' },
+      { key: 'created', label: 'Created', type: 'date', sortable: true },
+      { key: 'agents', label: 'Agents', type: 'number', align: 'center', width: '80px' },
+      { key: 'progress', label: 'Progress (%)', type: 'number', align: 'center', width: '100px', sortable: true }
+    ],
+    actions: [
+      { 
+        icon: 'visibility', 
+        label: 'View Details', 
+        color: 'primary', 
+        callback: (row) => this.viewProject(row) 
+      },
+      { 
+        icon: 'edit', 
+        label: 'Edit', 
+        color: 'primary', 
+        callback: (row) => this.editProject(row) 
+      },
+      { 
+        icon: 'delete', 
+        label: 'Delete', 
+        color: 'warn', 
+        callback: (row) => this.deleteProject(row) 
+      }
+    ],
+    pageSize: 5,
+    pageSizeOptions: [5, 10, 25, 50],
+    showPagination: true,
+    striped: true,
+    hoverable: true
+  };
+
   onCardClick(): void {
     console.log('Card clicked!');
+  }
+
+  onProjectSelect(project: any): void {
+    console.log('Project selected:', project);
+  }
+
+  viewProject(project: any): void {
+    console.log('View project:', project);
+  }
+
+  editProject(project: any): void {
+    console.log('Edit project:', project);
+  }
+
+  deleteProject(project: any): void {
+    console.log('Delete project:', project);
   }
 }
